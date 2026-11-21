@@ -5,6 +5,8 @@ import {
   LOCALE_COOKIE,
   THEME_COOKIE,
   getDirection,
+  normalizeLocale,
+  normalizeTheme,
   type Locale,
   type Theme,
 } from "@/lib/i18n/config";
@@ -58,17 +60,17 @@ export function I18nProvider({
     [router],
   );
 
-  const value = useMemo<I18nValue>(
-    () => ({
-      locale,
-      dir: getDirection(locale),
-      t: messages[locale],
+  const value = useMemo<I18nValue>(() => {
+    const safeLocale = normalizeLocale(locale);
+    return {
+      locale: safeLocale,
+      dir: getDirection(safeLocale),
+      t: messages[safeLocale],
       setLocale,
-      theme,
+      theme: normalizeTheme(theme),
       setTheme,
-    }),
-    [locale, theme, setLocale, setTheme],
-  );
+    };
+  }, [locale, theme, setLocale, setTheme]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

@@ -16,7 +16,7 @@ import { I18nProvider } from "@/components/i18n-provider";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SITE } from "@/config/site";
-import { getDirection } from "@/lib/i18n/config";
+import { getDirection, normalizeLocale, normalizeTheme } from "@/lib/i18n/config";
 import { messages } from "@/lib/i18n/messages";
 import { getPreferences } from "@/lib/i18n/preferences";
 
@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   // Language + theme come from cookies, so the server renders the right direction first time.
   beforeLoad: () => getPreferences(),
   head: ({ match }) => {
-    const locale = match.context.locale ?? "en";
+    const locale = normalizeLocale(match.context.locale);
     const m = messages[locale].meta;
     return {
       meta: [
@@ -119,7 +119,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
-  const { locale, theme } = Route.useRouteContext();
+  // Context can briefly lack preferences (e.g. while the root reloads), so always normalize.
+  const ctx = Route.useRouteContext();
+  const locale = normalizeLocale(ctx.locale);
+  const theme = normalizeTheme(ctx.theme);
   return (
     <html
       lang={locale}
@@ -139,7 +142,10 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  const { queryClient, locale, theme } = Route.useRouteContext();
+  const ctx = Route.useRouteContext();
+  const { queryClient } = ctx;
+  const locale = normalizeLocale(ctx.locale);
+  const theme = normalizeTheme(ctx.theme);
 
   return (
     <QueryClientProvider client={queryClient}>
