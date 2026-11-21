@@ -28,3 +28,14 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+
+- Stack is TanStack Start (not Next.js) — the brief's Next.js/next-intl/Vercel choices are mapped onto this platform's equivalents.
+- i18n: all UI text lives in `src/lib/i18n/messages.ts` (`en` + `ar` with identical keys, typed by `Messages`); components read it via `useI18n().t`. Why: one typed source, no extra library.
+- Language and theme are stored in cookies and read in the root `beforeLoad` via `getPreferences` (isomorphic). Why: the server must render `<html lang dir class>` correctly on first paint (no RTL flash).
+- Use logical spacing (`ms-/me-/ps-/pe-/start-/end-`) and `rtl:` variants for directional icons. Why: every page must mirror cleanly in Arabic.
+- Learning content (paths, levels, goals) lives in data files under `src/content/` with `{ en, ar }` strings. Why: lessons must be easy to add without touching components.
+- Kids styling is the `.theme-kids` token override in `src/styles.css`, applied as a class. Why: brighter look without one-off colors in components.
+- Never merge a custom utility named `text-*` through `cn()` — tailwind-merge drops it as a font-size conflict; heading style is `display-heading`.
+- Build in phases and stop for user approval after each phase.

@@ -10,33 +10,63 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdultsRouteImport } from './routes/adults'
+import { Route as IeltsRouteImport } from './routes/ielts'
+import { Route as KidsRouteImport } from './routes/kids'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdultsRoute = AdultsRouteImport.update({
+  id: '/adults',
+  path: '/adults',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IeltsRoute = IeltsRouteImport.update({
+  id: '/ielts',
+  path: '/ielts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KidsRoute = KidsRouteImport.update({
+  id: '/kids',
+  path: '/kids',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/adults': typeof AdultsRoute
+  '/ielts': typeof IeltsRoute
+  '/kids': typeof KidsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/adults': typeof AdultsRoute
+  '/ielts': typeof IeltsRoute
+  '/kids': typeof KidsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/adults': typeof AdultsRoute
+  '/ielts': typeof IeltsRoute
+  '/kids': typeof KidsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/adults' | '/ielts' | '/kids'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/adults' | '/ielts' | '/kids'
+  id: '__root__' | '/' | '/adults' | '/ielts' | '/kids'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdultsRoute: typeof AdultsRoute
+  IeltsRoute: typeof IeltsRoute
+  KidsRoute: typeof KidsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +78,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/adults': {
+      id: '/adults'
+      path: '/adults'
+      fullPath: '/adults'
+      preLoaderRoute: typeof AdultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ielts': {
+      id: '/ielts'
+      path: '/ielts'
+      fullPath: '/ielts'
+      preLoaderRoute: typeof IeltsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kids': {
+      id: '/kids'
+      path: '/kids'
+      fullPath: '/kids'
+      preLoaderRoute: typeof KidsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdultsRoute: AdultsRoute,
+  IeltsRoute: IeltsRoute,
+  KidsRoute: KidsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
