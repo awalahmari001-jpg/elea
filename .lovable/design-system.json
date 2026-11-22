@@ -1,0 +1,799 @@
+{
+  "meta": {
+    "name": "ELEA",
+    "package": "@ws-02a46459c8787a794b56/5973be80-2c6d-4079-9f58-27f6217ac5f4",
+    "version": "1.0.0",
+    "framework": "react",
+    "css_framework": "tailwind",
+    "starter_template": "custom_design_system_tailwind",
+    "theme_files": [
+      "src/styles.css"
+    ],
+    "source_type": "local",
+    "source_manifest": {
+      "#enrichment": "e8ac5959c13be71cf39b9092a3b100f1855c79eb3a26cfb275ea3836344020c2",
+      ".gitignore": "6d9e901a692b46a83707c245fb03bc91",
+      ".lovable/north-star/north-star.md": "08c5a012d8c3dc56979260d84389a540",
+      ".lovable/project.json": "8de614a1287799a63b0b8ff03e64a822",
+      ".prettierignore": "7279a476f196a2da5f7edd18db568dc6",
+      ".prettierrc": "185ef0234746ab738ac1ab6cec5e2bd9",
+      "AGENTS.md": "c23d7ecab07d296bcc41fbeaa3d096ee",
+      "README.md": "15ccc2c959c0bff2136261ce044c418f",
+      "bunfig.toml": "02c11aa7752f7340eb381baf51963668",
+      "components.json": "30d3d035361ce807021f5c54620962e9",
+      "eslint.config.js": "345bdd57e188e0e4525edcd00e5003f5",
+      "package.json": "286180cb671750ed74531fc4bc23fb60",
+      "public/apple-touch-icon.png": "e3bab92588b70a3853b47a9cf9f195e5",
+      "public/favicon.png": "7dffc8029c6090a764e95de198370bb0",
+      "public/robots.txt": "f9dff89adf98833e676de2205921996a",
+      "roadmap.md": "bf2e648c3f4be3a692786dcfe7f8268c",
+      "src/ai-gateway.types.ts": "0a11dcb04c06fbe90382a1d2f35e3e30",
+      "src/assets/easy-learning-english-logo.webp.asset.json": "9a3f71ca9061e7c49eb3a974dabdb2c1",
+      "src/assets/hero-learning.webp": "0aec8c9e308b73e3c2eeceb2e67940bb",
+      "src/assets/ielts-community.wav.asset.json": "266a7e511eb16d87add36cb098c8c487",
+      "src/assets/ielts-trees.wav.asset.json": "7b790da1fa5437ac45b80e5b4b2798be",
+      "src/assets/path-adults.webp": "770f3998879d3fb685f73e20566cf450",
+      "src/assets/path-ielts.webp": "fb154846a0a4da4e07f29d251076806f",
+      "src/assets/path-kids.webp": "757416a2bca21fc8c9c4c7110276167d",
+      "src/components/courses/course-card.tsx": "641720a9fc6802237486e98effcd5f03",
+      "src/components/courses/level-badge.tsx": "f8a9cd93423e57bab04786898076e1e0",
+      "src/components/home/features.tsx": "7cd8ab4ec3d3a4b1f333071b8058ca72",
+      "src/components/home/hero.tsx": "f731f10c7027c474d19bc1e3ab3cc31b",
+      "src/components/home/path-selector.tsx": "4bc952aab2b2acce92ae117391962d1b",
+      "src/components/home/placement-band.tsx": "b089a66d733bd4a2bdeb8ed09009eed9",
+      "src/components/i18n-provider.tsx": "a329d125d6df27a41a7f479c19a31b3b",
+      "src/components/layout/brand-logo.tsx": "c421a91cc6e44ebbc010d4cf3b2c85be",
+      "src/components/layout/language-switcher.tsx": "fb8748d15d7ed047c14f223c6da59b19",
+      "src/components/layout/site-footer.tsx": "ba47031685b77be725289fdce830d363",
+      "src/components/layout/site-header.tsx": "e625137d974a465702b12fa45816249e",
+      "src/components/layout/theme-toggle.tsx": "7b31408e9523c0e584ca286fd825990e",
+      "src/components/learning/ielts-hub.tsx": "38ef6ec4350652ec241a07cb9e692fb8",
+      "src/components/learning/lesson-list.tsx": "f8594964c83171a468c9a7ca4741671f",
+      "src/components/learning/lesson-view.tsx": "15257ef55d21e9805807ce6aa92615c3",
+      "src/components/learning/locked-lesson.tsx": "3d57a9c67d2d350d3f4cc8c7b1abc54d",
+      "src/components/learning/pronunciation.tsx": "3fa88e4937693ca85f4af57042412366",
+      "src/components/learning/speaking-conversation.tsx": "3f2581659cd9524b364198bc454488a3",
+      "src/components/learning/speaking-studio.tsx": "160039933a9a4025d5dffd8ceb77bf4d",
+      "src/components/paths/path-page.tsx": "a28df5f5b427a99b2fe3ad0f445ea5c1",
+      "src/components/placement/answer-review.tsx": "c64739470bed73f62baa0cf9d84e7f38",
+      "src/components/placement/placement-test.tsx": "e8ffea359adf6b64d23cd0cf571763b8",
+      "src/components/placement/question-card.tsx": "230ae56324f195b1a625ecfefcb89890",
+      "src/components/placement/result-view.tsx": "4b3cd2e1778f8a0bd5f0f9a373efd9a7",
+      "src/components/placement/writing-step.tsx": "4b45efe72086d1f68105d98b160d068c",
+      "src/components/ui/accordion.tsx": "55f9dda62b4e3913c9b23e5015a86aef",
+      "src/components/ui/alert-dialog.tsx": "96350e949e9b7b674545430a410ab89c",
+      "src/components/ui/alert.tsx": "f993d7e96b1e25ce50e68ed97e11d2a8",
+      "src/components/ui/aspect-ratio.tsx": "c5c364545e1b25a94e9e752cd67ad048",
+      "src/components/ui/avatar.tsx": "72989cd32f72c4122802540ef32525a5",
+      "src/components/ui/badge.tsx": "81cade001fc4260f9943e18dcd79449b",
+      "src/components/ui/breadcrumb.tsx": "bb9ac254f12662b20d5d50b84308bf3a",
+      "src/components/ui/button.tsx": "32d7ccfc84adaf76d7fb1343eb99a6d5",
+      "src/components/ui/calendar.tsx": "d849cc610e2683271f3f1c47d093cf30",
+      "src/components/ui/card.tsx": "d6c48ea36221b9cdc3576d305d12d5d5",
+      "src/components/ui/carousel.tsx": "e324c68ae00cd5aed49317638abd429a",
+      "src/components/ui/chart.tsx": "6a3baf94f2e89f1f97d4d7a28f3622d2",
+      "src/components/ui/checkbox.tsx": "f78aac270ca482c8c2cb907ef6260462",
+      "src/components/ui/collapsible.tsx": "767631bbc344945c236f185f4078d71d",
+      "src/components/ui/command.tsx": "014782599cc838b021ec68b07ad4ea02",
+      "src/components/ui/context-menu.tsx": "3ba8244ea23df34a1dba92f3a1230dad",
+      "src/components/ui/dialog.tsx": "ef4fe8e7de8675730afe3d633b260e09",
+      "src/components/ui/drawer.tsx": "8be333e8fd8e42576b1b5f72f07f4337",
+      "src/components/ui/dropdown-menu.tsx": "28d6e98d3c7811fc0514bfa69416f087",
+      "src/components/ui/form.tsx": "1b0aa6302b9017ea2a1307c22a1d2983",
+      "src/components/ui/hover-card.tsx": "1442794c5ca2a78d69e4e613b315ed3d",
+      "src/components/ui/input-otp.tsx": "65625f2f1c4d731a760aeed7b54459d1",
+      "src/components/ui/input.tsx": "1d4cc52a4cd8afb3e18e45bda942bb8a",
+      "src/components/ui/label.tsx": "7e35df4ca8edd0835efd97ca7937ef92",
+      "src/components/ui/menubar.tsx": "3c4121a1e78d3f424a7295381a8997d3",
+      "src/components/ui/navigation-menu.tsx": "e85351147a02b29577ff83d188b63c24",
+      "src/components/ui/pagination.tsx": "fac6cdbb4bbf78b273d85cd36d6cbb49",
+      "src/components/ui/popover.tsx": "f18aa1da2144f25ee60795c539c51bcd",
+      "src/components/ui/progress.tsx": "55c462e5c9dd678dcf2c0c510b014ac4",
+      "src/components/ui/radio-group.tsx": "0e1ace237a5da3197e3eb1e6683faba9",
+      "src/components/ui/resizable.tsx": "d9fcb9203c749fcab4e125a99bb12a86",
+      "src/components/ui/scroll-area.tsx": "87b65d3eb26f2b02ff35a7acea585ba5",
+      "src/components/ui/select.tsx": "31ea1bbd6671833b010b2e852c8a55d0",
+      "src/components/ui/separator.tsx": "433d163c4ffa00b59398a0c293198b5e",
+      "src/components/ui/sheet.tsx": "0221fbf97b69611b47fcbc10bb27669a",
+      "src/components/ui/sidebar.tsx": "83c1623eb50ebc370d7b1b84a542e369",
+      "src/components/ui/skeleton.tsx": "41b182e6e2fc3805960d41e767d4a972",
+      "src/components/ui/slider.tsx": "4752f1bfa26426988d325599e01c335b",
+      "src/components/ui/sonner.tsx": "97f59f60be3413196d095fcbf7383216",
+      "src/components/ui/switch.tsx": "82f5d8b0c59bb7ff305caa9f502e79ff",
+      "src/components/ui/table.tsx": "7cc889989d53894b659903c73aded96e",
+      "src/components/ui/tabs.tsx": "56e725558c2ce72c18243bf51717f385",
+      "src/components/ui/textarea.tsx": "c7aad96fb9545210d53135a96c76ed6b",
+      "src/components/ui/toggle-group.tsx": "ac26383acf721d116ca8e3ab5c5355d5",
+      "src/components/ui/toggle.tsx": "ee8c5adac74e7242b85b544db1a8fbad",
+      "src/components/ui/tooltip.tsx": "67d71db5a1ab935695d1def497f5b8a6",
+      "src/config/site.ts": "e6b2fecee4b813886c5f06bc6a0cbf4c",
+      "src/content/adults-lessons.ts": "166308ed6cfc3886fdfd91f947e3b9f5",
+      "src/content/courses.ts": "ea235ac9f3c847b55eb3923bee5c596e",
+      "src/content/ielts-lessons.ts": "00255f17d657608ba5be388102dc1f54",
+      "src/content/kids-lessons.ts": "35a1232b0eaf6e81dbe9aba26e1fc166",
+      "src/content/lesson-types.ts": "2d0e63526e0b9ce1671c07f5fdb183d8",
+      "src/content/lessons.ts": "decc52a84e0db2bb6bcff4b07f9214d7",
+      "src/content/level-lessons.ts": "69a94310ec6a0f2b7925da650dc8bbef",
+      "src/content/paths.ts": "f4759493a3d213007b98313848afce2b",
+      "src/content/placement-questions.ts": "6617c8f1707f2e720000896bc960f65f",
+      "src/content/question-bank/a1.ts": "8a97b023f29b693fe5e09a5f4387e9dc",
+      "src/content/question-bank/a2.ts": "0afc4c9afa8f972ef06db7c7897d1e5e",
+      "src/content/question-bank/b1.ts": "e599fe2c91d3d93094edc019b95c614f",
+      "src/content/question-bank/b2.ts": "9fbe4e91527e24e7fe16d38199d4504d",
+      "src/content/question-bank/c1.ts": "6c55157671e6a4ea229e402ffe4b6fb5",
+      "src/content/question-bank/c2.ts": "7481cfb82eb48fb3b90a03d0157b466e",
+      "src/content/speaking-situations.ts": "2c75f9553101d5bb4a1d2124c90bdd60",
+      "src/content/topic-curriculum.ts": "d0179dfdcc107decdaf40fab5646e395",
+      "src/generated/ai-gateway/models.d.cts": "43c9da5eb11bf39431e1ab397f72333e",
+      "src/generated/ai-gateway/models.d.ts": "43c9da5eb11bf39431e1ab397f72333e",
+      "src/hooks/use-learner.ts": "b55c405ca7905e7be4d64490404665ae",
+      "src/hooks/use-mobile.tsx": "c0a0bdd4638c391a1dd06ac82074e60b",
+      "src/hooks/use-speech.ts": "0fead256b44a43b391ea1e21794a3bdb",
+      "src/lib/error-capture.ts": "f630d9686a9a989170f22eff4de7b30d",
+      "src/lib/error-page.ts": "8da0ddd7569bac2676b9a5c8edff8a36",
+      "src/lib/i18n/config.ts": "fed2ac6b24f024c28a35930a41263605",
+      "src/lib/i18n/head.ts": "71d351d1731f4fc5e7722056f8bc403e",
+      "src/lib/i18n/messages.ts": "f50c5322dd9d5bbb6f20dea7ba5fa228",
+      "src/lib/i18n/preferences.ts": "daa4c3d4df2ec8b952b79683a9e49bd5",
+      "src/lib/learner-storage.ts": "18da3a21dd9f4007da3ae85fce82e2da",
+      "src/lib/lesson-access.ts": "1eff2483b018f34bbaa8b95e61f78e3d",
+      "src/lib/lovable-error-reporting.ts": "920280997099588d609de792663bcbf0",
+      "src/lib/placement-ai.functions.ts": "1a2eedab7373c217c0eda8a16758c37a",
+      "src/lib/placement-ai.server.ts": "d072a9bf4a7688246c50c9546210426a",
+      "src/lib/placement.ts": "908d869ea3f5fcae4e794e44f397963b",
+      "src/lib/speech.ts": "8b71c9de06fbb13248bbf822dd8a4472",
+      "src/lib/utils.ts": "d9837f38cc05303254571985e3164050",
+      "src/routeTree.gen.ts": "e87e4a8c3ad5db4a6d8fa19f781e7c61",
+      "src/router.tsx": "d448cb947dcf9afe7d0cf849cd6ad7f0",
+      "src/routes/README.md": "b3a2f259b66fd1a11f54b6d5ac83bf57",
+      "src/routes/__root.tsx": "5a14d8fcdf68dc1e783de3661b04c8a8",
+      "src/routes/adults.tsx": "820407d6520ff08cd5570dfbbf7370aa",
+      "src/routes/courses.$level.tsx": "697ab7a58a905bddcfd6cf9eea0287e0",
+      "src/routes/courses.index.tsx": "36c42375f95ef5bbb9022ce58b865e30",
+      "src/routes/ielts.tsx": "7905b11e45b32cab589d4862f4335a8d",
+      "src/routes/index.tsx": "574a783432e3a65afcc9f803fb1e94db",
+      "src/routes/kids.tsx": "a358967408498ac04001812bdaba308b",
+      "src/routes/lessons.$lesson.tsx": "a42f969fcfaa798ffad577f4ddc959d6",
+      "src/routes/level-test.tsx": "867eb38e5675b342f7ef01d0dc859f37",
+      "src/routes/speaking.tsx": "79f892901106e66d617549da951a834e",
+      "src/server.ts": "91c9b724fb9ad417dc7702ca0fb39157",
+      "src/start.ts": "9030f90d3c25adb1524fe659ea1eb42b",
+      "src/styles.css": "79607470d3b7ebe0b08b03ba62b8f002",
+      "src/test/app-routing.test.tsx": "dda0393c89450a1e5b7874b424dca80d",
+      "src/test/i18n.test.ts": "9cafb3ab2817fb1403861e80e0cbdbf0",
+      "src/test/lesson-access.test.ts": "9425fb53cef844e2e30069719e245aea",
+      "src/test/lessons.test.ts": "2b0667d44d983f98893269ccfc903e3a",
+      "src/test/placement.test.ts": "81ccad0dcf46767ce747a450493b2504",
+      "src/test/setup.ts": "ef5807c07db57482ab718e40246688a2",
+      "src/test/speech.test.tsx": "4eb6587620870325889bdab0c468fe0f",
+      "src/test/topic-expansion.test.ts": "6f6382575b1ec5932413badb1bb8cc2f",
+      "tsconfig.json": "3d34aff71739a382bec105bad1c6948f",
+      "vite.config.ts": "180b60beec140d99f0bb7ed91fbaa4b4",
+      "vitest.config.ts": "cdf9aff9538e6bc3eb92842264b030a9"
+    },
+    "pipeline_version": 8
+  },
+  "tokens": {
+    "color": [
+      {
+        "name": "--background",
+        "raw": "oklch(0.985 0.009 85)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--foreground",
+        "raw": "oklch(0.24 0.06 262)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--card",
+        "raw": "oklch(1 0 0)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--card-foreground",
+        "raw": "oklch(0.24 0.06 262)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--popover",
+        "raw": "oklch(1 0 0)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--popover-foreground",
+        "raw": "oklch(0.24 0.06 262)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--primary",
+        "raw": "oklch(0.33 0.11 262)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--primary-foreground",
+        "raw": "oklch(0.985 0.009 85)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--secondary",
+        "raw": "oklch(0.95 0.025 255)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--secondary-foreground",
+        "raw": "oklch(0.32 0.11 262)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--muted",
+        "raw": "oklch(0.955 0.012 85)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--muted-foreground",
+        "raw": "oklch(0.47 0.04 262)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--accent",
+        "raw": "oklch(0.78 0.155 80)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--accent-foreground",
+        "raw": "oklch(0.22 0.06 262)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--accent-soft",
+        "raw": "oklch(0.95 0.05 88)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--destructive",
+        "raw": "oklch(0.577 0.245 27.325)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--destructive-foreground",
+        "raw": "oklch(0.985 0.009 85)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--success",
+        "raw": "oklch(0.6 0.14 155)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--border",
+        "raw": "oklch(0.9 0.017 85)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--input",
+        "raw": "oklch(0.88 0.02 85)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--ring",
+        "raw": "oklch(0.72 0.15 78)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--inverse",
+        "raw": "oklch(0.24 0.08 264)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--inverse-foreground",
+        "raw": "oklch(0.97 0.012 85)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--inverse-muted",
+        "raw": "oklch(0.78 0.04 260)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--kids-sun",
+        "raw": "oklch(0.87 0.16 90)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--kids-sky",
+        "raw": "oklch(0.7 0.15 238)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--kids-leaf",
+        "raw": "oklch(0.72 0.17 145)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--kids-berry",
+        "raw": "oklch(0.67 0.2 18)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--chart-1",
+        "raw": "oklch(0.33 0.11 262)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--chart-2",
+        "raw": "oklch(0.78 0.155 80)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--chart-3",
+        "raw": "oklch(0.6 0.14 155)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--chart-4",
+        "raw": "oklch(0.7 0.15 238)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--chart-5",
+        "raw": "oklch(0.67 0.2 18)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar",
+        "raw": "oklch(0.975 0.01 85)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-foreground",
+        "raw": "oklch(0.24 0.06 262)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-primary",
+        "raw": "oklch(0.33 0.11 262)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-primary-foreground",
+        "raw": "oklch(0.985 0.009 85)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-accent",
+        "raw": "oklch(0.95 0.025 255)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-accent-foreground",
+        "raw": "oklch(0.32 0.11 262)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-border",
+        "raw": "oklch(0.9 0.017 85)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-ring",
+        "raw": "oklch(0.72 0.15 78)",
+        "source": "src/styles.css"
+      }
+    ],
+    "typography": [
+      {
+        "name": "--font-sans",
+        "raw": "\"Book Antiqua\", \"Palatino Linotype\", Palatino, \"Cairo\", Georgia, serif",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--font-arabic",
+        "raw": "\"Cairo\", \"Book Antiqua\", ui-sans-serif, system-ui, sans-serif",
+        "source": "src/styles.css"
+      }
+    ],
+    "radius": [
+      {
+        "name": "--radius-sm",
+        "raw": "calc(var(--radius) - 4px)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--radius-md",
+        "raw": "calc(var(--radius) - 2px)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--radius-xl",
+        "raw": "calc(var(--radius) + 4px)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--radius-2xl",
+        "raw": "calc(var(--radius) + 8px)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--radius-3xl",
+        "raw": "calc(var(--radius) + 12px)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--radius-4xl",
+        "raw": "calc(var(--radius) + 16px)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--radius",
+        "raw": "0.875rem",
+        "source": "src/styles.css"
+      }
+    ],
+    "shadow": [
+      {
+        "name": "--shadow-card-value",
+        "raw": "0 1px 2px color-mix(in oklab, var(--foreground) 6%, transparent),\n    0 14px 34px -16px color-mix(in oklab, var(--foreground) 22%, transparent)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--shadow-lift-value",
+        "raw": "0 2px 4px color-mix(in oklab, var(--foreground) 6%, transparent),\n    0 28px 50px -22px color-mix(in oklab, var(--primary) 40%, transparent)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--shadow-ink-value",
+        "raw": "6px 6px 0 0 var(--foreground)",
+        "source": "src/styles.css"
+      }
+    ],
+    "other": [
+      {
+        "name": "--animate-rise",
+        "raw": "rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--animate-float",
+        "raw": "float 6s ease-in-out infinite",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--gradient-hero",
+        "raw": "radial-gradient(60% 70% at 85% 10%, var(--accent-soft) 0%, transparent 60%),\n    radial-gradient(50% 60% at 0% 100%, var(--secondary) 0%, transparent 70%)",
+        "source": "src/styles.css"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "CourseCard",
+      "file": "src/components/courses/course-card",
+      "import_path": ""
+    },
+    {
+      "name": "LevelBadge",
+      "file": "src/components/courses/level-badge",
+      "import_path": ""
+    },
+    {
+      "name": "Features",
+      "file": "src/components/home/features",
+      "import_path": ""
+    },
+    {
+      "name": "Hero",
+      "file": "src/components/home/hero",
+      "import_path": ""
+    },
+    {
+      "name": "PathSelector",
+      "file": "src/components/home/path-selector",
+      "import_path": ""
+    },
+    {
+      "name": "PlacementBand",
+      "file": "src/components/home/placement-band",
+      "import_path": ""
+    },
+    {
+      "name": "I18nProvider",
+      "file": "src/components/i18n-provider",
+      "import_path": ""
+    },
+    {
+      "name": "BrandLogo",
+      "file": "src/components/layout/brand-logo",
+      "import_path": ""
+    },
+    {
+      "name": "LanguageSwitcher",
+      "file": "src/components/layout/language-switcher",
+      "import_path": ""
+    },
+    {
+      "name": "SiteFooter",
+      "file": "src/components/layout/site-footer",
+      "import_path": ""
+    },
+    {
+      "name": "SiteHeader",
+      "file": "src/components/layout/site-header",
+      "import_path": ""
+    },
+    {
+      "name": "ThemeToggle",
+      "file": "src/components/layout/theme-toggle",
+      "import_path": ""
+    },
+    {
+      "name": "IeltsHub",
+      "file": "src/components/learning/ielts-hub",
+      "import_path": ""
+    },
+    {
+      "name": "LessonList",
+      "file": "src/components/learning/lesson-list",
+      "import_path": "",
+      "props": [
+        {
+          "name": "lessons",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "lockedIds",
+          "type": "any"
+        }
+      ]
+    },
+    {
+      "name": "LessonView",
+      "file": "src/components/learning/lesson-view",
+      "import_path": "",
+      "props": [
+        {
+          "name": "lesson",
+          "type": "any",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "LockedLesson",
+      "file": "src/components/learning/locked-lesson",
+      "import_path": ""
+    },
+    {
+      "name": "Pronunciation",
+      "file": "src/components/learning/pronunciation",
+      "import_path": "",
+      "props": [
+        {
+          "name": "target",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "tip",
+          "type": "any",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "SpeakingConversation",
+      "file": "src/components/learning/speaking-conversation",
+      "import_path": "",
+      "props": [
+        {
+          "name": "situation",
+          "type": "any",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "SpeakingStudio",
+      "file": "src/components/learning/speaking-studio",
+      "import_path": ""
+    },
+    {
+      "name": "PathPage",
+      "file": "src/components/paths/path-page",
+      "import_path": ""
+    },
+    {
+      "name": "AnswerReview",
+      "file": "src/components/placement/answer-review",
+      "import_path": ""
+    },
+    {
+      "name": "PlacementTest",
+      "file": "src/components/placement/placement-test",
+      "import_path": ""
+    },
+    {
+      "name": "QuestionCard",
+      "file": "src/components/placement/question-card",
+      "import_path": ""
+    },
+    {
+      "name": "ResultView",
+      "file": "src/components/placement/result-view",
+      "import_path": ""
+    },
+    {
+      "name": "WritingStep",
+      "file": "src/components/placement/writing-step",
+      "import_path": ""
+    },
+    {
+      "name": "Button",
+      "file": "src/components/ui/button",
+      "import_path": "",
+      "props": [
+        {
+          "name": "variant",
+          "type": "enum",
+          "values": [
+            "default",
+            "destructive",
+            "outline",
+            "secondary",
+            "ghost",
+            "link",
+            "accent",
+            "hero",
+            "soft",
+            "inverse"
+          ],
+          "default": "default"
+        },
+        {
+          "name": "size",
+          "type": "enum",
+          "values": [
+            "default",
+            "sm",
+            "lg",
+            "xl",
+            "icon"
+          ],
+          "default": "default"
+        },
+        {
+          "name": "asChild",
+          "type": "boolean",
+          "default": "false"
+        }
+      ]
+    },
+    {
+      "name": "Progress",
+      "file": "src/components/ui/progress",
+      "import_path": ""
+    },
+    {
+      "name": "Sheet",
+      "file": "src/components/ui/sheet",
+      "import_path": "",
+      "props": [
+        {
+          "name": "side",
+          "type": "enum",
+          "values": [
+            "top",
+            "bottom",
+            "left",
+            "right"
+          ],
+          "default": "right"
+        }
+      ]
+    },
+    {
+      "name": "SheetPortal",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetOverlay",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetTrigger",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetClose",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetContent",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetHeader",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetFooter",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetTitle",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetDescription",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "A1",
+      "file": "src/content/question-bank/a1",
+      "import_path": ""
+    },
+    {
+      "name": "A2",
+      "file": "src/content/question-bank/a2",
+      "import_path": ""
+    },
+    {
+      "name": "B1",
+      "file": "src/content/question-bank/b1",
+      "import_path": ""
+    },
+    {
+      "name": "B2",
+      "file": "src/content/question-bank/b2",
+      "import_path": ""
+    },
+    {
+      "name": "C1",
+      "file": "src/content/question-bank/c1",
+      "import_path": ""
+    },
+    {
+      "name": "C2",
+      "file": "src/content/question-bank/c2",
+      "import_path": ""
+    }
+  ],
+  "assets": [
+    {
+      "file": "src/assets/easy-learning-english-logo.webp.asset.json",
+      "kind": "logo",
+      "format": "webp",
+      "pointer": true
+    },
+    {
+      "file": "src/assets/hero-learning.webp",
+      "kind": "image",
+      "format": "webp"
+    },
+    {
+      "file": "src/assets/path-adults.webp",
+      "kind": "image",
+      "format": "webp"
+    },
+    {
+      "file": "src/assets/path-ielts.webp",
+      "kind": "image",
+      "format": "webp"
+    },
+    {
+      "file": "src/assets/path-kids.webp",
+      "kind": "image",
+      "format": "webp"
+    }
+  ]
+}
