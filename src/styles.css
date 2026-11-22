@@ -1,6 +1,6 @@
 /*
  * Tailwind v4 entry: config lives here, with no tailwind.config.js or PostCSS plugin.
- * Keep every @import in this top block. Web fonts (Inter + Cairo) load via <link> in
+ * Keep every @import in this top block. The Cairo web font loads via <link> in
  * src/routes/__root.tsx; this file only names the families.
  */
 @import "tailwindcss" source(none);
@@ -18,8 +18,8 @@
  */
 
 @theme inline {
-  --font-sans: "Inter", "Cairo", ui-sans-serif, system-ui, sans-serif;
-  --font-arabic: "Cairo", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Book Antiqua", "Palatino Linotype", Palatino, "Cairo", Georgia, serif;
+  --font-arabic: "Cairo", "Book Antiqua", ui-sans-serif, system-ui, sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -224,7 +224,6 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
   }
 
