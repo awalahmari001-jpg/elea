@@ -97,9 +97,10 @@ const en = {
   pathPage: {
     backHome: "Back to home",
     levelsTitle: "Levels in this path",
-    levelsSubtitle: "Move up when you're ready. Lessons are being added in the next update.",
+    levelsSubtitle: "Move up when you're ready. Each level builds on the one before it.",
     whatYouLearn: "What you'll learn",
-    lessonsSoon: "Lessons coming soon",
+    lessonsTitle: "Lessons in this path",
+    lessonsSubtitle: "Short bilingual lessons with practice questions and pronunciation.",
     otherPaths: "Other paths",
   },
   test: {
@@ -191,6 +192,13 @@ const en = {
   learning: {
     lessons: "Lessons",
     practice: "Start lesson",
+    freeLesson: "Free preview",
+    locked: "Locked",
+    lockedBody:
+      "The first lesson of every course is free for everyone. Join the course to unlock this lesson and all the rest.",
+    unlockCourse: "Go to the course",
+    joinToUnlock: "Join to unlock all lessons",
+    joinedUnlock: "Course joined — all lessons are now unlocked.",
     techniques: "Techniques",
     example: "Worked example",
     questions: "Check your understanding",
@@ -389,9 +397,10 @@ const ar: Messages = {
   pathPage: {
     backHome: "العودة إلى الرئيسية",
     levelsTitle: "مستويات هذا المسار",
-    levelsSubtitle: "انتقل للمستوى التالي عندما تكون مستعدًا. تُضاف الدروس في التحديث القادم.",
+    levelsSubtitle: "انتقل للمستوى التالي عندما تكون مستعدًا. كل مستوى يبني على الذي قبله.",
     whatYouLearn: "ماذا ستتعلّم",
-    lessonsSoon: "الدروس قريبًا",
+    lessonsTitle: "دروس هذا المسار",
+    lessonsSubtitle: "دروس قصيرة ثنائية اللغة مع أسئلة تدريب ونطق.",
     otherPaths: "مسارات أخرى",
   },
   test: {
@@ -483,6 +492,13 @@ const ar: Messages = {
   learning: {
     lessons: "الدروس",
     practice: "ابدأ الدرس",
+    freeLesson: "معاينة مجانية",
+    locked: "مغلق",
+    lockedBody:
+      "الدرس الأول من كل دورة مجاني للجميع. انضم إلى الدورة لفتح هذا الدرس وجميع الدروس الأخرى.",
+    unlockCourse: "اذهب إلى الدورة",
+    joinToUnlock: "انضم لفتح جميع الدروس",
+    joinedUnlock: "تم الانضمام للدورة — جميع الدروس مفتوحة الآن.",
     techniques: "التقنيات",
     example: "مثال تطبيقي",
     questions: "تحقق من فهمك",

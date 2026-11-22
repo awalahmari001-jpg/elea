@@ -45,3 +45,4 @@ use the editor.
 - Learner test progress, result, review and joined courses are stored in localStorage via `learnerStorage` until accounts exist. Why: no backend yet; move to the database when accounts are added.
 - Lesson curricula and guided speaking turns are browser-safe data under `src/content`; lesson pages use a single validated dynamic route. Why: all levels share a tested player without duplicating page logic.
 - Pronunciation uses client-only browser SpeechRecognition with word alignment, not phonetic or band scoring; transcripts are ephemeral. Why: recognition output cannot establish pronunciation quality and must not be misrepresented as examiner feedback.
+- Lesson access: the first lesson of each course (and the first speaking situation) is free; the rest unlock when the learner joins the course. Rules live in `src/lib/lesson-access.ts`; joined courses are JoinableCourse values in localStorage. Why: one tested paywall rule shared by every page.

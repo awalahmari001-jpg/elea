@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Search, MessageCircle } from "lucide-react";
+import { ArrowLeft, Lock, Search, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n-provider";
+import { useLearner } from "@/hooks/use-learner";
+import { isSpeakingUnlocked } from "@/lib/lesson-access";
 import {
   SPEAKING_CATEGORIES,
   SPEAKING_SITUATIONS,
@@ -13,6 +15,7 @@ import { SpeakingConversation } from "./speaking-conversation";
 
 export function SpeakingStudio() {
   const { t, locale } = useI18n();
+  const { courses } = useLearner();
   const [category, setCategory] = useState<SpeakingCategory | "all">("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(SPEAKING_SITUATIONS[0]?.id ?? "");
@@ -22,6 +25,7 @@ export function SpeakingStudio() {
       `${s.title.en} ${s.title.ar} ${s.level}`.toLowerCase().includes(search.toLowerCase().trim()),
   );
   const situation = SPEAKING_SITUATIONS.find((s) => s.id === selected);
+  const situationLocked = situation ? !isSpeakingUnlocked(situation.id, courses) : false;
   return (
     <div className="container-page py-8 md:py-12">
       <Link
@@ -81,24 +85,47 @@ export function SpeakingStudio() {
             role="group"
             aria-label={t.learning.choose}
           >
-            {filtered.map((s) => (
-              <Button
-                key={s.id}
-                variant={selected === s.id ? "secondary" : "ghost"}
-                className="h-auto min-h-14 w-full justify-start whitespace-normal py-3 text-start"
-                aria-pressed={selected === s.id}
-                onClick={() => setSelected(s.id)}
-              >
-                <span className="shrink-0 text-xs font-bold text-primary">{s.level}</span>
-                <span>{s.title[locale]}</span>
-              </Button>
-            ))}
+            {filtered.map((s) => {
+              const locked = !isSpeakingUnlocked(s.id, courses);
+              return (
+                <Button
+                  key={s.id}
+                  variant={selected === s.id ? "secondary" : "ghost"}
+                  className="h-auto min-h-14 w-full justify-start whitespace-normal py-3 text-start"
+                  aria-pressed={selected === s.id}
+                  onClick={() => setSelected(s.id)}
+                >
+                  <span className="shrink-0 text-xs font-bold text-primary">{s.level}</span>
+                  <span className="flex-1">{s.title[locale]}</span>
+                  {locked && <Lock className="size-4 shrink-0 text-muted-foreground" aria-hidden />}
+                </Button>
+              );
+            })}
             {filtered.length === 0 && (
               <p className="py-4 text-sm text-muted-foreground">{t.learning.noResults}</p>
             )}
           </div>
         </aside>
-        {situation && <SpeakingConversation key={situation.id} situation={situation} />}
+        {situation &&
+          (situationLocked ? (
+            <div className="rounded-3xl border border-border bg-card p-10 text-center shadow-card">
+              <span className="mx-auto grid size-16 place-items-center rounded-full bg-muted">
+                <Lock className="size-7 text-muted-foreground" aria-hidden />
+              </span>
+              <p className="eyebrow mt-6 text-primary">{t.learning.locked}</p>
+              <h2 className="mt-2 text-2xl font-bold">{situation.title[locale]}</h2>
+              <p className="mx-auto mt-4 max-w-md leading-relaxed text-muted-foreground">
+                {t.learning.lockedBody}
+              </p>
+              <Button asChild variant="hero" size="lg" className="mt-8">
+                <Link to="/courses/$level" params={{ level: "speaking" }}>
+                  {t.learning.unlockCourse}
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <SpeakingConversation key={situation.id} situation={situation} />
+          ))}
       </div>
     </div>
   );

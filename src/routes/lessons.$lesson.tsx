@@ -1,6 +1,9 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { findLesson } from "@/content/lessons";
 import { LessonView } from "@/components/learning/lesson-view";
+import { LockedLesson } from "@/components/learning/locked-lesson";
+import { useLearner } from "@/hooks/use-learner";
+import { isLessonUnlocked } from "@/lib/lesson-access";
 import { messages } from "@/lib/i18n/messages";
 import { normalizeLocale } from "@/lib/i18n/config";
 import { SITE } from "@/config/site";
@@ -30,5 +33,8 @@ export const Route = createFileRoute("/lessons/$lesson")({
 });
 function LessonPage() {
   const lesson = Route.useLoaderData();
+  const { ready, courses } = useLearner();
+  if (!ready) return null;
+  if (!isLessonUnlocked(lesson, courses)) return <LockedLesson lesson={lesson} />;
   return <LessonView key={lesson.id} lesson={lesson} />;
 }

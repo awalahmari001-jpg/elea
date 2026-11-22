@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Headphones, BookOpen, PenLine, Mic, ExternalLink } from "lucide-react";
+import { Check, Headphones, BookOpen, PenLine, Mic, ExternalLink } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n-provider";
+import { useLearner } from "@/hooks/use-learner";
+import { lockedLessonIds } from "@/lib/lesson-access";
 import { LessonList } from "./lesson-list";
 import { IELTS_LESSONS } from "@/content/ielts-lessons";
 import type { LessonSkill } from "@/content/lessons";
@@ -16,7 +19,10 @@ const SKILLS = [
 ] as const;
 export function IeltsHub() {
   const { t } = useI18n();
+  const { courses, hasJoined, joinCourse } = useLearner();
+  const joined = hasJoined("ielts");
   const [skill, setSkill] = useState<LessonSkill | "all">("all");
+  const visible = IELTS_LESSONS.filter((l) => skill === "all" || l.skill === skill);
   return (
     <>
       <header className="relative overflow-hidden bg-inverse text-inverse-foreground">
@@ -31,6 +37,19 @@ export function IeltsHub() {
             {t.learning.ieltsTitle}
           </h1>
           <p className="mt-5 max-w-2xl text-lg text-inverse-muted">{t.learning.ieltsIntro}</p>
+          <Button
+            variant="hero"
+            size="lg"
+            className="mt-6"
+            disabled={joined}
+            onClick={() => {
+              joinCourse("ielts");
+              toast.success(t.learning.joinedUnlock);
+            }}
+          >
+            {joined && <Check aria-hidden />}
+            {joined ? t.courses.joined : t.learning.joinToUnlock}
+          </Button>
         </div>
       </header>
       <div className="container-page py-10">
@@ -63,7 +82,7 @@ export function IeltsHub() {
             </Button>
           ))}
         </div>
-        <LessonList lessons={IELTS_LESSONS.filter((l) => skill === "all" || l.skill === skill)} />
+        <LessonList lessons={visible} lockedIds={lockedLessonIds(visible, courses)} />
       </div>
       <section className="border-t border-border bg-secondary py-10">
         <div className="container-page">

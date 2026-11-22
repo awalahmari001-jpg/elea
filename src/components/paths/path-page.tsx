@@ -1,16 +1,26 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Check, Clock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
 
 import { LEARNING_PATHS, getPath, type PathId } from "@/content/paths";
+import { courseLessons } from "@/content/lessons";
+import { LessonList } from "@/components/learning/lesson-list";
 import { useI18n } from "@/components/i18n-provider";
+import { useLearner } from "@/hooks/use-learner";
+import { lockedLessonIds } from "@/lib/lesson-access";
 import { cn } from "@/lib/utils";
 
 /** Shared page layout for the Kids, Adults and IELTS paths. */
 export function PathPage({ pathId }: { pathId: PathId }) {
   const { t, locale } = useI18n();
+  const { courses, hasJoined, joinCourse } = useLearner();
+  const joined = hasJoined(pathId);
   const path = getPath(pathId);
   const isKids = path.theme === "kids";
   const others = LEARNING_PATHS.filter((p) => p.id !== pathId);
+  const lessons = courseLessons(pathId);
 
   return (
     <div className={cn(isKids && "theme-kids")}>
@@ -30,6 +40,19 @@ export function PathPage({ pathId }: { pathId: PathId }) {
             </h1>
             <p className="text-2xl font-bold text-primary">{path.tagline[locale]}</p>
             <p className="max-w-xl text-lg text-muted-foreground">{path.description[locale]}</p>
+            <Button
+              variant="hero"
+              size="lg"
+              className="mt-2"
+              disabled={joined}
+              onClick={() => {
+                joinCourse(pathId);
+                toast.success(t.learning.joinedUnlock);
+              }}
+            >
+              {joined && <Check aria-hidden />}
+              {joined ? t.courses.joined : t.learning.joinToUnlock}
+            </Button>
           </div>
           <img
             src={path.image}
@@ -70,13 +93,19 @@ export function PathPage({ pathId }: { pathId: PathId }) {
                     </li>
                   ))}
                 </ul>
-                <span className="mt-6 inline-flex items-center gap-2 self-start rounded-full bg-muted px-3 py-1.5 text-sm font-semibold text-muted-foreground">
-                  <Clock className="size-4" aria-hidden />
-                  {t.pathPage.lessonsSoon}
-                </span>
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      <section className="pb-16 md:pb-20">
+        <div className="container-page">
+          <h2 className="display-heading text-3xl text-foreground md:text-4xl">{t.pathPage.lessonsTitle}</h2>
+          <p className="mt-3 max-w-2xl text-muted-foreground">{t.pathPage.lessonsSubtitle}</p>
+          <div className="mt-10">
+            <LessonList lessons={lessons} lockedIds={lockedLessonIds(lessons, courses)} />
+          </div>
         </div>
       </section>
 

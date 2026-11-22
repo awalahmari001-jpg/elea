@@ -12,6 +12,7 @@ import { format, messages } from "@/lib/i18n/messages";
 import { normalizeLocale } from "@/lib/i18n/config";
 import { LessonList } from "@/components/learning/lesson-list";
 import { courseLessons } from "@/content/lessons";
+import { lockedLessonIds } from "@/lib/lesson-access";
 
 export const Route = createFileRoute("/courses/$level")({
   loader: ({ params }) => {
@@ -44,9 +45,10 @@ function CoursePage() {
   const { slug } = Route.useLoaderData();
   const course = getCourseBySlug(slug);
   const { t, locale } = useI18n();
-  const { hasJoined, joinCourse } = useLearner();
+  const { courses, hasJoined, joinCourse } = useLearner();
   const joined = hasJoined(course.slug);
   const label = course.kind === "level" ? course.badge : course.name[locale];
+  const lessons = courseLessons(slug);
 
   return (
     <>
@@ -138,7 +140,7 @@ function CoursePage() {
               </Link>
             </Button>
           ) : (
-            <LessonList lessons={courseLessons(slug)} />
+            <LessonList lessons={lessons} lockedIds={lockedLessonIds(lessons, courses)} />
           )}
         </div>
       </section>

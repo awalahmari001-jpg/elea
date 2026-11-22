@@ -1,4 +1,5 @@
-import { ALL_COURSES, isCourseSlug, type CourseSlug } from "@/content/courses";
+import { ALL_COURSES } from "@/content/courses";
+import { isJoinableCourse, type JoinableCourse } from "./lesson-access";
 import type { PlacementAnswers, PlacementResult } from "./placement";
 
 /**
@@ -44,19 +45,22 @@ export const learnerStorage = {
   setProgress: (p: PlacementProgress | null) => write(KEYS.progress, p),
   getResult: () => read<PlacementResult>(KEYS.result),
   setResult: (r: PlacementResult | null) => write(KEYS.result, r),
-  getCourses: (): CourseSlug[] => {
+  getCourses: (): JoinableCourse[] => {
     const v = read<unknown>(KEYS.courses);
-    return Array.isArray(v) ? v.filter((x): x is CourseSlug => typeof x === "string" && isCourseSlug(x)) : [];
+    return Array.isArray(v)
+      ? v.filter((x): x is JoinableCourse => typeof x === "string" && isJoinableCourse(x))
+      : [];
   },
-  setCourses: (slugs: CourseSlug[]) => write(KEYS.courses, slugs),
+  setCourses: (slugs: JoinableCourse[]) => write(KEYS.courses, slugs),
 };
 
 /**
  * Joining rule: a learner has at most ONE level course (A1–C2) at a time, plus
- * optional skills courses (Speaking). Joining a new level replaces the old level.
+ * any number of skills courses and paths (Speaking, Kids, Adults, IELTS).
+ * Joining a new level replaces the old level.
  */
-export function addCourse(current: CourseSlug[], slug: CourseSlug): CourseSlug[] {
-  const kindOf = (s: CourseSlug) => ALL_COURSES.find((c) => c.slug === s)?.kind;
+export function addCourse(current: JoinableCourse[], slug: JoinableCourse): JoinableCourse[] {
+  const kindOf = (s: JoinableCourse) => ALL_COURSES.find((c) => c.slug === s)?.kind;
   const kind = kindOf(slug);
   const kept = current.filter((s) => s !== slug && (kind !== "level" || kindOf(s) !== "level"));
   return [...kept, slug];
