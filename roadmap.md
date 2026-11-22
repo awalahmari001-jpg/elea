@@ -35,3 +35,8 @@
 - [x] First lesson of each course free for everyone; remaining lessons locked until the learner joins the course (applies to A1–C2, Kids, Adults, IELTS and Speaking)
 - [ ] Enable payments (needs Lovable Cloud + provider eligibility check + user confirmation) and charge tuition per level/course — joining is currently free
 - [ ] Persist "joined/paid" state to learner accounts when accounts exist (currently localStorage)
+
+## Expanded four-skill topics (requested 22 Nov)
+- [ ] Expand IELTS, Kids and Adults to at least 30 different topics for each of listening, reading, writing and speaking
+- [ ] Include level-appropriate teaching, contextual practice, bilingual explanations and writing models
+- [ ] Verify topic counts, existing lesson locks and browser lesson flows
