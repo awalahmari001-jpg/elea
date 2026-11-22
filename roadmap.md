@@ -30,8 +30,8 @@
 - [x] Test lesson checking, audio playback, writing review, speaking interactions, Arabic and small screens; ASR UI tested with injected transcripts and real permission denial, not live speech recognition
 
 ## Kids & Adults lessons + course paywall (requested 22 Nov)
-- [ ] Kids lessons covering all four skills + grammar, level-appropriate (beginner/intermediate/advanced)
-- [ ] Adults lessons covering all four skills + grammar, level-appropriate (beginner/intermediate/advanced)
-- [ ] First lesson of each course free for everyone; remaining lessons locked until the learner joins the paid course (applies to A1–C2, Kids, Adults, IELTS and Speaking)
-- [ ] Enable payments (needs Lovable Cloud + provider eligibility check + user confirmation) and charge tuition per level/course
+- [x] Kids lessons covering all four skills + grammar, level-appropriate (beginner/intermediate/advanced)
+- [x] Adults lessons covering all four skills + grammar, level-appropriate (beginner/intermediate/advanced)
+- [x] First lesson of each course free for everyone; remaining lessons locked until the learner joins the course (applies to A1–C2, Kids, Adults, IELTS and Speaking)
+- [ ] Enable payments (needs Lovable Cloud + provider eligibility check + user confirmation) and charge tuition per level/course — joining is currently free
 - [ ] Persist "joined/paid" state to learner accounts when accounts exist (currently localStorage)
