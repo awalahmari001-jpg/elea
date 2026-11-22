@@ -17,13 +17,45 @@ export function levelFromScore(totalCorrect: number): CefrLevel {
 /** answers: question id -> chosen option text (or null for "I don't know") */
 export type PlacementAnswers = Record<string, string | null>;
 
+export type Bilingual = { en: string; ar: string };
+
+/** What the AI adds on top of the score (see placement-ai.server.ts). */
+export type AiAssessment = {
+  recommendedLevel: CefrLevel;
+  writingLevel: CefrLevel | null;
+  recommendSpeaking: boolean;
+  summary: Bilingual;
+  strengths: Bilingual[];
+  improvements: Bilingual[];
+  speakingReason: Bilingual;
+};
+
 export type PlacementResult = {
   total: number;
   outOf: number;
+  /** Level from the score bands alone */
   level: CefrLevel;
   byLevel: Record<CefrLevel, number>;
   takenAt: string;
+  /** Present when the AI assessment succeeded */
+  ai?: AiAssessment;
 };
+
+/** The level we recommend: the AI's choice when available, otherwise the score level. */
+export function finalLevel(result: PlacementResult): CefrLevel {
+  return result.ai?.recommendedLevel ?? result.level;
+}
+
+/**
+ * Safety rule: the AI may move the recommendation at most ONE level away from the
+ * score level (so a writing sample can't push a learner from A1 to C2).
+ */
+export function clampToNeighbour(scoreLevel: CefrLevel, aiLevel: CefrLevel): CefrLevel {
+  const s = CEFR_LEVELS.indexOf(scoreLevel);
+  const a = CEFR_LEVELS.indexOf(aiLevel);
+  const clamped = Math.min(Math.max(a, s - 1), s + 1);
+  return CEFR_LEVELS[clamped] ?? scoreLevel;
+}
 
 export function scorePlacement(
   questions: PlacementQuestion[],

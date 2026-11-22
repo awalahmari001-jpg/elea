@@ -13,3 +13,7 @@
 - [ ] "Test your level" icon/button in header + home
 - [ ] 60-question CEFR placement test (10 per level A1–C2) with result
 - [ ] Six level courses (A1, A2, B1, B2, C1, C2) learners can choose/join
+- [ ] Separate Speaking course (alongside the A1–C2 courses)
+- [ ] AI-assessed placement: short writing sample + score analysed by AI, results page shows recommended course
+- [ ] Every placement question has its correct answer + explanation (why it is right, CEFR-based), shown in an answer review after the test
+- [ ] Question bank of 60 questions per level (360 total), each with answer + explanation; every test draws 10 random questions per level

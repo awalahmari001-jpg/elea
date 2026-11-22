@@ -9,14 +9,21 @@ type Localized = Record<Locale, string>;
 export const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
 export type CefrLevel = (typeof CEFR_LEVELS)[number];
 
-/** URL slug for a level, e.g. "A2" -> "a2" */
-export type CourseSlug = Lowercase<CefrLevel>;
+/** URL slug: a level ("a2") or a skills course ("speaking") */
+export type CourseSlug = Lowercase<CefrLevel> | "speaking";
 
 export type Course = {
-  level: CefrLevel;
   slug: CourseSlug;
-  /** A1–A2 basic, B1–B2 independent, C1–C2 proficient */
-  stage: "basic" | "independent" | "proficient";
+  /** "level" = one of the six CEFR courses, "skill" = a separate skills course (Speaking) */
+  kind: "level" | "skill";
+  /** Only level courses have a CEFR level */
+  level?: CefrLevel;
+  /** Badge text shown on the course tile, e.g. "A1" */
+  badge: string;
+  /** Levels the course suits, shown on skills courses, e.g. "A2 – C2" */
+  suitsLevels?: string;
+  /** A1–A2 basic, B1–B2 independent, C1–C2 proficient, skill = skills course */
+  stage: "basic" | "independent" | "proficient" | "skill";
   name: Localized;
   summary: Localized;
   canDo: Localized[];
@@ -25,7 +32,9 @@ export type Course = {
 
 export const COURSES: Course[] = [
   {
+    kind: "level",
     level: "A1",
+    badge: "A1",
     slug: "a1",
     stage: "basic",
     name: { en: "Beginner", ar: "مبتدئ" },
@@ -46,7 +55,9 @@ export const COURSES: Course[] = [
     ],
   },
   {
+    kind: "level",
     level: "A2",
+    badge: "A2",
     slug: "a2",
     stage: "basic",
     name: { en: "Elementary", ar: "ما قبل المتوسط" },
@@ -67,7 +78,9 @@ export const COURSES: Course[] = [
     ],
   },
   {
+    kind: "level",
     level: "B1",
+    badge: "B1",
     slug: "b1",
     stage: "independent",
     name: { en: "Intermediate", ar: "متوسط" },
@@ -88,7 +101,9 @@ export const COURSES: Course[] = [
     ],
   },
   {
+    kind: "level",
     level: "B2",
+    badge: "B2",
     slug: "b2",
     stage: "independent",
     name: { en: "Upper-Intermediate", ar: "فوق المتوسط" },
@@ -109,7 +124,9 @@ export const COURSES: Course[] = [
     ],
   },
   {
+    kind: "level",
     level: "C1",
+    badge: "C1",
     slug: "c1",
     stage: "proficient",
     name: { en: "Advanced", ar: "متقدم" },
@@ -130,7 +147,9 @@ export const COURSES: Course[] = [
     ],
   },
   {
+    kind: "level",
     level: "C2",
+    badge: "C2",
     slug: "c2",
     stage: "proficient",
     name: { en: "Proficiency", ar: "إتقان" },
@@ -152,8 +171,36 @@ export const COURSES: Course[] = [
   },
 ];
 
+/** Separate skills course, open to learners from A2 upwards. */
+export const SPEAKING_COURSE: Course = {
+  kind: "skill",
+  slug: "speaking",
+  badge: "SP",
+  suitsLevels: "A2 – C2",
+  stage: "skill",
+  name: { en: "Speaking", ar: "المحادثة" },
+  summary: {
+    en: "A dedicated speaking course: pronunciation, fluency and real conversations, with AI feedback.",
+    ar: "دورة مخصّصة للمحادثة: النطق والطلاقة والمحادثات الحقيقية، مع ملاحظات بالذكاء الاصطناعي.",
+  },
+  canDo: [
+    { en: "Pronounce English sounds clearly and naturally", ar: "نطق الأصوات الإنجليزية بوضوح وبشكل طبيعي" },
+    { en: "Keep a conversation going without long pauses", ar: "مواصلة المحادثة دون توقّف طويل" },
+    { en: "Speak confidently in interviews, meetings and IELTS Speaking", ar: "التحدّث بثقة في المقابلات والاجتماعات ومحادثة الآيلتس" },
+  ],
+  topics: [
+    { en: "Sounds Arabic speakers find hard (p/b, v/f, th)", ar: "الأصوات الصعبة على الناطقين بالعربية (p/b و v/f و th)" },
+    { en: "Stress, rhythm & intonation", ar: "النبر والإيقاع والتنغيم" },
+    { en: "Everyday & work conversations", ar: "محادثات يومية ومهنية" },
+    { en: "IELTS Speaking parts 1–3", ar: "أجزاء محادثة الآيلتس ١–٣" },
+  ],
+};
+
+/** Every course a learner can join: six level courses + the Speaking course. */
+export const ALL_COURSES: Course[] = [...COURSES, SPEAKING_COURSE];
+
 export function isCourseSlug(value: string): value is CourseSlug {
-  return COURSES.some((c) => c.slug === value);
+  return ALL_COURSES.some((c) => c.slug === value);
 }
 
 export function getCourse(level: CefrLevel): Course {
@@ -163,7 +210,7 @@ export function getCourse(level: CefrLevel): Course {
 }
 
 export function getCourseBySlug(slug: CourseSlug): Course {
-  const course = COURSES.find((c) => c.slug === slug);
+  const course = ALL_COURSES.find((c) => c.slug === slug);
   if (!course) throw new Error(`Unknown course: ${slug}`);
   return course;
 }
