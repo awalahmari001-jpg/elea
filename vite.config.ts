@@ -10,6 +10,13 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  vite: {
+    // Pre-bundle client libraries that pages load lazily, so the dev server doesn't
+    // re-optimize mid-session (which briefly loads two copies of React and blanks the preview).
+    optimizeDeps: {
+      include: ["sonner", "zod", "@radix-ui/react-progress", "@radix-ui/react-dialog"],
+    },
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

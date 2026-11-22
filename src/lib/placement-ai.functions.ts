@@ -21,7 +21,7 @@ const inputSchema = z.object({
  * the AI for a recommendation. Always returns the score; `ai` is null if the AI failed.
  */
 export const assessPlacement = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => inputSchema.parse(input))
+  .validator((input: unknown) => inputSchema.parse(input))
   .handler(async ({ data }) => {
     const result = scorePlacement(questionsFor(data.questionIds), data.answers);
     const { runPlacementAssessment } = await import("./placement-ai.server");

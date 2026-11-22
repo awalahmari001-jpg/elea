@@ -75,8 +75,25 @@ export function I18nProvider({
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
+/**
+ * Used only if a component renders outside the provider (e.g. for a moment while the
+ * dev server hot-reloads). Falls back to English instead of blanking the page.
+ */
+const FALLBACK: I18nValue = {
+  locale: "en",
+  dir: "ltr",
+  t: messages.en,
+  setLocale: (next) => {
+    savePreferenceCookie(LOCALE_COOKIE, next);
+    window.location.reload();
+  },
+  theme: "light",
+  setTheme: (next) => {
+    savePreferenceCookie(THEME_COOKIE, next);
+    window.location.reload();
+  },
+};
+
 export function useI18n() {
-  const ctx = useContext(I18nContext);
-  if (!ctx) throw new Error("useI18n must be used inside <I18nProvider>");
-  return ctx;
+  return useContext(I18nContext) ?? FALLBACK;
 }
