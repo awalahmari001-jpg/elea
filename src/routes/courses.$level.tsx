@@ -1,5 +1,5 @@
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
-import { ArrowLeft, Check, ClipboardCheck, Clock } from "lucide-react";
+import { ArrowLeft, Check, ClipboardCheck, Mic } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { getCourseBySlug, isCourseSlug } from "@/content/courses";
 import { useLearner } from "@/hooks/use-learner";
 import { format, messages } from "@/lib/i18n/messages";
 import { normalizeLocale } from "@/lib/i18n/config";
+import { LessonList } from "@/components/learning/lesson-list";
+import { courseLessons } from "@/content/lessons";
 
 export const Route = createFileRoute("/courses/$level")({
   loader: ({ params }) => {
@@ -21,7 +23,8 @@ export const Route = createFileRoute("/courses/$level")({
     if (!loaderData) return { meta: [{ title: "Course" }, { name: "robots", content: "noindex" }] };
     const course = getCourseBySlug(loaderData.slug);
     const site = messages[locale].meta.coursesTitle.split(" — ")[1] ?? "";
-    const label = course.kind === "level" ? `${course.badge} ${course.name[locale]}` : course.name[locale];
+    const label =
+      course.kind === "level" ? `${course.badge} ${course.name[locale]}` : course.name[locale];
     const title = `${label} — ${site}`;
     return {
       meta: [
@@ -63,8 +66,12 @@ function CoursePage() {
                 {stageLabel(t, course.stage)}
                 {course.suitsLevels && <span dir="ltr"> · {course.suitsLevels}</span>}
               </p>
-              <h1 className="display-heading mt-2 text-4xl text-foreground md:text-6xl">{course.name[locale]}</h1>
-              <p className="mt-3 max-w-2xl text-lg text-muted-foreground">{course.summary[locale]}</p>
+              <h1 className="display-heading mt-2 text-4xl text-foreground md:text-6xl">
+                {course.name[locale]}
+              </h1>
+              <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
+                {course.summary[locale]}
+              </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Button
                   variant="hero"
@@ -107,16 +114,32 @@ function CoursePage() {
             <h2 className="text-xl font-extrabold text-foreground">{t.courses.topics}</h2>
             <ul className="mt-4 flex flex-wrap gap-2">
               {course.topics.map((topic) => (
-                <li key={topic.en} className="rounded-full bg-secondary px-3.5 py-1.5 text-sm font-semibold text-secondary-foreground">
+                <li
+                  key={topic.en}
+                  className="rounded-full bg-secondary px-3.5 py-1.5 text-sm font-semibold text-secondary-foreground"
+                >
                   {topic[locale]}
                 </li>
               ))}
             </ul>
-            <p className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-muted px-4 py-3 text-sm text-muted-foreground">
-              <Clock className="size-4 shrink-0" aria-hidden />
-              {t.courses.lessonsSoon}
-            </p>
           </div>
+        </div>
+      </section>
+      <section className="border-t border-border py-12">
+        <div className="container-page">
+          <h2 className="mb-6 text-3xl font-bold">
+            {slug === "speaking" ? t.learning.situationsTitle : t.learning.lessons}
+          </h2>
+          {slug === "speaking" ? (
+            <Button asChild size="lg">
+              <Link to="/speaking">
+                <Mic aria-hidden />
+                {t.learning.browseSpeaking}
+              </Link>
+            </Button>
+          ) : (
+            <LessonList lessons={courseLessons(slug)} />
+          )}
         </div>
       </section>
     </>

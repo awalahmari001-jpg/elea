@@ -7,7 +7,7 @@
 - [x] Use the academy logo + name "Easy Learning English" (header, footer, favicon)
 
 ## Later phases (wait for user approval)
-- [ ] Phase 2+: lessons, flashcards, grammar, quizzes, listening, pronunciation, AI writing coach, progress dashboard, accounts
+- [ ] Future phases: expand curricula, flashcards, AI writing coach, progress dashboard and accounts (await approval)
 
 ## Level test & courses (requested 21 Nov)
 - [x] "Test your level" icon/button in header + home
@@ -21,3 +21,10 @@
 ## Open
 - [ ] Rate-limit the AI level-test endpoint (needs Lovable Cloud / accounts for durable limits)
 - [ ] Save results and joined courses to learner accounts (accounts phase)
+
+## Lessons and speaking (requested 22 Nov)
+- [x] Add 18 A1–C2 lessons with explanations, examples and practice
+- [x] Add 10 IELTS lessons for all four skills and Band 7 techniques
+- [x] Add browser ASR pronunciation practice with honest recognition feedback
+- [x] Add 40 interactive speaking situations with 120 contextual turns
+- [x] Test lesson checking, audio playback, writing review, speaking interactions, Arabic and small screens; ASR UI tested with injected transcripts and real permission denial, not live speech recognition

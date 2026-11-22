@@ -14,8 +14,10 @@ import { Route as AdultsRouteImport } from './routes/adults'
 import { Route as IeltsRouteImport } from './routes/ielts'
 import { Route as KidsRouteImport } from './routes/kids'
 import { Route as LevelTestRouteImport } from './routes/level-test'
+import { Route as SpeakingRouteImport } from './routes/speaking'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesLevelRouteImport } from './routes/courses.$level'
+import { Route as LessonsLessonRouteImport } from './routes/lessons.$lesson'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -42,6 +44,11 @@ const LevelTestRoute = LevelTestRouteImport.update({
   path: '/level-test',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SpeakingRoute = SpeakingRouteImport.update({
+  id: '/speaking',
+  path: '/speaking',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
   id: '/courses/',
   path: '/courses/',
@@ -52,6 +59,11 @@ const CoursesLevelRoute = CoursesLevelRouteImport.update({
   path: '/courses/$level',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LessonsLessonRoute = LessonsLessonRouteImport.update({
+  id: '/lessons/$lesson',
+  path: '/lessons/$lesson',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -59,7 +71,9 @@ export interface FileRoutesByFullPath {
   '/ielts': typeof IeltsRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
+  '/speaking': typeof SpeakingRoute
   '/courses/$level': typeof CoursesLevelRoute
+  '/lessons/$lesson': typeof LessonsLessonRoute
   '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -68,7 +82,9 @@ export interface FileRoutesByTo {
   '/ielts': typeof IeltsRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
+  '/speaking': typeof SpeakingRoute
   '/courses/$level': typeof CoursesLevelRoute
+  '/lessons/$lesson': typeof LessonsLessonRoute
   '/courses': typeof CoursesIndexRoute
 }
 export interface FileRoutesById {
@@ -78,7 +94,9 @@ export interface FileRoutesById {
   '/ielts': typeof IeltsRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
+  '/speaking': typeof SpeakingRoute
   '/courses/$level': typeof CoursesLevelRoute
+  '/lessons/$lesson': typeof LessonsLessonRoute
   '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRouteTypes {
@@ -89,7 +107,9 @@ export interface FileRouteTypes {
     | '/ielts'
     | '/kids'
     | '/level-test'
+    | '/speaking'
     | '/courses/$level'
+    | '/lessons/$lesson'
     | '/courses/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -98,7 +118,9 @@ export interface FileRouteTypes {
     | '/ielts'
     | '/kids'
     | '/level-test'
+    | '/speaking'
     | '/courses/$level'
+    | '/lessons/$lesson'
     | '/courses'
   id:
     | '__root__'
@@ -107,7 +129,9 @@ export interface FileRouteTypes {
     | '/ielts'
     | '/kids'
     | '/level-test'
+    | '/speaking'
     | '/courses/$level'
+    | '/lessons/$lesson'
     | '/courses/'
   fileRoutesById: FileRoutesById
 }
@@ -117,7 +141,9 @@ export interface RootRouteChildren {
   IeltsRoute: typeof IeltsRoute
   KidsRoute: typeof KidsRoute
   LevelTestRoute: typeof LevelTestRoute
+  SpeakingRoute: typeof SpeakingRoute
   CoursesLevelRoute: typeof CoursesLevelRoute
+  LessonsLessonRoute: typeof LessonsLessonRoute
   CoursesIndexRoute: typeof CoursesIndexRoute
 }
 
@@ -158,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LevelTestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/speaking': {
+      id: '/speaking'
+      path: '/speaking'
+      fullPath: '/speaking'
+      preLoaderRoute: typeof SpeakingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/courses/': {
       id: '/courses/'
       path: '/courses'
@@ -172,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesLevelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lessons/$lesson': {
+      id: '/lessons/$lesson'
+      path: '/lessons/$lesson'
+      fullPath: '/lessons/$lesson'
+      preLoaderRoute: typeof LessonsLessonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -181,7 +221,9 @@ const rootRouteChildren: RootRouteChildren = {
   IeltsRoute: IeltsRoute,
   KidsRoute: KidsRoute,
   LevelTestRoute: LevelTestRoute,
+  SpeakingRoute: SpeakingRoute,
   CoursesLevelRoute: CoursesLevelRoute,
+  LessonsLessonRoute: LessonsLessonRoute,
   CoursesIndexRoute: CoursesIndexRoute,
 }
 export const routeTree = rootRouteImport

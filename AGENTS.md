@@ -43,3 +43,5 @@ use the editor.
 - The server re-scores every test from question ids (`assessPlacement`) and never trusts a browser score; the AI may shift the score level by at most one step (`clampToNeighbour`). Why: protects against tampering and prompt injection via the writing sample.
 - AI calls go through `@lovable.dev/ai-gateway` only in `*.server.ts` files loaded inside server-function handlers. Why: keeps the key and prompts off the client.
 - Learner test progress, result, review and joined courses are stored in localStorage via `learnerStorage` until accounts exist. Why: no backend yet; move to the database when accounts are added.
+- Lesson curricula and guided speaking turns are browser-safe data under `src/content`; lesson pages use a single validated dynamic route. Why: all levels share a tested player without duplicating page logic.
+- Pronunciation uses client-only browser SpeechRecognition with word alignment, not phonetic or band scoring; transcripts are ephemeral. Why: recognition output cannot establish pronunciation quality and must not be misrepresented as examiner feedback.
