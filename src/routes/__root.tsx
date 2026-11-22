@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/components/i18n-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SITE } from "@/config/site";
@@ -164,6 +165,7 @@ function RootComponent() {
           </main>
           <SiteFooter />
         </div>
+        <Toaster position="top-center" richColors />
       </I18nProvider>
     </QueryClientProvider>
   );

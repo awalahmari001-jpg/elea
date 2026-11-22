@@ -13,6 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdultsRouteImport } from './routes/adults'
 import { Route as IeltsRouteImport } from './routes/ielts'
 import { Route as KidsRouteImport } from './routes/kids'
+import { Route as LevelTestRouteImport } from './routes/level-test'
+import { Route as CoursesIndexRouteImport } from './routes/courses.index'
+import { Route as CoursesLevelRouteImport } from './routes/courses.$level'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,18 +37,39 @@ const KidsRoute = KidsRouteImport.update({
   path: '/kids',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LevelTestRoute = LevelTestRouteImport.update({
+  id: '/level-test',
+  path: '/level-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesIndexRoute = CoursesIndexRouteImport.update({
+  id: '/courses/',
+  path: '/courses/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesLevelRoute = CoursesLevelRouteImport.update({
+  id: '/courses/$level',
+  path: '/courses/$level',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/adults': typeof AdultsRoute
   '/ielts': typeof IeltsRoute
   '/kids': typeof KidsRoute
+  '/level-test': typeof LevelTestRoute
+  '/courses/$level': typeof CoursesLevelRoute
+  '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/adults': typeof AdultsRoute
   '/ielts': typeof IeltsRoute
   '/kids': typeof KidsRoute
+  '/level-test': typeof LevelTestRoute
+  '/courses/$level': typeof CoursesLevelRoute
+  '/courses': typeof CoursesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +77,38 @@ export interface FileRoutesById {
   '/adults': typeof AdultsRoute
   '/ielts': typeof IeltsRoute
   '/kids': typeof KidsRoute
+  '/level-test': typeof LevelTestRoute
+  '/courses/$level': typeof CoursesLevelRoute
+  '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/adults' | '/ielts' | '/kids'
+  fullPaths:
+    | '/'
+    | '/adults'
+    | '/ielts'
+    | '/kids'
+    | '/level-test'
+    | '/courses/$level'
+    | '/courses/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/adults' | '/ielts' | '/kids'
-  id: '__root__' | '/' | '/adults' | '/ielts' | '/kids'
+  to:
+    | '/'
+    | '/adults'
+    | '/ielts'
+    | '/kids'
+    | '/level-test'
+    | '/courses/$level'
+    | '/courses'
+  id:
+    | '__root__'
+    | '/'
+    | '/adults'
+    | '/ielts'
+    | '/kids'
+    | '/level-test'
+    | '/courses/$level'
+    | '/courses/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +116,9 @@ export interface RootRouteChildren {
   AdultsRoute: typeof AdultsRoute
   IeltsRoute: typeof IeltsRoute
   KidsRoute: typeof KidsRoute
+  LevelTestRoute: typeof LevelTestRoute
+  CoursesLevelRoute: typeof CoursesLevelRoute
+  CoursesIndexRoute: typeof CoursesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +151,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KidsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/level-test': {
+      id: '/level-test'
+      path: '/level-test'
+      fullPath: '/level-test'
+      preLoaderRoute: typeof LevelTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses/': {
+      id: '/courses/'
+      path: '/courses'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof CoursesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses/$level': {
+      id: '/courses/$level'
+      path: '/courses/$level'
+      fullPath: '/courses/$level'
+      preLoaderRoute: typeof CoursesLevelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +180,9 @@ const rootRouteChildren: RootRouteChildren = {
   AdultsRoute: AdultsRoute,
   IeltsRoute: IeltsRoute,
   KidsRoute: KidsRoute,
+  LevelTestRoute: LevelTestRoute,
+  CoursesLevelRoute: CoursesLevelRoute,
+  CoursesIndexRoute: CoursesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

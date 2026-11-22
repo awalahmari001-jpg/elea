@@ -1,4 +1,4 @@
-import { isCourseSlug, type CourseSlug } from "@/content/courses";
+import { ALL_COURSES, isCourseSlug, type CourseSlug } from "@/content/courses";
 import type { PlacementAnswers, PlacementResult } from "./placement";
 
 /**
@@ -8,7 +8,8 @@ import type { PlacementAnswers, PlacementResult } from "./placement";
 const KEYS = {
   progress: "ele.placement.progress",
   result: "ele.placement.result",
-  course: "ele.course.joined",
+  courses: "ele.courses.joined",
+  review: "ele.placement.review",
 } as const;
 
 function read<T>(key: string): T | null {
@@ -27,16 +28,36 @@ function write(key: string, value: unknown) {
   else window.localStorage.setItem(key, JSON.stringify(value));
 }
 
-export type PlacementProgress = { index: number; answers: PlacementAnswers };
+export type PlacementProgress = {
+  questionIds: string[];
+  index: number;
+  answers: PlacementAnswers;
+};
+
+/** The last finished test's questions + answers, for the answer review. */
+export type PlacementReview = { questionIds: string[]; answers: PlacementAnswers };
 
 export const learnerStorage = {
+  getReview: () => read<PlacementReview>(KEYS.review),
+  setReview: (r: PlacementReview | null) => write(KEYS.review, r),
   getProgress: () => read<PlacementProgress>(KEYS.progress),
   setProgress: (p: PlacementProgress | null) => write(KEYS.progress, p),
   getResult: () => read<PlacementResult>(KEYS.result),
   setResult: (r: PlacementResult | null) => write(KEYS.result, r),
-  getCourse: (): CourseSlug | null => {
-    const v = read<string>(KEYS.course);
-    return v && isCourseSlug(v) ? v : null;
+  getCourses: (): CourseSlug[] => {
+    const v = read<unknown>(KEYS.courses);
+    return Array.isArray(v) ? v.filter((x): x is CourseSlug => typeof x === "string" && isCourseSlug(x)) : [];
   },
-  setCourse: (slug: CourseSlug) => write(KEYS.course, slug),
+  setCourses: (slugs: CourseSlug[]) => write(KEYS.courses, slugs),
 };
+
+/**
+ * Joining rule: a learner has at most ONE level course (A1–C2) at a time, plus
+ * optional skills courses (Speaking). Joining a new level replaces the old level.
+ */
+export function addCourse(current: CourseSlug[], slug: CourseSlug): CourseSlug[] {
+  const kindOf = (s: CourseSlug) => ALL_COURSES.find((c) => c.slug === s)?.kind;
+  const kind = kindOf(slug);
+  const kept = current.filter((s) => s !== slug && (kind !== "level" || kindOf(s) !== "level"));
+  return [...kept, slug];
+}

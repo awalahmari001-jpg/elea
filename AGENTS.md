@@ -39,3 +39,7 @@ use the editor.
 - Kids styling is the `.theme-kids` token override in `src/styles.css`, applied as a class. Why: brighter look without one-off colors in components.
 - Never merge a custom utility named `text-*` through `cn()` — tailwind-merge drops it as a font-size conflict; heading style is `display-heading`.
 - Build in phases and stop for user approval after each phase.
+- Placement questions live per level in `src/content/question-bank/*.ts`; `options[0]` is always the correct answer and the UI shuffles deterministically. Why: easy editing and simple, testable scoring.
+- The server re-scores every test from question ids (`assessPlacement`) and never trusts a browser score; the AI may shift the score level by at most one step (`clampToNeighbour`). Why: protects against tampering and prompt injection via the writing sample.
+- AI calls go through `@lovable.dev/ai-gateway` only in `*.server.ts` files loaded inside server-function handlers. Why: keeps the key and prompts off the client.
+- Learner test progress, result, review and joined courses are stored in localStorage via `learnerStorage` until accounts exist. Why: no backend yet; move to the database when accounts are added.

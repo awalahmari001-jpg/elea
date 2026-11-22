@@ -1,24 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
 
 import type { CourseSlug } from "@/content/courses";
-import { learnerStorage } from "@/lib/learner-storage";
+import { addCourse, learnerStorage } from "@/lib/learner-storage";
 import type { PlacementResult } from "@/lib/placement";
 
-/** The learner's saved test result and joined course (read after the page loads). */
+/** The learner's saved test result and joined courses (read after the page loads). */
 export function useLearner() {
   const [result, setResultState] = useState<PlacementResult | null>(null);
-  const [course, setCourseState] = useState<CourseSlug | null>(null);
+  const [courses, setCourses] = useState<CourseSlug[]>([]);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     setResultState(learnerStorage.getResult());
-    setCourseState(learnerStorage.getCourse());
+    setCourses(learnerStorage.getCourses());
     setReady(true);
   }, []);
 
   const joinCourse = useCallback((slug: CourseSlug) => {
-    learnerStorage.setCourse(slug);
-    setCourseState(slug);
+    const next = addCourse(learnerStorage.getCourses(), slug);
+    learnerStorage.setCourses(next);
+    setCourses(next);
   }, []);
 
   const saveResult = useCallback((r: PlacementResult | null) => {
@@ -26,5 +27,7 @@ export function useLearner() {
     setResultState(r);
   }, []);
 
-  return { ready, result, course, joinCourse, saveResult };
+  const hasJoined = useCallback((slug: CourseSlug) => courses.includes(slug), [courses]);
+
+  return { ready, result, courses, hasJoined, joinCourse, saveResult };
 }

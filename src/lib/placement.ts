@@ -1,5 +1,5 @@
 import { CEFR_LEVELS, type CefrLevel } from "@/content/courses";
-import type { PlacementQuestion } from "@/content/placement-questions";
+import { QUESTION_BANK, getQuestion, type PlacementQuestion } from "@/content/placement-questions";
 
 /**
  * Placement test scoring.
@@ -7,6 +7,39 @@ import type { PlacementQuestion } from "@/content/placement-questions";
  *   0–10 → A1, 11–20 → A2, 21–30 → B1, 31–40 → B2, 41–50 → C1, 51–60 → C2
  */
 export const QUESTIONS_PER_LEVEL = 10;
+
+export const TEST_LENGTH = QUESTIONS_PER_LEVEL * CEFR_LEVELS.length; // 60
+
+/**
+ * Builds one test: QUESTIONS_PER_LEVEL random questions from each level's bank,
+ * easiest level first. `random` is injectable for tests.
+ */
+export function drawTest(random: () => number = Math.random): string[] {
+  return CEFR_LEVELS.flatMap((level) => {
+    const pool = [...QUESTION_BANK[level]];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j]!, pool[i]!];
+    }
+    return pool.slice(0, QUESTIONS_PER_LEVEL).map((q) => q.id);
+  });
+}
+
+/** True when ids form a valid test: known, unique, exactly QUESTIONS_PER_LEVEL per level. */
+export function isValidTest(ids: string[]): boolean {
+  if (ids.length !== TEST_LENGTH || new Set(ids).size !== ids.length) return false;
+  const counts = new Map<CefrLevel, number>();
+  for (const id of ids) {
+    const q = getQuestion(id);
+    if (!q) return false;
+    counts.set(q.level, (counts.get(q.level) ?? 0) + 1);
+  }
+  return CEFR_LEVELS.every((l) => counts.get(l) === QUESTIONS_PER_LEVEL);
+}
+
+export function questionsFor(ids: string[]): PlacementQuestion[] {
+  return ids.map((id) => getQuestion(id)).filter((q): q is PlacementQuestion => Boolean(q));
+}
 
 export function levelFromScore(totalCorrect: number): CefrLevel {
   const band = Math.ceil(Math.max(0, totalCorrect) / QUESTIONS_PER_LEVEL) - 1;

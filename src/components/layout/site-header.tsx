@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
+import { ClipboardCheck, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ const NAV_LINKS = [
   { to: "/kids", key: "kids" },
   { to: "/adults", key: "adults" },
   { to: "/ielts", key: "ielts" },
+  { to: "/courses", key: "courses" },
 ] as const;
 
 export function SiteHeader() {
@@ -47,11 +48,12 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           <LanguageSwitcher className="hidden sm:inline-flex" />
           <ThemeToggle />
-          <Button variant="outline" disabled className="hidden rounded-full md:inline-flex">
-            {t.nav.signIn}
-            <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[0.65rem] font-bold text-foreground">
-              {t.nav.soon}
-            </span>
+          {/* Level test: always visible (icon only on small screens) */}
+          <Button asChild variant="accent" className="rounded-full px-3 md:px-4" title={t.nav.levelTest}>
+            <Link to="/level-test" aria-label={t.nav.levelTest}>
+              <ClipboardCheck aria-hidden />
+              <span className="hidden md:inline">{t.nav.levelTest}</span>
+            </Link>
           </Button>
 
           {/* Mobile menu */}
@@ -79,6 +81,14 @@ export function SiteHeader() {
                   </SheetClose>
                 ))}
               </nav>
+              <SheetClose asChild>
+                <Button asChild variant="accent" size="lg" className="rounded-xl">
+                  <Link to="/level-test">
+                    <ClipboardCheck aria-hidden />
+                    {t.nav.levelTest}
+                  </Link>
+                </Button>
+              </SheetClose>
               <div className="mt-auto flex flex-col gap-2">
                 <span className="eyebrow text-muted-foreground">{t.nav.languageLabel}</span>
                 <LanguageSwitcher variant="full" className="self-start" />

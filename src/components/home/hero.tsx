@@ -1,5 +1,7 @@
 import { ArrowRight, ClipboardCheck, Mic, Star } from "lucide-react";
 
+import { Link } from "@tanstack/react-router";
+
 import heroImage from "@/assets/hero-learning.webp";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n-provider";
@@ -37,12 +39,11 @@ export function Hero() {
                 <ArrowRight className="rtl:rotate-180" aria-hidden />
               </a>
             </Button>
-            <Button variant="outline" size="xl" disabled className="bg-card">
-              <ClipboardCheck aria-hidden />
-              {t.hero.ctaPlacement}
-              <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-bold text-foreground">
-                {t.hero.soon}
-              </span>
+            <Button asChild variant="accent" size="xl">
+              <Link to="/level-test">
+                <ClipboardCheck aria-hidden />
+                {t.hero.ctaPlacement}
+              </Link>
             </Button>
           </div>
 

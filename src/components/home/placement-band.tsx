@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { ClipboardCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -18,8 +19,11 @@ export function PlacementBand() {
               <p className="mt-2 max-w-xl text-lg opacity-85">{t.placement.body}</p>
             </div>
           </div>
-          <Button variant="hero" size="xl" disabled>
-            {t.placement.cta}
+          <Button asChild variant="hero" size="xl">
+            <Link to="/level-test">
+              <ClipboardCheck aria-hidden />
+              {t.placement.cta}
+            </Link>
           </Button>
         </div>
       </div>

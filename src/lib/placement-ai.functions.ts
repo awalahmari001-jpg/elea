@@ -1,15 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { PLACEMENT_QUESTIONS } from "@/content/placement-questions";
-import { scorePlacement } from "./placement";
+import { TEST_LENGTH, isValidTest, questionsFor, scorePlacement } from "./placement";
 
 /** Limits keep requests small and cheap. */
 export const WRITING_MAX_CHARS = 1200;
 
 const inputSchema = z.object({
-  answers: z.record(z.string().max(40), z.string().max(200).nullable()).refine(
-    (a) => Object.keys(a).length <= PLACEMENT_QUESTIONS.length,
+  questionIds: z.array(z.string().max(20)).length(TEST_LENGTH).refine(isValidTest, "Invalid test"),
+  answers: z.record(z.string().max(20), z.string().max(300).nullable()).refine(
+    (a) => Object.keys(a).length <= TEST_LENGTH,
     "Too many answers",
   ),
   writing: z.string().trim().max(WRITING_MAX_CHARS),
@@ -23,7 +23,7 @@ const inputSchema = z.object({
 export const assessPlacement = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => inputSchema.parse(input))
   .handler(async ({ data }) => {
-    const result = scorePlacement(PLACEMENT_QUESTIONS, data.answers);
+    const result = scorePlacement(questionsFor(data.questionIds), data.answers);
     const { runPlacementAssessment } = await import("./placement-ai.server");
     const ai = await runPlacementAssessment({
       result,
