@@ -3,6 +3,7 @@ import { courseLessons, findLesson, LESSONS } from "@/content/lessons";
 import { IELTS_LESSONS } from "@/content/ielts-lessons";
 import { SPEAKING_SITUATIONS, SPEAKING_CATEGORIES } from "@/content/speaking-situations";
 import { compareRecognition, wordCount } from "@/lib/speech";
+import { evaluateFitSentence, getQuestionFormat, scrambleWords } from "@/lib/question-engine";
 
 describe("requested curriculum", () => {
   for (const course of ["a1", "a2", "b1", "b2", "c1", "c2"]) {
@@ -13,7 +14,10 @@ describe("requested curriculum", () => {
       expect(new Set(lessons.map((l) => l.title.en)).size).toBe(lessons.length);
       expect(new Set(lessons.map((l) => l.title.ar)).size).toBe(lessons.length);
       for (const skill of ["grammar", "reading", "listening", "writing", "speaking"]) {
-        expect(lessons.filter((l) => l.skill === skill).length, `${course} ${skill}`).toBeGreaterThanOrEqual(6);
+        expect(
+          lessons.filter((l) => l.skill === skill).length,
+          `${course} ${skill}`,
+        ).toBeGreaterThanOrEqual(6);
       }
       for (const lesson of lessons) {
         expect(lesson.taskPlan, lesson.id).toBeDefined();
@@ -74,7 +78,9 @@ describe("requested curriculum", () => {
   });
   it("has contextual multi-turn practice across all five settings", () => {
     for (const category of SPEAKING_CATEGORIES)
-      expect(SPEAKING_SITUATIONS.filter((s) => s.category === category).length).toBeGreaterThanOrEqual(12);
+      expect(
+        SPEAKING_SITUATIONS.filter((s) => s.category === category).length,
+      ).toBeGreaterThanOrEqual(12);
     for (const situation of SPEAKING_SITUATIONS) {
       expect(situation.turns.length).toBeGreaterThanOrEqual(3);
       expect(new Set(situation.turns.map((turn) => turn.prompt)).size).toBe(situation.turns.length);
@@ -96,7 +102,9 @@ describe("requested curriculum", () => {
   it("all writing models meet their own task minimum", () => {
     for (const lesson of LESSONS) {
       if (!lesson.writing) continue;
-      expect(wordCount(lesson.writing.model), lesson.id).toBeGreaterThanOrEqual(lesson.writing.minimum);
+      expect(wordCount(lesson.writing.model), lesson.id).toBeGreaterThanOrEqual(
+        lesson.writing.minimum,
+      );
     }
   });
   it("IELTS Task 1 requires 150 words and supplies full models", () => {
@@ -110,6 +118,60 @@ describe("requested curriculum", () => {
     const task = findLesson("ielts-writing-essay")?.writing;
     expect(task?.minimum).toBe(250);
     expect(wordCount(task?.model ?? "")).toBeGreaterThanOrEqual(250);
+  });
+
+  it("every grammar and reading lesson across all courses includes a detailed explanation, <=4-min AI video, and at least 4 question formats", () => {
+    const targets = LESSONS.filter((l) => l.skill === "grammar" || l.skill === "reading");
+    expect(targets.length).toBeGreaterThanOrEqual(81);
+
+    for (const lesson of targets) {
+      // 1. Detailed bilingual rule / reading explanation
+      expect(lesson.detailedGuide, `${lesson.id} detailedGuide`).toBeDefined();
+      const guide = lesson.detailedGuide!;
+      expect(guide.summary.en.length, `${lesson.id} summary.en`).toBeGreaterThan(30);
+      expect(guide.summary.ar.length, `${lesson.id} summary.ar`).toBeGreaterThan(20);
+      expect(guide.whenToUse.length, `${lesson.id} whenToUse`).toBeGreaterThanOrEqual(2);
+      expect(guide.formulas.length, `${lesson.id} formulas`).toBeGreaterThanOrEqual(3);
+      expect(guide.commonMistakes.length, `${lesson.id} commonMistakes`).toBeGreaterThanOrEqual(2);
+      expect(guide.memoryTip.en.length, `${lesson.id} memoryTip.en`).toBeGreaterThan(15);
+      expect(guide.memoryTip.ar.length, `${lesson.id} memoryTip.ar`).toBeGreaterThan(10);
+
+      // 2. Appealing AI explainer video strictly <= 4 minutes (240 seconds)
+      expect(lesson.explainerVideo, `${lesson.id} explainerVideo`).toBeDefined();
+      const video = lesson.explainerVideo!;
+      expect(video.durationSeconds, `${lesson.id} video > 0`).toBeGreaterThan(0);
+      expect(video.durationSeconds, `${lesson.id} video <= 240s`).toBeLessThanOrEqual(240);
+      expect(video.scenes.length, `${lesson.id} scenes`).toBe(4);
+      const totalSceneDuration = video.scenes.reduce((acc, s) => acc + s.durationSeconds, 0);
+      expect(totalSceneDuration, `${lesson.id} scene sum`).toBe(video.durationSeconds);
+
+      // 3. At least 4 distinct interactive question formats
+      const formats = new Set(lesson.questions.map(getQuestionFormat));
+      expect(formats.size, `${lesson.id} format count`).toBeGreaterThanOrEqual(4);
+      expect(formats.has("multiple-choice"), `${lesson.id} multiple-choice`).toBe(true);
+      expect(formats.has("pick-right-word"), `${lesson.id} pick-right-word`).toBe(true);
+      expect(formats.has("rearrange-words"), `${lesson.id} rearrange-words`).toBe(true);
+      expect(formats.has("fit-sentence"), `${lesson.id} fit-sentence`).toBe(true);
+
+      // 4. Validate each interactive question structure
+      for (const q of lesson.questions) {
+        const fmt = getQuestionFormat(q);
+        if (fmt === "pick-right-word") {
+          expect(q.sentenceTemplate?.includes("___"), `${lesson.id} pick blank`).toBe(true);
+        }
+        if (fmt === "rearrange-words") {
+          expect(q.orderedWords?.length ?? 0, `${lesson.id} rearrange len`).toBeGreaterThanOrEqual(
+            4,
+          );
+          const scrambled = scrambleWords(q.orderedWords!, q.prompt);
+          expect(scrambled.join(" "), `${lesson.id} scrambled`).not.toBe(q.orderedWords!.join(" "));
+        }
+        if (fmt === "fit-sentence") {
+          const evalResult = evaluateFitSentence(q.options[q.correct] ?? "", q);
+          expect(evalResult.isCorrect, `${lesson.id} fit-sentence model`).toBe(true);
+        }
+      }
+    }
   });
 });
 

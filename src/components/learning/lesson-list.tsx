@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, Clock, Lock } from "lucide-react";
+import { ArrowRight, BookOpen, Clock, Lock, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n-provider";
 import { format } from "@/lib/i18n/messages";
@@ -47,10 +47,20 @@ export function LessonList({ lessons, lockedIds }: LessonListProps) {
               <p className="mt-3 text-xs font-semibold text-primary">{lesson.unit[locale]}</p>
             )}
             <h3 className="mt-2 text-xl font-bold">{lesson.title[locale]}</h3>
-            {lesson.isReadingPassage && (
-              <span className="mt-2 self-start rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground">
-                {t.learning.readingPassageBadge}
-              </span>
+            {(lesson.isReadingPassage || lesson.explainerVideo) && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {lesson.isReadingPassage && (
+                  <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground">
+                    {t.learning.readingPassageBadge}
+                  </span>
+                )}
+                {lesson.explainerVideo && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                    <Play className="size-3" aria-hidden />
+                    {t.learning.videoBadge}
+                  </span>
+                )}
+              </div>
             )}
             <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
               {lesson.goal[locale]}

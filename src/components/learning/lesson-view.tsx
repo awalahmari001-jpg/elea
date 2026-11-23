@@ -6,6 +6,7 @@ import {
   Check,
   Compass,
   Headphones,
+  Play,
   Sparkles,
   Square,
   Volume2,
@@ -13,22 +14,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n-provider";
 import { Pronunciation } from "./pronunciation";
-import type { Lesson, QuestionKind } from "@/content/lesson-types";
-import { format, type Messages } from "@/lib/i18n/messages";
+import { RuleVideoPlayer } from "./rule-video-player";
+import { DetailedRuleGuideView } from "./detailed-rule-guide";
+import { QuestionCard } from "./question-card";
+import type { Lesson } from "@/content/lesson-types";
+import { format } from "@/lib/i18n/messages";
 import { wordCount } from "@/lib/speech";
 import { playSpeech, stopSpeech } from "@/hooks/use-speech";
 import { courseHome } from "@/lib/lesson-access";
-
-const QUESTION_KIND_LABELS: Record<QuestionKind, keyof Messages["learning"]> = {
-  comprehension: "qComprehension",
-  vocabulary: "qVocabulary",
-  synonym: "qSynonym",
-  antonym: "qAntonym",
-  inference: "qInference",
-  grammar: "qGrammar",
-  listening: "qListening",
-  equivalent: "qEquivalent",
-};
+import {
+  getQuestionFormat,
+  isQuestionAnswered,
+  isQuestionCorrect,
+  type QuestionAnswer,
+} from "@/lib/question-engine";
 
 export interface LessonViewProps {
   lesson: Lesson;
@@ -36,7 +35,7 @@ export interface LessonViewProps {
 
 export function LessonView({ lesson }: LessonViewProps) {
   const { locale, t } = useI18n();
-  const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [answers, setAnswers] = useState<Record<number, QuestionAnswer>>({});
   const [checked, setChecked] = useState(false);
   const [writing, setWriting] = useState("");
   const [review, setReview] = useState(false);
@@ -48,8 +47,9 @@ export function LessonView({ lesson }: LessonViewProps) {
     Boolean(lesson.listeningPlan) ||
     lesson.id === "ielts-listening-details" ||
     lesson.id === "ielts-listening-lecture";
-  const score = lesson.questions.filter((q, i) => answers[i] === q.correct).length;
-  const allAnswered = lesson.questions.every((_, i) => answers[i] !== undefined);
+  const score = lesson.questions.filter((q, i) => isQuestionCorrect(q, answers[i])).length;
+  const allAnswered = lesson.questions.every((q, i) => isQuestionAnswered(q, answers[i]));
+  const distinctFormats = new Set(lesson.questions.map(getQuestionFormat));
   const paragraphs = lesson.example.split("\n\n").filter(Boolean);
 
   return (
@@ -95,6 +95,12 @@ export function LessonView({ lesson }: LessonViewProps) {
               {t.learning.readingPassageBadge}
             </span>
           )}
+          {lesson.explainerVideo && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+              <Play className="size-3.5" aria-hidden />
+              {t.learning.videoBadge} · {t.learning.videoMaxDuration}
+            </span>
+          )}
         </div>
         <h1 className="text-3xl font-bold leading-tight md:text-4xl">{lesson.title[locale]}</h1>
         <p className="mt-4 max-w-3xl text-lg text-muted-foreground">{lesson.goal[locale]}</p>
@@ -112,17 +118,30 @@ export function LessonView({ lesson }: LessonViewProps) {
               {[
                 { label: t.learning.tbllPreTask, text: lesson.taskPlan.preTask[locale] },
                 { label: t.learning.tbllMainTask, text: lesson.taskPlan.mainTask[locale] },
-                { label: t.learning.tbllLanguageFocus, text: lesson.taskPlan.languageFocus[locale] },
+                {
+                  label: t.learning.tbllLanguageFocus,
+                  text: lesson.taskPlan.languageFocus[locale],
+                },
                 { label: t.learning.tbllPostTask, text: lesson.taskPlan.postTask[locale] },
               ].map((step) => (
                 <div key={step.label} className="rounded-xl bg-muted/60 p-4">
                   <h2 className="text-sm font-bold text-primary">{step.label}</h2>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{step.text}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                    {step.text}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
         </section>
+      )}
+
+      {/* AI Animated Explainer Video (<= 4 min max) */}
+      {lesson.explainerVideo && <RuleVideoPlayer video={lesson.explainerVideo} />}
+
+      {/* Detailed Grammar Rule / Reading Strategy Explanation */}
+      {lesson.detailedGuide && (
+        <DetailedRuleGuideView guide={lesson.detailedGuide} skill={lesson.skill} />
       )}
 
       {/* Level-Based Listening & Acoustics Plan */}
@@ -163,11 +182,15 @@ export function LessonView({ lesson }: LessonViewProps) {
                 <table className="w-full text-sm">
                   <thead className="border-b border-border bg-muted/60 text-start">
                     <tr>
-                      <th className="px-4 py-3 text-start font-bold">{t.learning.paraphraseSpoken}</th>
+                      <th className="px-4 py-3 text-start font-bold">
+                        {t.learning.paraphraseSpoken}
+                      </th>
                       <th className="px-4 py-3 text-start font-bold">
                         {t.learning.paraphraseEquivalent}
                       </th>
-                      <th className="px-4 py-3 text-start font-bold">{t.learning.paraphraseArabic}</th>
+                      <th className="px-4 py-3 text-start font-bold">
+                        {t.learning.paraphraseArabic}
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -366,65 +389,31 @@ export function LessonView({ lesson }: LessonViewProps) {
         </section>
       )}
 
-      {/* Comprehension, Vocabulary, Synonym & Antonym Questions */}
+      {/* Multi-Format Practice Questions */}
       <section className="border-t border-border py-8">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-2xl font-bold">{t.learning.questions}</h2>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h2 className="text-2xl font-bold">{t.learning.questions}</h2>
+            {distinctFormats.size >= 4 && (
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                {t.learning.questionTypesSummary}
+              </span>
+            )}
+          </div>
           <span className="rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">
             {lesson.questions.length}
           </span>
         </div>
         <div className="mt-5 space-y-6">
           {lesson.questions.map((q, i) => (
-            <fieldset key={q.prompt} className="rounded-lg border border-border p-4 md:p-6">
-              <div className="mb-3 flex flex-wrap items-center gap-2">
-                {q.kind && (
-                  <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-bold text-secondary-foreground">
-                    {t.learning[QUESTION_KIND_LABELS[q.kind]]}
-                  </span>
-                )}
-              </div>
-              <legend className="max-w-full px-2 font-semibold" lang="en" dir="ltr">
-                {i + 1}. {q.prompt}
-              </legend>
-              <div className="grid gap-2" role="group" aria-label={q.prompt}>
-                {q.options.map((option, j) => (
-                  <Button
-                    key={option}
-                    variant={answers[i] === j ? "secondary" : "outline"}
-                    className="h-auto min-h-11 justify-start whitespace-normal py-3 text-start"
-                    lang="en"
-                    dir="ltr"
-                    disabled={checked}
-                    aria-pressed={answers[i] === j}
-                    onClick={() => setAnswers((prev) => ({ ...prev, [i]: j }))}
-                  >
-                    <span className="font-bold">{String.fromCharCode(65 + j)}.</span>
-                    {option}
-                  </Button>
-                ))}
-              </div>
-              {checked && (
-                <div className="mt-4 border-s-4 border-primary ps-4" role="status">
-                  <p
-                    className={
-                      answers[i] === q.correct
-                        ? "font-semibold text-success"
-                        : "font-semibold text-destructive"
-                    }
-                  >
-                    {answers[i] === q.correct && (
-                      <Check className="me-1 inline size-4" aria-hidden />
-                    )}
-                    {t.learning.answer}:{" "}
-                    <span lang="en" dir="ltr">
-                      {q.options[q.correct]}
-                    </span>
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed">{q.explanation[locale]}</p>
-                </div>
-              )}
-            </fieldset>
+            <QuestionCard
+              key={`${lesson.id}-q-${i}`}
+              index={i}
+              question={q}
+              answer={answers[i]}
+              checked={checked}
+              onChange={(next) => setAnswers((prev) => ({ ...prev, [i]: next }))}
+            />
           ))}
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-4">
@@ -519,6 +508,34 @@ export function LessonView({ lesson }: LessonViewProps) {
         <Button asChild variant="accent" className="mb-6">
           <Link to="/speaking">{t.learning.browseSpeaking}</Link>
         </Button>
+      )}
+
+      {(lesson.skill === "grammar" || lesson.skill === "reading") && (
+        <section className="mb-8 rounded-2xl border border-primary/25 bg-secondary/40 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-bold text-foreground">
+                {t.learning.lessonAssessmentCtaTitle}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t.learning.lessonAssessmentCtaBody}
+              </p>
+            </div>
+            {"params" in home ? (
+              <Button asChild variant="default">
+                <Link to={home.to} params={home.params} hash="assessments">
+                  {t.learning.lessonAssessmentCtaButton}
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild variant="default">
+                <Link to={home.to} hash="assessments">
+                  {t.learning.lessonAssessmentCtaButton}
+                </Link>
+              </Button>
+            )}
+          </div>
+        </section>
       )}
 
       <div className="border-t border-border py-6">

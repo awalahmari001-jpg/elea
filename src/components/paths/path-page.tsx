@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { LEARNING_PATHS, getPath, type PathId } from "@/content/paths";
 import { courseLessons } from "@/content/lessons";
 import { LessonList } from "@/components/learning/lesson-list";
+import { CourseAssessmentPanel } from "@/components/learning/course-assessment-panel";
 import { useI18n } from "@/components/i18n-provider";
 import { useLearner } from "@/hooks/use-learner";
 import { lockedLessonIds } from "@/lib/lesson-access";
@@ -35,7 +36,12 @@ export function PathPage({ pathId }: { pathId: PathId }) {
               {t.pathPage.backHome}
             </Link>
             <span className="eyebrow block text-primary">{path.audience[locale]}</span>
-            <h1 className={cn("display-heading text-foreground", isKids ? "text-5xl md:text-7xl" : "text-4xl md:text-6xl")}>
+            <h1
+              className={cn(
+                "display-heading text-foreground",
+                isKids ? "text-5xl md:text-7xl" : "text-4xl md:text-6xl",
+              )}
+            >
               {path.name[locale]}
             </h1>
             <p className="text-2xl font-bold text-primary">{path.tagline[locale]}</p>
@@ -64,7 +70,9 @@ export function PathPage({ pathId }: { pathId: PathId }) {
 
       <section className="py-16 md:py-20">
         <div className="container-page">
-          <h2 className="display-heading text-3xl text-foreground md:text-4xl">{t.pathPage.levelsTitle}</h2>
+          <h2 className="display-heading text-3xl text-foreground md:text-4xl">
+            {t.pathPage.levelsTitle}
+          </h2>
           <p className="mt-3 max-w-2xl text-muted-foreground">{t.pathPage.levelsSubtitle}</p>
 
           <ol className="mt-10 grid gap-6 md:grid-cols-3">
@@ -77,11 +85,19 @@ export function PathPage({ pathId }: { pathId: PathId }) {
                   <span className="grid size-11 place-items-center rounded-full bg-primary text-lg font-extrabold text-primary-foreground">
                     {i + 1}
                   </span>
-                  <span dir="ltr" className="rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-foreground">
+                  <span
+                    dir="ltr"
+                    className="rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-foreground"
+                  >
                     {level.range}
                   </span>
                 </div>
-                <h3 className={cn("mt-5 font-extrabold text-foreground", isKids ? "text-3xl" : "text-2xl")}>
+                <h3
+                  className={cn(
+                    "mt-5 font-extrabold text-foreground",
+                    isKids ? "text-3xl" : "text-2xl",
+                  )}
+                >
                   {t.levels[level.key]}
                 </h3>
                 <p className="eyebrow mt-5 text-muted-foreground">{t.pathPage.whatYouLearn}</p>
@@ -101,7 +117,9 @@ export function PathPage({ pathId }: { pathId: PathId }) {
 
       <section className="pb-16 md:pb-20">
         <div className="container-page">
-          <h2 className="display-heading text-3xl text-foreground md:text-4xl">{t.pathPage.lessonsTitle}</h2>
+          <h2 className="display-heading text-3xl text-foreground md:text-4xl">
+            {t.pathPage.lessonsTitle}
+          </h2>
           <p className="mt-3 max-w-2xl text-muted-foreground">{t.pathPage.lessonsSubtitle}</p>
           <div className="mt-10">
             <LessonList lessons={lessons} lockedIds={lockedLessonIds(lessons, courses)} />
@@ -109,7 +127,9 @@ export function PathPage({ pathId }: { pathId: PathId }) {
         </div>
       </section>
 
-      <section className="pb-20">
+      <CourseAssessmentPanel course={pathId} />
+
+      <section className="pb-20 pt-10">
         <div className="container-page">
           <h2 className="eyebrow text-muted-foreground">{t.pathPage.otherPaths}</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -119,12 +139,20 @@ export function PathPage({ pathId }: { pathId: PathId }) {
                 to={p.to}
                 className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:shadow-card"
               >
-                <img src={p.image} alt="" loading="lazy" className="size-16 rounded-xl object-cover" />
+                <img
+                  src={p.image}
+                  alt=""
+                  loading="lazy"
+                  className="size-16 rounded-xl object-cover"
+                />
                 <div className="flex-1">
                   <p className="text-lg font-bold text-foreground">{p.name[locale]}</p>
                   <p className="text-sm text-muted-foreground">{p.tagline[locale]}</p>
                 </div>
-                <ArrowRight className="size-5 text-primary transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" aria-hidden />
+                <ArrowRight
+                  className="size-5 text-primary transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
+                  aria-hidden
+                />
               </Link>
             ))}
           </div>

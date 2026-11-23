@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
-import { ArrowLeft, BookOpen, Check, ClipboardCheck, Headphones, Mic, PenLine, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  Check,
+  ClipboardCheck,
+  Headphones,
+  Mic,
+  PenLine,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +21,7 @@ import { useLearner } from "@/hooks/use-learner";
 import { format, messages } from "@/lib/i18n/messages";
 import { normalizeLocale } from "@/lib/i18n/config";
 import { LessonList } from "@/components/learning/lesson-list";
+import { CourseAssessmentPanel } from "@/components/learning/course-assessment-panel";
 import { courseLessons, type LessonSkill } from "@/content/lessons";
 import { lockedLessonIds } from "@/lib/lesson-access";
 
@@ -192,6 +202,7 @@ function CoursePage() {
           )}
         </div>
       </section>
+      {slug !== "speaking" && <CourseAssessmentPanel course={slug} />}
     </>
   );
 }

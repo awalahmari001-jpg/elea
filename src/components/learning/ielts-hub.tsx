@@ -7,8 +7,8 @@ import { useI18n } from "@/components/i18n-provider";
 import { useLearner } from "@/hooks/use-learner";
 import { lockedLessonIds } from "@/lib/lesson-access";
 import { LessonList } from "./lesson-list";
-import { IELTS_LESSONS } from "@/content/ielts-lessons";
-import type { LessonSkill } from "@/content/lessons";
+import { CourseAssessmentPanel } from "./course-assessment-panel";
+import { courseLessons, type LessonSkill } from "@/content/lessons";
 import ieltsImage from "@/assets/path-ielts.webp";
 
 const SKILLS = [
@@ -22,7 +22,7 @@ export function IeltsHub() {
   const { courses, hasJoined, joinCourse } = useLearner();
   const joined = hasJoined("ielts");
   const [skill, setSkill] = useState<LessonSkill | "all">("all");
-  const visible = IELTS_LESSONS.filter((l) => skill === "all" || l.skill === skill);
+  const visible = courseLessons("ielts").filter((l) => skill === "all" || l.skill === skill);
   return (
     <>
       <header className="relative overflow-hidden bg-inverse text-inverse-foreground">
@@ -84,6 +84,7 @@ export function IeltsHub() {
         </div>
         <LessonList lessons={visible} lockedIds={lockedLessonIds(visible, courses)} />
       </div>
+      <CourseAssessmentPanel course="ielts" />
       <section className="border-t border-border bg-secondary py-10">
         <div className="container-page">
           <h2 className="text-3xl font-bold">{t.learning.targets}</h2>

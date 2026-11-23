@@ -11,6 +11,7 @@ const KEYS = {
   result: "ele.placement.result",
   courses: "ele.courses.joined",
   review: "ele.placement.review",
+  assessments: "ele.assessments.results",
 } as const;
 
 function read<T>(key: string): T | null {
@@ -38,6 +39,27 @@ export type PlacementProgress = {
 /** The last finished test's questions + answers, for the answer review. */
 export type PlacementReview = { questionIds: string[]; answers: PlacementAnswers };
 
+export type AssessmentKind = "summative" | "post";
+export type AwarenessBand = "mastery" | "proficient" | "developing" | "review";
+
+export interface AssessmentAttempt {
+  score: number;
+  total: number;
+  awarenessBand: AwarenessBand;
+  completedAt: string;
+}
+
+export type AssessmentRecord = Partial<Record<AssessmentKind, AssessmentAttempt>>;
+export type AllAssessmentRecords = Record<string, AssessmentRecord>;
+
+export function classifyAwareness(score: number, total = 10): AwarenessBand {
+  const ratio = total > 0 ? score / total : 0;
+  if (ratio >= 0.9) return "mastery";
+  if (ratio >= 0.7) return "proficient";
+  if (ratio >= 0.5) return "developing";
+  return "review";
+}
+
 export const learnerStorage = {
   getReview: () => read<PlacementReview>(KEYS.review),
   setReview: (r: PlacementReview | null) => write(KEYS.review, r),
@@ -52,6 +74,24 @@ export const learnerStorage = {
       : [];
   },
   setCourses: (slugs: JoinableCourse[]) => write(KEYS.courses, slugs),
+  getAssessments: (): AllAssessmentRecords => read<AllAssessmentRecords>(KEYS.assessments) ?? {},
+  saveAssessment: (course: string, kind: AssessmentKind, score: number, total = 10) => {
+    const all = read<AllAssessmentRecords>(KEYS.assessments) ?? {};
+    const next: AllAssessmentRecords = {
+      ...all,
+      [course]: {
+        ...(all[course] ?? {}),
+        [kind]: {
+          score,
+          total,
+          awarenessBand: classifyAwareness(score, total),
+          completedAt: new Date().toISOString(),
+        },
+      },
+    };
+    write(KEYS.assessments, next);
+    return next;
+  },
 };
 
 /**

@@ -1,16 +1,7 @@
 import type { Locale } from "@/lib/i18n/config";
 
 export type Bilingual = Record<Locale, string>;
-export type LessonCourse =
-  | "a1"
-  | "a2"
-  | "b1"
-  | "b2"
-  | "c1"
-  | "c2"
-  | "ielts"
-  | "kids"
-  | "adults";
+export type LessonCourse = "a1" | "a2" | "b1" | "b2" | "c1" | "c2" | "ielts" | "kids" | "adults";
 export type LessonSkill = "grammar" | "reading" | "listening" | "writing" | "speaking";
 
 export type QuestionKind =
@@ -23,12 +14,79 @@ export type QuestionKind =
   | "listening"
   | "equivalent";
 
+export type QuestionFormat =
+  "multiple-choice" | "pick-right-word" | "rearrange-words" | "fit-sentence";
+
 export interface LessonQuestion {
   prompt: string;
   options: string[];
   correct: number;
   explanation: Bilingual;
   kind?: QuestionKind;
+  /** Interactive exercise format; defaults to "multiple-choice". */
+  format?: QuestionFormat;
+  /** For `pick-right-word`: English sentence with `___` where the picked word snaps in. */
+  sentenceTemplate?: string;
+  /** For `rearrange-words`: ordered target tokens (scrambled deterministically in the UI). */
+  orderedWords?: string[];
+  /** For `fit-sentence`: target rule or vocabulary cue words shown as live badges. */
+  cueWords?: string[];
+  /** For `fit-sentence`: required normalized terms (supports `|` alternatives, e.g. "doesn't|does not"). */
+  requiredTerms?: string[];
+  /** For `fit-sentence`: optional bilingual structural hint revealed on click. */
+  sentenceHint?: Bilingual;
+  /** For `fit-sentence`: minimum word count for a complete fitting sentence. */
+  minWords?: number;
+}
+
+export interface FormulaRow {
+  label: Bilingual;
+  pattern: string;
+  example: string;
+  arabic: string;
+}
+
+export interface MistakeComparison {
+  wrong: string;
+  right: string;
+  why: Bilingual;
+}
+
+export interface DetailedRuleGuide {
+  summary: Bilingual;
+  whenToUse: Bilingual[];
+  formulas: FormulaRow[];
+  commonMistakes: MistakeComparison[];
+  memoryTip: Bilingual;
+}
+
+export type VideoSceneLayout = "intro" | "formula" | "comparison" | "practice";
+
+export interface VideoScene {
+  id: string;
+  startSeconds: number;
+  durationSeconds: number;
+  layout: VideoSceneLayout;
+  chapterLabel: Bilingual;
+  headline: Bilingual;
+  visualPoints: string[];
+  narrationEn: string;
+  subtitleAr: string;
+  highlight?: {
+    wrong?: string;
+    right?: string;
+    badge?: string;
+    formula?: string;
+  };
+}
+
+export interface ExplainerVideo {
+  title: Bilingual;
+  /** Strictly <= 240 seconds (4 minutes maximum). */
+  durationSeconds: number;
+  presenterNote: Bilingual;
+  scenes: VideoScene[];
+  videoUrl?: string;
 }
 
 export interface VocabItem {
@@ -73,4 +131,6 @@ export interface Lesson {
   vocab?: VocabItem[];
   listeningPlan?: ListeningPlan;
   isReadingPassage?: boolean;
+  detailedGuide?: DetailedRuleGuide;
+  explainerVideo?: ExplainerVideo;
 }
