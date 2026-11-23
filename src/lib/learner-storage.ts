@@ -12,6 +12,7 @@ import { computeNextReview } from "./translation-fallback";
  * When accounts are added, these move to the learner's account.
  */
 const KEYS = {
+  profile: "ele.profile.meta",
   progress: "ele.placement.progress",
   result: "ele.placement.result",
   courses: "ele.courses.joined",
@@ -310,7 +311,79 @@ export const learnerStorage = {
     write(KEYS.workshops, next);
     return next;
   },
+  getProfile: (): LearnerProfileMeta => {
+    const saved = read<LearnerProfileMeta>(KEYS.profile);
+    if (!saved || typeof saved !== "object") {
+      return { displayName: "", targetGoal: "", updatedAt: "" };
+    }
+    return {
+      displayName: typeof saved.displayName === "string" ? saved.displayName : "",
+      targetGoal: typeof saved.targetGoal === "string" ? saved.targetGoal : "",
+      updatedAt: typeof saved.updatedAt === "string" ? saved.updatedAt : "",
+    };
+  },
+  saveProfile: (input: { displayName: string; targetGoal: string }): LearnerProfileMeta => {
+    const next: LearnerProfileMeta = {
+      displayName: input.displayName.trim().slice(0, 60),
+      targetGoal: input.targetGoal.trim().slice(0, 120),
+      updatedAt: new Date().toISOString(),
+    };
+    write(KEYS.profile, next);
+    return next;
+  },
+  exportSnapshot: (): LearnerBackupSnapshot => ({
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    profile: learnerStorage.getProfile(),
+    result: learnerStorage.getResult(),
+    courses: learnerStorage.getCourses(),
+    assessments: learnerStorage.getAssessments(),
+    ieltsVocab: learnerStorage.getIeltsVocab(),
+    cefrMastery: learnerStorage.getCefrMastery(),
+    selfLearning: learnerStorage.getSelfLearning(),
+    business: learnerStorage.getBusiness(),
+    workshops: learnerStorage.getWorkshops(),
+  }),
+  applySnapshot: (snapshot: LearnerBackupSnapshot): void => {
+    write(KEYS.profile, snapshot.profile);
+    write(KEYS.result, snapshot.result);
+    write(
+      KEYS.courses,
+      snapshot.courses.filter((x): x is JoinableCourse => isJoinableCourse(x)),
+    );
+    write(KEYS.assessments, snapshot.assessments);
+    write(KEYS.ieltsVocab, snapshot.ieltsVocab);
+    write(KEYS.cefrMastery, snapshot.cefrMastery);
+    write(KEYS.selfLearning, snapshot.selfLearning);
+    write(KEYS.business, snapshot.business);
+    write(KEYS.workshops, snapshot.workshops.slice(0, 30));
+  },
+  clearAll: (): void => {
+    for (const key of Object.values(KEYS)) {
+      write(key, null);
+    }
+  },
 };
+
+export interface LearnerProfileMeta {
+  displayName: string;
+  targetGoal: string;
+  updatedAt: string;
+}
+
+export interface LearnerBackupSnapshot {
+  version: 1;
+  exportedAt: string;
+  profile: LearnerProfileMeta;
+  result: PlacementResult | null;
+  courses: JoinableCourse[];
+  assessments: AllAssessmentRecords;
+  ieltsVocab: IeltsVocabProgress;
+  cefrMastery: CefrMasteryProgress;
+  selfLearning: SelfLearningProgress;
+  business: BusinessCourseProgress;
+  workshops: WorkshopSessionRecord[];
+}
 
 export interface BusinessCourseProgress {
   joined: boolean;

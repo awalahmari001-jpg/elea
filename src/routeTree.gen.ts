@@ -17,6 +17,7 @@ import { Route as IeltsRouteImport } from './routes/ielts'
 import { Route as IeltsVocabularyRouteImport } from './routes/ielts-vocabulary'
 import { Route as KidsRouteImport } from './routes/kids'
 import { Route as LevelTestRouteImport } from './routes/level-test'
+import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as SelfLearningRouteImport } from './routes/self-learning'
 import { Route as SpeakingRouteImport } from './routes/speaking'
 import { Route as WorkshopsRouteImport } from './routes/workshops'
@@ -64,6 +65,11 @@ const LevelTestRoute = LevelTestRouteImport.update({
   path: '/level-test',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProgressRoute = ProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SelfLearningRoute = SelfLearningRouteImport.update({
   id: '/self-learning',
   path: '/self-learning',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
+  '/progress': typeof ProgressRoute
   '/self-learning': typeof SelfLearningRoute
   '/speaking': typeof SpeakingRoute
   '/workshops': typeof WorkshopsRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
+  '/progress': typeof ProgressRoute
   '/self-learning': typeof SelfLearningRoute
   '/speaking': typeof SpeakingRoute
   '/workshops': typeof WorkshopsRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
+  '/progress': typeof ProgressRoute
   '/self-learning': typeof SelfLearningRoute
   '/speaking': typeof SpeakingRoute
   '/workshops': typeof WorkshopsRoute
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/ielts-vocabulary'
     | '/kids'
     | '/level-test'
+    | '/progress'
     | '/self-learning'
     | '/speaking'
     | '/workshops'
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/ielts-vocabulary'
     | '/kids'
     | '/level-test'
+    | '/progress'
     | '/self-learning'
     | '/speaking'
     | '/workshops'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/ielts-vocabulary'
     | '/kids'
     | '/level-test'
+    | '/progress'
     | '/self-learning'
     | '/speaking'
     | '/workshops'
@@ -204,6 +216,7 @@ export interface RootRouteChildren {
   IeltsVocabularyRoute: typeof IeltsVocabularyRoute
   KidsRoute: typeof KidsRoute
   LevelTestRoute: typeof LevelTestRoute
+  ProgressRoute: typeof ProgressRoute
   SelfLearningRoute: typeof SelfLearningRoute
   SpeakingRoute: typeof SpeakingRoute
   WorkshopsRoute: typeof WorkshopsRoute
@@ -270,6 +283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LevelTestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/progress': {
+      id: '/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof ProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/self-learning': {
       id: '/self-learning'
       path: '/self-learning'
@@ -324,6 +344,7 @@ const rootRouteChildren: RootRouteChildren = {
   IeltsVocabularyRoute: IeltsVocabularyRoute,
   KidsRoute: KidsRoute,
   LevelTestRoute: LevelTestRoute,
+  ProgressRoute: ProgressRoute,
   SelfLearningRoute: SelfLearningRoute,
   SpeakingRoute: SpeakingRoute,
   WorkshopsRoute: WorkshopsRoute,

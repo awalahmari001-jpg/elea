@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BookMarked, Briefcase, ClipboardCheck, Menu, Presentation } from "lucide-react";
+import { BarChart3, BookMarked, Briefcase, ClipboardCheck, Menu, Presentation } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +26,7 @@ const NAV_LINKS = [
   { to: "/business", key: "business", icon: "briefcase" },
   { to: "/workshops", key: "workshops", icon: "workshops" },
   { to: "/courses", key: "courses", icon: "none" },
+  { to: "/progress", key: "progress", icon: "progress" },
 ] as const;
 
 export function SiteHeader() {
@@ -42,7 +43,7 @@ export function SiteHeader() {
               key={link.to}
               to={link.to}
               activeOptions={{ exact: true }}
-              className="inline-flex items-center gap-1 rounded-full px-2.5 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground 2xl:px-3"
+              className="inline-flex items-center gap-1 rounded-full px-2 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground 2xl:px-2.5"
               activeProps={{ className: "bg-secondary text-secondary-foreground" }}
             >
               {link.icon === "book" && <BookMarked className="size-3.5 text-primary" aria-hidden />}
@@ -51,6 +52,9 @@ export function SiteHeader() {
               )}
               {link.icon === "workshops" && (
                 <Presentation className="size-3.5 text-primary" aria-hidden />
+              )}
+              {link.icon === "progress" && (
+                <BarChart3 className="size-3.5 text-primary" aria-hidden />
               )}
               {t.nav[link.key]}
             </Link>
@@ -87,7 +91,7 @@ export function SiteHeader() {
             </SheetTrigger>
             <SheetContent
               side={dir === "rtl" ? "left" : "right"}
-              className="flex flex-col gap-6"
+              className="flex flex-col gap-6 overflow-y-auto"
               dir={dir}
             >
               <SheetHeader>
@@ -110,6 +114,9 @@ export function SiteHeader() {
                       )}
                       {link.icon === "workshops" && (
                         <Presentation className="size-5 text-primary" aria-hidden />
+                      )}
+                      {link.icon === "progress" && (
+                        <BarChart3 className="size-5 text-primary" aria-hidden />
                       )}
                       {t.nav[link.key]}
                     </Link>

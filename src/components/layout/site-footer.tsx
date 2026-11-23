@@ -100,6 +100,17 @@ export function SiteFooter() {
             </li>
             <li>
               <Link
+                to="/progress"
+                className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
+              >
+                {t.nav.progress}{" "}
+                <span className="text-inverse-muted" dir="ltr">
+                  · Dashboard
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/level-test"
                 className="text-sm font-semibold text-accent transition-colors hover:text-inverse-foreground"
               >

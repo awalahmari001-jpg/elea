@@ -12,7 +12,8 @@ type MetaKey =
   | "cefrMastery"
   | "selfLearning"
   | "business"
-  | "workshops";
+  | "workshops"
+  | "progress";
 
 /** Builds the page title + social-share tags in the visitor's language. */
 export function pageMeta(locale: Locale | undefined, key: MetaKey) {
