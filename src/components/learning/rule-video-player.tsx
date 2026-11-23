@@ -5,13 +5,16 @@ import {
   Clock,
   Eye,
   Flag,
+  Globe2,
   Lightbulb,
   Maximize2,
+  MessageSquare,
   Pause,
   PauseCircle,
   Play,
   RotateCcw,
   Sparkles,
+  Square,
   Subtitles,
   Table2,
   Target,
@@ -23,7 +26,13 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n-provider";
 import type { ExplainerVideo, VideoScene } from "@/content/lesson-types";
 import { format } from "@/lib/i18n/messages";
-import { playSpeech } from "@/hooks/use-speech";
+import {
+  playDialogueSequence,
+  playSpeech,
+  speakAsRole,
+  stopSpeech,
+  type VoiceRole,
+} from "@/hooks/use-speech";
 import {
   AnimatedChronologicalTimeline,
   AnimatedClassroomCast,
@@ -34,7 +43,7 @@ import {
 } from "./video-visuals";
 
 type SubtitleMode = "both" | "en" | "ar" | "off";
-const SPEEDS = [0.75, 1, 1.25] as const;
+const SPEEDS = [0.85, 0.96, 1.12] as const;
 
 const REACTION_EMOJIS = [
   { symbol: "💡", labelEn: "Got it!", labelAr: "فهمت!" },
@@ -69,14 +78,6 @@ function getCompletedStepsAt(scenes: VideoScene[], sceneIndex: number): number {
   return maxCompleted;
 }
 
-function getDialogueLineIndex(scene: VideoScene, elapsed: number): number {
-  const count = scene.dialogue.length;
-  if (count <= 1) return 0;
-  const intoScene = Math.max(0, elapsed - scene.startSeconds);
-  const ratio = Math.min(0.999, intoScene / Math.max(1, scene.durationSeconds));
-  return Math.floor(ratio * count);
-}
-
 export interface RuleVideoPlayerProps {
   video: ExplainerVideo;
 }
@@ -84,9 +85,11 @@ export interface RuleVideoPlayerProps {
 export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
   const { locale, t } = useI18n();
   const stageRef = useRef<HTMLDivElement | null>(null);
-  const spokenKeyRef = useRef<string | null>(null);
   const autoPausedScenesRef = useRef<Set<string>>(new Set());
   const burstIdRef = useRef(0);
+  const stopSceneSpeechRef = useRef<(() => void) | null>(null);
+  const stopConvSpeechRef = useRef<(() => void) | null>(null);
+  const sceneSpeakingRef = useRef(false);
 
   const [playing, setPlaying] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -99,26 +102,18 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
   const [showStoryboard, setShowStoryboard] = useState(true);
   const [xp, setXp] = useState(0);
   const [celebrating, setCelebrating] = useState(false);
+  const [activeLineIndex, setActiveLineIndex] = useState(0);
+  const [playingConversation, setPlayingConversation] = useState(false);
+  const [activeConvTurn, setActiveConvTurn] = useState<number | null>(null);
   const [floatingEmojis, setFloatingEmojis] = useState<
     { id: number; symbol: string; left: number }[]
   >([]);
-  const [manualLineOverride, setManualLineOverride] = useState<{
-    sceneId: string;
-    lineIdx: number;
-  } | null>(null);
 
-  const speed = SPEEDS[speedIndex] ?? 1;
+  const speed = SPEEDS[speedIndex] ?? 0.96;
   const sceneIndex = getSceneIndexAt(video.scenes, elapsed);
   const activeScene = video.scenes[sceneIndex] ?? video.scenes[0];
   const completedSteps = getCompletedStepsAt(video.scenes, sceneIndex);
   const progressPercent = Math.min(100, (elapsed / video.durationSeconds) * 100);
-
-  const computedLineIdx = activeScene ? getDialogueLineIndex(activeScene, elapsed) : 0;
-  const activeLineIndex =
-    manualLineOverride && activeScene && manualLineOverride.sceneId === activeScene.id
-      ? manualLineOverride.lineIdx
-      : computedLineIdx;
-  const activeLine = activeScene?.dialogue[activeLineIndex] ?? activeScene?.dialogue[0];
 
   function launchEmojiBurst(symbols: string[], celebrate = false) {
     const batch = symbols.map((symbol, idx) => ({
@@ -137,17 +132,24 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
     }, 1600);
   }
 
-  useEffect(() => {
-    if (manualLineOverride && activeScene && manualLineOverride.sceneId !== activeScene.id) {
-      setManualLineOverride(null);
-    }
-  }, [activeScene, manualLineOverride]);
+  function stopConversationAudio() {
+    stopConvSpeechRef.current?.();
+    stopConvSpeechRef.current = null;
+    setPlayingConversation(false);
+    setActiveConvTurn(null);
+  }
 
+  // Warm up browser voice list (Chrome/Edge populate getVoices asynchronously)
   useEffect(() => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    window.speechSynthesis.getVoices();
+    const onVoices = () => window.speechSynthesis.getVoices();
+    window.speechSynthesis.addEventListener?.("voiceschanged", onVoices);
     return () => {
-      if (typeof window !== "undefined") {
-        window.speechSynthesis?.cancel();
-      }
+      window.speechSynthesis.removeEventListener?.("voiceschanged", onVoices);
+      stopSceneSpeechRef.current?.();
+      stopConvSpeechRef.current?.();
+      stopSpeech();
     };
   }, []);
 
@@ -161,87 +163,106 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
     ) {
       autoPausedScenesRef.current.add(activeScene.id);
       setPlaying(false);
-      if (typeof window !== "undefined") {
-        window.speechSynthesis?.cancel();
-      }
+      stopSceneSpeechRef.current?.();
+      stopSpeech();
     }
   }, [activeScene, playing, revealedChallenges]);
 
+  // Smooth timeline progress that NEVER cuts off an actively speaking teacher mid-sentence
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || !activeScene) return;
     const tickMs = 250;
+    const sceneEnd = activeScene.startSeconds + activeScene.durationSeconds;
     const id = window.setInterval(() => {
       setElapsed((prev) => {
         const next = prev + (tickMs / 1000) * speed;
+        // Hold just before the scene boundary until the current Male/Female teacher finishes speaking
+        if (sceneSpeakingRef.current && next >= sceneEnd - 0.35) {
+          return Math.min(prev, sceneEnd - 0.35);
+        }
         if (next >= video.durationSeconds) {
           setPlaying(false);
-          window.speechSynthesis?.cancel();
+          stopSceneSpeechRef.current?.();
+          stopSpeech();
           return video.durationSeconds;
         }
         return next;
       });
     }, tickMs);
     return () => window.clearInterval(id);
-  }, [playing, speed, video.durationSeconds]);
+  }, [playing, speed, video.durationSeconds, activeScene]);
 
+  // Seamless turn-by-turn Female & Male voice playback per scene (zero cut-off chunks!)
   useEffect(() => {
-    if (
-      !activeScene ||
-      !activeLine ||
-      typeof window === "undefined" ||
-      !window.speechSynthesis ||
-      typeof SpeechSynthesisUtterance === "undefined"
-    ) {
-      return;
-    }
+    stopSceneSpeechRef.current?.();
+    stopSceneSpeechRef.current = null;
+    sceneSpeakingRef.current = false;
+
+    if (!activeScene) return;
+    setActiveLineIndex(0);
+
     if (!playing || muted) {
-      window.speechSynthesis.cancel();
-      spokenKeyRef.current = null;
+      stopSpeech();
       return;
     }
-    const key = `${activeScene.id}-${activeLineIndex}`;
-    if (spokenKeyRef.current === key) return;
-    spokenKeyRef.current = key;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(
-      activeLine.textEn.replace(/[\u{1F300}-\u{1FAFF}]/gu, ""),
-    );
-    utterance.lang = "en-GB";
-    utterance.rate = Math.min(1.4, Math.max(0.75, speed * 0.98));
-    utterance.pitch = activeLine.speaker === "layla" ? 1.12 : 0.9;
-    const voice =
-      window.speechSynthesis.getVoices().find((v) => v.lang.startsWith("en-GB")) ??
-      window.speechSynthesis.getVoices().find((v) => v.lang.startsWith("en"));
-    if (voice) utterance.voice = voice;
-    window.speechSynthesis.speak(utterance);
-  }, [playing, muted, activeScene, activeLine, activeLineIndex, speed]);
+
+    stopConversationAudio();
+    sceneSpeakingRef.current = true;
+    const currentSceneIdx = sceneIndex;
+    const turns = activeScene.dialogue.map((line) => ({
+      text: line.textEn,
+      role: (line.speaker === "layla" ? "female-teacher" : "male-teacher") as VoiceRole,
+    }));
+
+    stopSceneSpeechRef.current = playDialogueSequence(turns, {
+      rate: speed,
+      onTurnStart: (idx) => setActiveLineIndex(idx),
+      onComplete: () => {
+        sceneSpeakingRef.current = false;
+        const nextScene = video.scenes[currentSceneIdx + 1];
+        if (nextScene) {
+          setElapsed(nextScene.startSeconds);
+        } else {
+          setElapsed(video.durationSeconds);
+          setPlaying(false);
+        }
+      },
+    });
+
+    return () => {
+      stopSceneSpeechRef.current?.();
+      stopSceneSpeechRef.current = null;
+      sceneSpeakingRef.current = false;
+    };
+  }, [playing, muted, activeScene, speed, sceneIndex, video.scenes, video.durationSeconds]);
 
   if (!activeScene) return null;
   const scene = activeScene;
 
   function togglePlay() {
+    stopConversationAudio();
     if (playing) {
       setPlaying(false);
-      if (typeof window !== "undefined") window.speechSynthesis?.cancel();
+      stopSceneSpeechRef.current?.();
+      stopSpeech();
       return;
     }
     if (elapsed >= video.durationSeconds - 0.5) {
       setElapsed(0);
       autoPausedScenesRef.current.clear();
     }
-    setManualLineOverride(null);
-    spokenKeyRef.current = null;
     setPlaying(true);
   }
 
   function replay() {
-    if (typeof window !== "undefined") window.speechSynthesis?.cancel();
-    spokenKeyRef.current = null;
+    stopConversationAudio();
+    stopSceneSpeechRef.current?.();
+    stopSpeech();
     autoPausedScenesRef.current.clear();
-    setManualLineOverride(null);
     setRevealedChallenges({});
     setPickedChoices({});
     setShownHints({});
+    setActiveLineIndex(0);
     setElapsed(0);
     setPlaying(true);
   }
@@ -249,9 +270,10 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
   function jumpToScene(idx: number) {
     const target = video.scenes[idx];
     if (!target) return;
-    if (typeof window !== "undefined") window.speechSynthesis?.cancel();
-    spokenKeyRef.current = null;
-    setManualLineOverride(null);
+    stopConversationAudio();
+    stopSceneSpeechRef.current?.();
+    stopSpeech();
+    setActiveLineIndex(0);
     setElapsed(target.startSeconds);
     if (target.layout === "pause-predict" && !revealedChallenges[target.id]) {
       setPlaying(false);
@@ -261,8 +283,49 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
   }
 
   function selectDialogueLine(lineIdx: number) {
-    setManualLineOverride({ sceneId: scene.id, lineIdx });
-    spokenKeyRef.current = null;
+    stopConversationAudio();
+    setActiveLineIndex(lineIdx);
+    const chosen = scene.dialogue[lineIdx];
+    if (chosen && !muted) {
+      speakAsRole(chosen.textEn, chosen.speaker === "layla" ? "female-teacher" : "male-teacher", {
+        rate: speed,
+      });
+    }
+  }
+
+  function toggleStageConversation() {
+    if (playingConversation) {
+      stopConversationAudio();
+      return;
+    }
+    const turns = scene.conversation;
+    if (!turns || turns.length === 0) return;
+
+    // Pause main scene narration while playing the dedicated Male & Female conversation
+    setPlaying(false);
+    stopSceneSpeechRef.current?.();
+    setPlayingConversation(true);
+    stopConvSpeechRef.current = playDialogueSequence(
+      turns.map((turn) => ({
+        text: turn.textEn,
+        role: (turn.gender === "female"
+          ? turn.role === "teacher"
+            ? "female-teacher"
+            : "female-student"
+          : turn.role === "teacher"
+            ? "male-teacher"
+            : "male-student") as VoiceRole,
+      })),
+      {
+        rate: speed,
+        onTurnStart: (idx) => setActiveConvTurn(idx),
+        onComplete: () => {
+          setPlayingConversation(false);
+          setActiveConvTurn(null);
+          stopConvSpeechRef.current = null;
+        },
+      },
+    );
   }
 
   function handleInteractiveChoice(sceneId: string, choice: string, correctAnswer: string) {
@@ -272,7 +335,16 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
         setXp((prev) => prev + 25);
       }
       setRevealedChallenges((prev) => ({ ...prev, [sceneId]: true }));
-      setManualLineOverride({ sceneId, lineIdx: Math.max(0, scene.dialogue.length - 1) });
+      const finalIdx = Math.max(0, scene.dialogue.length - 1);
+      setActiveLineIndex(finalIdx);
+      const celebrateLine = scene.dialogue[finalIdx];
+      if (celebrateLine && !muted) {
+        speakAsRole(
+          celebrateLine.textEn,
+          celebrateLine.speaker === "layla" ? "female-teacher" : "male-teacher",
+          { rate: speed },
+        );
+      }
       launchEmojiBurst(["🎉", "🌟", "💯", "👏", "🚀"], true);
     } else {
       setShownHints((prev) => ({ ...prev, [sceneId]: true }));
@@ -282,8 +354,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
 
   function revealAndContinue(sceneId: string) {
     setRevealedChallenges((prev) => ({ ...prev, [sceneId]: true }));
-    setManualLineOverride({ sceneId, lineIdx: Math.max(0, scene.dialogue.length - 1) });
-    spokenKeyRef.current = null;
+    setActiveLineIndex(Math.max(0, scene.dialogue.length - 1));
     launchEmojiBurst(["✨", "👏"], true);
     setPlaying(true);
   }
@@ -294,9 +365,9 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
   }
 
   function handleScrub(value: number) {
-    if (typeof window !== "undefined") window.speechSynthesis?.cancel();
-    spokenKeyRef.current = null;
-    setManualLineOverride(null);
+    stopConversationAudio();
+    stopSceneSpeechRef.current?.();
+    stopSpeech();
     setElapsed(value);
   }
 
@@ -324,8 +395,6 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
           ? t.learning.videoSubAr
           : t.learning.videoSubOff;
 
-  const formulaParts = (scene.highlight?.formula ?? "").split(/\s*(?:\+|→|\|)\s*/).filter(Boolean);
-
   return (
     <section className="border-t border-border py-8" aria-label={video.title[locale]}>
       {/* Top Meta Badges */}
@@ -345,6 +414,9 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
             dir="ltr"
           >
             {video.levelTag}
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-muted-foreground">
+            👩‍🏫 {t.learning.femaleVoiceBadge} + 👨‍🏫 {t.learning.maleVoiceBadge}
           </span>
           {xp > 0 && (
             <span
@@ -377,7 +449,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
         ref={stageRef}
         className="mt-5 overflow-hidden rounded-2xl border border-indigo-900/80 bg-slate-950 text-white shadow-xl"
       >
-        <div className="relative flex min-h-[470px] flex-col justify-between overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950 p-5 md:p-7">
+        <div className="relative flex min-h-[490px] flex-col justify-between overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950 p-5 md:p-7">
           <CourseMediaBackdrop course={video.course} sceneEmoji={scene.sceneEmoji} />
           <FloatingEmojiBurst emojis={floatingEmojis} />
 
@@ -451,36 +523,70 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                   </div>
                 )}
 
-                {/* LAYOUT 2: STEP 1 VISUAL DIAGRAM */}
+                {/* LAYOUT 2: STEP 1 EXPLICIT WHITEBOARD RULE CARDS */}
                 {scene.layout === "diagram" && (
-                  <div className="mt-4 space-y-3" lang="en" dir="ltr">
-                    {formulaParts.length > 0 && (
-                      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-cyan-400/40 bg-slate-900/80 p-3.5">
-                        {formulaParts.map((part, idx) => (
-                          <div key={idx} className="flex items-center gap-2">
-                            <span className="rounded-lg bg-gradient-to-r from-cyan-500/30 to-indigo-500/35 px-3 py-1.5 text-sm font-bold text-cyan-100 ring-1 ring-cyan-400/50">
-                              {part}
-                            </span>
-                            {idx < formulaParts.length - 1 && (
-                              <ArrowRight
-                                className="size-4 animate-[arrow-nudge_1.4s_ease-in-out_infinite] text-amber-300"
+                  <div className="mt-4 space-y-3">
+                    {scene.ruleCards && scene.ruleCards.length > 0 ? (
+                      <div className="grid gap-2.5 sm:grid-cols-2">
+                        {scene.ruleCards.slice(0, 4).map((card, idx) => (
+                          <button
+                            key={`${card.group}-${idx}`}
+                            type="button"
+                            onClick={() => {
+                              playSpeech(
+                                `${card.group} ${card.takes}. ${card.example}`,
+                                speed,
+                                idx % 2 === 0 ? "female" : "male",
+                              );
+                              launchEmojiBurst(["📘", "🔊"], false);
+                            }}
+                            className="group rounded-xl border border-cyan-400/40 bg-slate-900/85 p-3 text-start transition hover:scale-[1.01] hover:border-amber-300"
+                          >
+                            <div
+                              className="flex items-center justify-between gap-2"
+                              lang="en"
+                              dir="ltr"
+                            >
+                              <span className="rounded-md bg-cyan-500/25 px-2 py-0.5 text-xs font-extrabold text-cyan-100">
+                                {card.group}
+                              </span>
+                              <Volume2
+                                className="size-3.5 shrink-0 text-amber-300 opacity-80 group-hover:opacity-100"
                                 aria-hidden
                               />
-                            )}
+                            </div>
+                            <p
+                              className="mt-1.5 text-sm font-extrabold text-amber-200"
+                              lang="en"
+                              dir="ltr"
+                            >
+                              ➜ {card.takes}
+                            </p>
+                            <p
+                              className="mt-1 text-xs font-medium text-slate-100"
+                              lang="en"
+                              dir="ltr"
+                            >
+                              “{card.example}”
+                            </p>
+                            <p className="mt-0.5 text-[11px] text-cyan-200/85" lang="ar" dir="rtl">
+                              {card.arabic}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="grid gap-2 md:grid-cols-3" lang="en" dir="ltr">
+                        {scene.visualPoints.map((pt, idx) => (
+                          <div
+                            key={idx}
+                            className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-xs font-medium text-slate-100"
+                          >
+                            {pt}
                           </div>
                         ))}
                       </div>
                     )}
-                    <div className="grid gap-2 md:grid-cols-3">
-                      {scene.visualPoints.map((pt, idx) => (
-                        <div
-                          key={idx}
-                          className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-xs font-medium text-slate-100"
-                        >
-                          {pt}
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
 
@@ -595,10 +701,14 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                   </div>
                 )}
 
-                {/* LAYOUT 4: STEP 2 VISUAL CONTRAST */}
+                {/* LAYOUT 4: STEP 2 VISUAL CONTRAST + ARABIC ↔ ENGLISH BRIDGE */}
                 {scene.layout === "comparison" && (
-                  <div className="mt-4 space-y-3" lang="en" dir="ltr">
-                    <div className="grid items-center gap-3 md:grid-cols-[1fr_auto_1fr]">
+                  <div className="mt-4 space-y-3">
+                    <div
+                      className="grid items-center gap-3 md:grid-cols-[1fr_auto_1fr]"
+                      lang="en"
+                      dir="ltr"
+                    >
                       {scene.highlight?.wrong && (
                         <div className="rounded-xl border-2 border-rose-400/50 bg-rose-950/55 p-3.5">
                           <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-rose-300">
@@ -625,31 +735,147 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                         </div>
                       )}
                     </div>
+
+                    {scene.l1Bridge && (
+                      <div className="rounded-xl border border-cyan-400/40 bg-slate-900/80 p-3.5">
+                        <p className="flex items-center gap-1.5 text-xs font-extrabold text-cyan-200">
+                          <Globe2 className="size-4" aria-hidden />
+                          {t.learning.guideL1BridgeTitle}
+                        </p>
+                        <p className="mt-1.5 text-xs leading-relaxed text-amber-100">
+                          <span className="font-bold text-amber-300">
+                            {t.learning.guideArabicHabit}{" "}
+                          </span>
+                          {scene.l1Bridge.arabicHabit[locale]}
+                        </p>
+                        <p className="mt-1 text-xs leading-relaxed text-emerald-100">
+                          <span className="font-bold text-emerald-300">
+                            {t.learning.guideEnglishRule}{" "}
+                          </span>
+                          {scene.l1Bridge.englishRule[locale]}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* LAYOUT 5: STEP 3 LIVE WALKTHROUGH (Tap-to-Hear interactive card!) */}
+                {/* LAYOUT 5: STEP 3 LIVE MALE & FEMALE CONVERSATION */}
                 {scene.layout === "walkthrough" && (
-                  <div className="mt-4 space-y-2.5" lang="en" dir="ltr">
-                    {scene.highlight?.right && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          playSpeech(scene.highlight!.right!, 0.9);
-                          launchEmojiBurst(["🔊", "🗣️", "✨"], false);
-                        }}
-                        className="w-full rounded-xl border-2 border-emerald-400/55 bg-emerald-950/50 p-4 text-start transition hover:scale-[1.01] hover:border-emerald-300"
-                      >
-                        <p className="flex items-center justify-between gap-2 text-base font-bold leading-relaxed text-emerald-100 md:text-lg">
-                          <span>🗣️ “{scene.highlight.right}”</span>
-                          <Volume2 className="size-5 shrink-0 text-emerald-300" aria-hidden />
-                        </p>
-                        {scene.highlight.signalTag && (
-                          <p className="mt-1.5 text-xs font-semibold text-cyan-200">
-                            💡 {scene.highlight.signalTag}
+                  <div className="mt-4 space-y-2.5">
+                    {scene.conversation && scene.conversation.length > 0 ? (
+                      <div className="rounded-2xl border border-emerald-400/45 bg-slate-900/85 p-3.5">
+                        <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+                          <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-emerald-200">
+                            <MessageSquare className="size-4" aria-hidden />
+                            {t.learning.guideDialogueTitle}
+                          </span>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant={playingConversation ? "secondary" : "default"}
+                            onClick={toggleStageConversation}
+                            className="h-8 text-xs"
+                          >
+                            {playingConversation ? (
+                              <>
+                                <Square className="size-3 fill-current" aria-hidden />
+                                {t.learning.stopConversation}
+                              </>
+                            ) : (
+                              <>
+                                <Play className="size-3 fill-current" aria-hidden />
+                                {t.learning.playConversation}
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          {scene.conversation.map((turn, idx) => {
+                            const isFemale = turn.gender === "female";
+                            const isCurrent = activeConvTurn === idx;
+                            return (
+                              <button
+                                key={`${turn.speaker}-${idx}`}
+                                type="button"
+                                onClick={() => {
+                                  stopConversationAudio();
+                                  speakAsRole(
+                                    turn.textEn,
+                                    isFemale
+                                      ? turn.role === "teacher"
+                                        ? "female-teacher"
+                                        : "female-student"
+                                      : turn.role === "teacher"
+                                        ? "male-teacher"
+                                        : "male-student",
+                                    { rate: speed },
+                                  );
+                                  launchEmojiBurst([isFemale ? "👩" : "👨", "🔊"], false);
+                                }}
+                                className={`rounded-xl border p-2.5 text-start transition ${
+                                  isCurrent
+                                    ? "border-amber-300 bg-amber-400/20 ring-1 ring-amber-300/60"
+                                    : isFemale
+                                      ? "border-cyan-400/35 bg-cyan-950/40 hover:border-cyan-300"
+                                      : "border-emerald-400/35 bg-emerald-950/40 hover:border-emerald-300"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <span
+                                    className={`text-[11px] font-extrabold ${
+                                      isFemale ? "text-cyan-200" : "text-emerald-200"
+                                    }`}
+                                  >
+                                    {isFemale ? "👩" : "👨"} {turn.speaker} (
+                                    {isFemale
+                                      ? t.learning.femaleVoiceBadge
+                                      : t.learning.maleVoiceBadge}
+                                    )
+                                  </span>
+                                  <Volume2
+                                    className="size-3.5 shrink-0 text-white/75"
+                                    aria-hidden
+                                  />
+                                </div>
+                                <p
+                                  className="mt-1 text-xs font-semibold leading-relaxed text-white"
+                                  lang="en"
+                                  dir="ltr"
+                                >
+                                  {turn.textEn}
+                                </p>
+                                {locale === "ar" && (
+                                  <p
+                                    className="mt-0.5 text-[11px] text-sky-200/90"
+                                    lang="ar"
+                                    dir="rtl"
+                                  >
+                                    {turn.textAr}
+                                  </p>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      scene.highlight?.right && (
+                        <button
+                          type="button"
+                          lang="en"
+                          dir="ltr"
+                          onClick={() => {
+                            playSpeech(scene.highlight!.right!, speed, "female");
+                            launchEmojiBurst(["🔊", "🗣️", "✨"], false);
+                          }}
+                          className="w-full rounded-xl border-2 border-emerald-400/55 bg-emerald-950/50 p-4 text-start transition hover:scale-[1.01] hover:border-emerald-300"
+                        >
+                          <p className="flex items-center justify-between gap-2 text-base font-bold leading-relaxed text-emerald-100 md:text-lg">
+                            <span>🗣️ “{scene.highlight.right}”</span>
+                            <Volume2 className="size-5 shrink-0 text-emerald-300" aria-hidden />
                           </p>
-                        )}
-                      </button>
+                        </button>
+                      )
                     )}
                   </div>
                 )}
@@ -695,7 +921,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
             )}
           </div>
 
-          {/* Animated Classroom Cast: Coach Layla, Coach Omar + Animated Learners Sara & Tariq */}
+          {/* Animated Classroom Cast: Coach Layla (Female), Coach Omar (Male) + Animated Learners Sara & Tariq */}
           <AnimatedClassroomCast
             dialogue={scene.dialogue}
             learnerReaction={scene.learnerReaction}
@@ -735,12 +961,12 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
             <div className="relative z-10 mt-2 rounded-lg border border-white/10 bg-black/55 px-3.5 py-2 text-center backdrop-blur-md">
               {(subtitles === "both" || subtitles === "en") && (
                 <p className="text-xs leading-relaxed text-slate-200" lang="en" dir="ltr">
-                  {scene.narrationEn}
+                  {scene.dialogue[activeLineIndex]?.textEn ?? scene.narrationEn}
                 </p>
               )}
               {(subtitles === "both" || subtitles === "ar") && (
                 <p className="mt-0.5 text-xs font-medium text-cyan-200" lang="ar" dir="rtl">
-                  {scene.subtitleAr}
+                  {scene.dialogue[activeLineIndex]?.textAr ?? scene.subtitleAr}
                 </p>
               )}
             </div>
@@ -792,7 +1018,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex items-center gap-1.5">
               <Button
                 type="button"
                 size="sm"

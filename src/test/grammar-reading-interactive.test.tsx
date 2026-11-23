@@ -16,6 +16,7 @@ import {
   scrambleWords,
   type QuestionAnswer,
 } from "@/lib/question-engine";
+import { toNaturalSpokenEnglish } from "@/hooks/use-speech";
 import { useState } from "react";
 import type { LessonQuestion } from "@/content/lesson-types";
 
@@ -46,6 +47,13 @@ function InteractiveQuestionHarness({ question }: { question: LessonQuestion }) 
 }
 
 describe("question-engine and interactive grammar/reading UI", () => {
+  it("normalizes whiteboard grammar notation into natural spoken English without slashes or ellipses", () => {
+    expect(toNaturalSpokenEnglish("📘 He / She / It → is + V-ing…")).toBe(
+      "He, she, or it, is plus verb plus i n g",
+    );
+    expect(toNaturalSpokenEnglish("You / We / They → are")).toBe("You, we, or they, are");
+  });
+
   it("deterministically scrambles words into a different order and verifies rearrangement", () => {
     const ordered = ["Are", "you", "a", "new", "student", "here?"];
     const scrambled = scrambleWords(ordered, "test-seed");
@@ -70,8 +78,8 @@ describe("question-engine and interactive grammar/reading UI", () => {
     );
   });
 
-  it("renders interactive RuleVideoPlayer with animated Teachers & Learners, Emoji Reactions, animated timeline, clickable Pause & Predict choices, and storyboard", () => {
-    const lesson = findLesson("ielts-reading-academic")!;
+  it("renders interactive RuleVideoPlayer with Female & Male teachers, animated learners, Emoji Reactions, whiteboard rule cards, L1 bridge, clickable Pause & Predict, and Male/Female conversation", () => {
+    const lesson = findLesson("a1-introductions")!;
     render(
       <I18nProvider locale="en" theme="light">
         <RuleVideoPlayer video={lesson.explainerVideo!} />
@@ -79,10 +87,10 @@ describe("question-engine and interactive grammar/reading UI", () => {
     );
 
     expect(screen.getAllByText(/4–5 min/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/IELTS · Band 7 Focus/i)).toBeInTheDocument();
+    expect(screen.getByText(/Female voice/i)).toBeInTheDocument();
+    expect(screen.getByText(/Male voice/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Coach Layla/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Coach Omar/i).length).toBeGreaterThan(0);
-    // Animated Learner character renders on stage alongside the teachers
     expect(screen.getAllByText(/Sara|Tariq/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Visuals & On-Screen Actions/i)).toBeInTheDocument();
     expect(screen.getByText(/Spoken Narration/i)).toBeInTheDocument();
@@ -92,9 +100,14 @@ describe("question-engine and interactive grammar/reading UI", () => {
     fireEvent.click(screen.getByRole("button", { name: /Got it!/i }));
     expect(screen.getByText(/\+5 XP/i)).toBeInTheDocument();
 
-    // Jump to Step 1 to verify the animated chronological / sequential visual timeline renders
+    // Jump to Step 1 to verify explicit whiteboard Rule Breakdown Cards (He / She / It takes "is") + visual timeline
     fireEvent.click(screen.getAllByRole("button", { name: /Step 1 · Core Visual/i })[0]!);
     expect(screen.getByText(/Visual timeline & progression/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/takes "is"/i).length).toBeGreaterThan(0);
+
+    // Jump to Step 2 to verify Arabic vs. English Mother-Tongue Bridge
+    fireEvent.click(screen.getAllByRole("button", { name: /Step 2 · Arabic vs. English/i })[0]!);
+    expect(screen.getByText(/Mother-tongue bridge: Arabic vs. English/i)).toBeInTheDocument();
 
     // Jump to Pause & Predict #1 and click the correct interactive choice right inside the video
     fireEvent.click(screen.getAllByRole("button", { name: /Pause & Predict #1/i })[0]!);
@@ -107,16 +120,23 @@ describe("question-engine and interactive grammar/reading UI", () => {
     expect(answerBtn).toBeDefined();
     fireEvent.click(answerBtn);
     expect(screen.getByText(/Revealed answer/i)).toBeInTheDocument();
-    // +5 XP from reaction + 25 XP from solving Pause & Predict = +30 XP
     expect(screen.getByText(/\+30 XP/i)).toBeInTheDocument();
+
+    // Jump to Step 3 to verify playable Male & Female real-life conversation
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /Step 3 · Male & Female Dialogue/i })[0]!,
+    );
+    expect(
+      screen.getByRole("button", { name: /Play full conversation \(Female \+ Male\)/i }),
+    ).toBeInTheDocument();
 
     // Jump to 15-Second Summary & Takeaway Task
     fireEvent.click(screen.getAllByRole("button", { name: /15s Summary & Task/i })[0]!);
     expect(screen.getByText(/15-Second Victory Recap & Task/i)).toBeInTheDocument();
   });
 
-  it("renders DetailedRuleGuideView with formulas, mistakes comparison, and memory tip", () => {
-    const lesson = findLesson("b1-grammar-conditionals")!;
+  it("renders DetailedRuleGuideView with explicit rule breakdown cards, Arabic-to-English bridge, Male/Female conversation, formulas, mistakes, and memory tip", () => {
+    const lesson = findLesson("a1-introductions")!;
     render(
       <I18nProvider locale="en" theme="light">
         <DetailedRuleGuideView guide={lesson.detailedGuide!} skill={lesson.skill} />
@@ -124,6 +144,10 @@ describe("question-engine and interactive grammar/reading UI", () => {
     );
 
     expect(screen.getByText(/Detailed rule explanation/i)).toBeInTheDocument();
+    expect(screen.getByText(/Crystal-clear rule breakdown/i)).toBeInTheDocument();
+    expect(screen.getByText(/takes "is"/i)).toBeInTheDocument();
+    expect(screen.getByText(/Mother-tongue bridge: Arabic vs. English/i)).toBeInTheDocument();
+    expect(screen.getByText(/Real-life male & female conversation/i)).toBeInTheDocument();
     expect(screen.getByText(/Structure & formula table/i)).toBeInTheDocument();
     expect(screen.getByText(/Common mistakes to avoid/i)).toBeInTheDocument();
     expect(screen.getByText(/Quick memory tip/i)).toBeInTheDocument();

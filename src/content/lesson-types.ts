@@ -52,11 +52,51 @@ export interface MistakeComparison {
   why: Bilingual;
 }
 
+export type VoiceGender = "female" | "male";
+
+export interface RuleBreakdownCard {
+  /** Subject or trigger group, e.g. "He / She / It (Singular)" */
+  group: string;
+  /** Explicit rule or verb taken, e.g. 'takes "is"' */
+  takes: string;
+  /** Natural full example sentence */
+  example: string;
+  /** Natural Arabic translation */
+  arabic: string;
+  /** Optional short bilingual ESL clarification */
+  note?: Bilingual;
+}
+
+export interface L1BridgeNote {
+  /** How Arabic typically expresses this idea */
+  arabicHabit: Bilingual;
+  /** How English structures it instead */
+  englishRule: Bilingual;
+  /** One-line core takeaway */
+  keyDifference: Bilingual;
+}
+
+export interface DialogueTurn {
+  speaker: string;
+  gender: VoiceGender;
+  role: "teacher" | "learner";
+  textEn: string;
+  textAr: string;
+  /** Key phrase highlighted in the conversation bubble */
+  focusPhrase?: string;
+}
+
 export interface DetailedRuleGuide {
   summary: Bilingual;
+  /** Explicit visual rule cards (e.g., "I → am", "He / She / It → is", "You / We / They → are") */
+  ruleBreakdown?: RuleBreakdownCard[];
+  /** Mother-tongue bridge contrasting Arabic habits with English structure */
+  l1Bridge?: L1BridgeNote;
   whenToUse: Bilingual[];
   formulas: FormulaRow[];
   commonMistakes: MistakeComparison[];
+  /** Authentic Male & Female sample conversation applying the lesson rule */
+  miniDialogue?: DialogueTurn[];
   memoryTip: Bilingual;
 }
 
@@ -126,6 +166,12 @@ export interface VideoScene {
   dialogue: TeacherLine[];
   /** Live animated learner character (Sara or Tariq) reacting, asking, or celebrating on stage. */
   learnerReaction: LearnerReaction;
+  /** Explicit interactive whiteboard rule cards shown during Step 1. */
+  ruleCards?: RuleBreakdownCard[];
+  /** Mother-tongue Arabic ↔ English bridge shown during Step 2. */
+  l1Bridge?: L1BridgeNote;
+  /** Real-life Male & Female mini-conversation practiced during Step 3. */
+  conversation?: DialogueTurn[];
   /** Animated chronological or sequential visual timeline (tenses, dates, eras, or steps). */
   timeline?: TimelineNode[];
   /** High-quality visual illustration & icon set matched to the lesson skill. */

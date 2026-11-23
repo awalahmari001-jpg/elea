@@ -190,6 +190,13 @@ describe("requested curriculum", () => {
         const speakers = new Set(sc.dialogue.map((d) => d.speaker));
         expect(speakers.has("layla"), `${lesson.id} ${sc.id} layla`).toBe(true);
         expect(speakers.has("omar"), `${lesson.id} ${sc.id} omar`).toBe(true);
+        // Zero robotic clipped ellipsis fragments inside spoken teacher narration/dialogue
+        expect(sc.narrationEn.includes("…"), `${lesson.id} ${sc.id} no clipped narration`).toBe(
+          false,
+        );
+        for (const d of sc.dialogue) {
+          expect(d.textEn.includes("…"), `${lesson.id} ${sc.id} no clipped dialogue`).toBe(false);
+        }
         expect(["sara", "tariq"].includes(sc.learnerReaction.student), `${lesson.id} learner`).toBe(
           true,
         );
@@ -200,6 +207,19 @@ describe("requested curriculum", () => {
       const timelineScenes = video.scenes.filter((s) => (s.timeline?.length ?? 0) >= 3);
       expect(timelineScenes.length, `${lesson.id} visual timeline`).toBeGreaterThanOrEqual(2);
 
+      // Every lesson includes in-depth ESL ruleBreakdown, Arabic-to-English L1 bridge, and Male+Female conversation
+      expect(lesson.detailedGuide, `${lesson.id} detailedGuide`).toBeDefined();
+      expect(
+        lesson.detailedGuide!.ruleBreakdown?.length ?? 0,
+        `${lesson.id} ruleBreakdown`,
+      ).toBeGreaterThanOrEqual(3);
+      expect(lesson.detailedGuide!.l1Bridge, `${lesson.id} l1Bridge`).toBeDefined();
+      const dlg = lesson.detailedGuide!.miniDialogue ?? [];
+      expect(dlg.length, `${lesson.id} miniDialogue >= 4`).toBeGreaterThanOrEqual(4);
+      const genders = new Set(dlg.map((t) => t.gender));
+      expect(genders.has("female"), `${lesson.id} dialogue has female voice`).toBe(true);
+      expect(genders.has("male"), `${lesson.id} dialogue has male voice`).toBe(true);
+
       // 7. 15-second active summary + reflection/takeaway task
       const last = video.scenes[video.scenes.length - 1]!;
       expect(last.layout, `${lesson.id} summary layout`).toBe("summary");
@@ -207,6 +227,15 @@ describe("requested curriculum", () => {
       expect(last.takeawayTask?.en.length ?? 0, `${lesson.id} takeaway.en`).toBeGreaterThan(20);
       expect(last.takeawayTask?.ar.length ?? 0, `${lesson.id} takeaway.ar`).toBeGreaterThan(15);
     }
+
+    // Explicit ESL verification: Verb 'to be' clearly breaks down I -> am, He/She/It -> is, You/We/They -> are
+    const intro = findLesson("a1-introductions")!;
+    const cards = intro.detailedGuide!.ruleBreakdown!;
+    expect(cards.some((c) => /He \/ She \/ It/i.test(c.group) && /"is"/i.test(c.takes))).toBe(true);
+    expect(cards.some((c) => /\bI\b/.test(c.group) && /"am"/i.test(c.takes))).toBe(true);
+    expect(cards.some((c) => /You \/ We \/ They/i.test(c.group) && /"are"/i.test(c.takes))).toBe(
+      true,
+    );
   });
 
   it("every grammar and reading lesson across all courses includes a detailed explanation and at least 4 question formats", () => {
