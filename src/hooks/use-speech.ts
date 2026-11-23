@@ -111,49 +111,128 @@ export function useSpeech(onTranscript: (text: string) => void) {
 export type VoiceGender = "female" | "male";
 export type VoiceRole = "female-teacher" | "male-teacher" | "female-student" | "male-student";
 
-const FEMALE_VOICE_HINTS = [
+const PROFESSIONAL_FEMALE_HINTS = [
   "google uk english female",
+  "google us english",
   "sonia",
   "libby",
-  "maisie",
-  "serena",
-  "kate",
-  "martha",
-  "samantha",
-  "victoria",
-  "ava",
-  "allison",
   "aria",
   "jenny",
-  "zira",
-  "hazel",
-  "susan",
-  "karen",
-  "moira",
-  "tessa",
-  "fiona",
+  "ava",
+  "emma",
+  "natasha",
+  "clara",
+  "serena",
+  "stephanie",
+  "kate",
+  "zoe",
+  "allison",
+  "samantha",
+  "matilda",
   "female",
 ];
 
-const MALE_VOICE_HINTS = [
+const PROFESSIONAL_MALE_HINTS = [
   "google uk english male",
   "ryan",
+  "andrew",
+  "guy",
+  "brian",
+  "christopher",
   "daniel",
   "arthur",
-  "george",
   "oliver",
-  "malcolm",
+  "george",
   "thomas",
+  "malcolm",
   "alex",
-  "guy",
-  "andrew",
-  "christopher",
-  "david",
-  "mark",
   "james",
   "liam",
+  "david",
+  "mark",
   "male",
 ];
+
+/** Robotic desktop legacy voices, child voices, or novelty voices that never sound like a professional ESL teacher. */
+const UNPROFESSIONAL_VOICE_HINTS = [
+  "zira",
+  "hazel",
+  "susan",
+  "heera",
+  "linda",
+  "catherine",
+  "maisie",
+  "ana",
+  "victoria",
+  "fiona",
+  "moira",
+  "karen",
+  "tessa",
+  "martha",
+  "whisper",
+  "bubbles",
+  "bells",
+  "zarvox",
+  "boing",
+  "trinoids",
+  "albert",
+  "bad news",
+  "good news",
+  "jester",
+  "organ",
+  "superstar",
+  "wobble",
+  "cellos",
+  "bahh",
+  "flo",
+  "grandma",
+  "grandpa",
+  "shelley",
+  "sandy",
+  "eddy",
+  "reed",
+  "rocko",
+  "espeak",
+  "festival",
+];
+
+function hasToken(name: string, token: string): boolean {
+  const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\b${escaped}\\b`, "i").test(name);
+}
+
+function isStudioQualityVoice(voice: SpeechSynthesisVoice): boolean {
+  const name = voice.name.toLowerCase();
+  return (
+    name.includes("natural") ||
+    name.includes("neural") ||
+    name.includes("premium") ||
+    name.includes("enhanced") ||
+    name.includes("google uk english") ||
+    name.includes("google us english") ||
+    name.includes("online") ||
+    name.includes("siri")
+  );
+}
+
+function isDisallowedVoice(voice: SpeechSynthesisVoice): boolean {
+  const name = voice.name.toLowerCase();
+  if (UNPROFESSIONAL_VOICE_HINTS.some((h) => hasToken(name, h))) {
+    // Allow an Apple voice only if it is explicitly Enhanced/Premium/Natural (never compact/desktop)
+    const isLegacyOrNovelty =
+      hasToken(name, "zira") ||
+      hasToken(name, "hazel") ||
+      hasToken(name, "susan") ||
+      hasToken(name, "maisie") ||
+      hasToken(name, "ana") ||
+      hasToken(name, "espeak") ||
+      hasToken(name, "festival");
+    if (isLegacyOrNovelty || !isStudioQualityVoice(voice)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /**
  * Converts whiteboard notation into smooth, natural spoken English so browser TTS
@@ -193,27 +272,36 @@ export function toNaturalSpokenEnglish(raw: string): string {
 function scoreEnglishVoice(voice: SpeechSynthesisVoice, gender: VoiceGender): number {
   const name = voice.name.toLowerCase();
   const lang = voice.lang.toLowerCase();
-  if (!lang.startsWith("en")) return -100;
+  if (!lang.startsWith("en")) return -200;
+  if (isDisallowedVoice(voice)) return -150;
 
   let score = 0;
-  if (lang.startsWith("en-gb")) score += 20;
-  else if (lang.startsWith("en-us")) score += 16;
+  if (lang.startsWith("en-gb")) score += 22;
+  else if (lang.startsWith("en-us")) score += 18;
   else score += 10;
 
-  // Prefer natural / neural / enhanced voices over robotic legacy voices
-  if (name.includes("natural") || name.includes("neural") || name.includes("enhanced")) score += 25;
-  if (name.includes("google") || name.includes("microsoft")) score += 12;
+  // Strongly prefer Neural / Natural / Premium / Enhanced / Google studio voices
+  if (name.includes("natural") || name.includes("neural") || name.includes("online")) score += 45;
+  if (name.includes("premium") || name.includes("enhanced")) score += 38;
+  if (name.includes("google uk english") || name.includes("google us english")) score += 36;
+  if (name.includes("siri")) score += 30;
 
-  const targetHints = gender === "female" ? FEMALE_VOICE_HINTS : MALE_VOICE_HINTS;
-  const oppositeHints = gender === "female" ? MALE_VOICE_HINTS : FEMALE_VOICE_HINTS;
+  const targetHints = gender === "female" ? PROFESSIONAL_FEMALE_HINTS : PROFESSIONAL_MALE_HINTS;
+  const oppositeHints = gender === "female" ? PROFESSIONAL_MALE_HINTS : PROFESSIONAL_FEMALE_HINTS;
 
-  if (targetHints.some((h) => name.includes(h))) score += 50;
-  if (oppositeHints.some((h) => name.includes(h))) score -= 45;
+  // Use exact word boundaries so "male" NEVER penalizes "female"!
+  if (targetHints.some((h) => hasToken(name, h))) score += 55;
+  if (oppositeHints.some((h) => hasToken(name, h))) score -= 75;
 
   return score;
 }
 
-/** Picks a distinct, high-clarity English voice matching the requested gender when available. */
+/**
+ * Picks a professional, studio-grade English voice for the requested gender.
+ * For female voices: ONLY accepts a genuinely professional (Neural / Natural / Premium / Enhanced / Google)
+ * female voice that matches the quality of the male voice; if unavailable, returns null so callers
+ * can cleanly fall back to the professional male voice instead of using a robotic voice.
+ */
 export function pickVoiceForGender(
   gender: VoiceGender,
   excludeVoiceName?: string,
@@ -224,24 +312,52 @@ export function pickVoiceForGender(
     .filter((v) => v.lang.toLowerCase().startsWith("en"));
   if (voices.length === 0) return null;
 
-  const ranked = [...voices].sort((a, b) => {
-    const diff = scoreEnglishVoice(b, gender) - scoreEnglishVoice(a, gender);
-    if (diff !== 0) return diff;
-    return a.name.localeCompare(b.name);
-  });
+  const ranked = [...voices]
+    .map((voice) => ({ voice, score: scoreEnglishVoice(voice, gender) }))
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.voice.name.localeCompare(b.voice.name);
+    });
 
-  if (excludeVoiceName && ranked.length > 1) {
-    const distinct = ranked.find((v) => v.name !== excludeVoiceName);
-    if (distinct) return distinct;
+  const filtered = excludeVoiceName
+    ? ranked.filter((entry) => entry.voice.name !== excludeVoiceName)
+    : ranked;
+
+  const best = filtered[0] ?? ranked[0];
+  if (!best) return null;
+
+  if (gender === "female") {
+    const name = best.voice.name.toLowerCase();
+    const isExplicitFemale = PROFESSIONAL_FEMALE_HINTS.some((h) => hasToken(name, h));
+    const isMaleVoice = PROFESSIONAL_MALE_HINTS.some((h) => hasToken(name, h));
+    // Require a genuinely professional, studio-quality female voice (never robotic desktop voices)
+    if (!isExplicitFemale || isMaleVoice || !isStudioQualityVoice(best.voice) || best.score < 90) {
+      return null;
+    }
   }
-  return ranked[0] ?? null;
+
+  return best.score > -100 ? best.voice : null;
 }
 
 export function roleToGender(role: VoiceRole): VoiceGender {
   return role === "female-teacher" || role === "female-student" ? "female" : "male";
 }
 
-/** Speaks a full sentence cleanly using a gender-matched English voice with completion callback. */
+/**
+ * Resolves the highest-clarity professional voice for a speaker role.
+ * Uses a studio-quality Female voice when available; otherwise automatically falls back
+ * to the professional Male voice at natural pitch (never using a robotic female voice).
+ */
+export function resolveVoiceForRole(role: VoiceRole): SpeechSynthesisVoice | null {
+  const maleVoice = pickVoiceForGender("male");
+  if (roleToGender(role) === "male") {
+    return maleVoice;
+  }
+  const professionalFemale = pickVoiceForGender("female", maleVoice?.name);
+  return professionalFemale ?? maleVoice;
+}
+
+/** Speaks a full sentence cleanly using a professional English voice with completion callback. */
 export function speakAsRole(
   text: string,
   role: VoiceRole,
@@ -261,10 +377,7 @@ export function speakAsRole(
   }
 
   window.speechSynthesis.cancel();
-  const gender = roleToGender(role);
-  const oppositeGender: VoiceGender = gender === "female" ? "male" : "female";
-  const oppositeVoice = pickVoiceForGender(oppositeGender);
-  const voice = pickVoiceForGender(gender, oppositeVoice?.name);
+  const voice = resolveVoiceForRole(role);
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
   utterance.lang = voice?.lang || "en-GB";
@@ -272,15 +385,8 @@ export function speakAsRole(
 
   const baseRate = options?.rate ?? 0.94;
   utterance.rate = Math.min(1.25, Math.max(0.75, baseRate));
-
-  // If browser has only a single English voice, apply gentle natural intonation difference;
-  // when distinct Male & Female voices exist, keep pitch completely natural (1.0).
-  const distinctFound = Boolean(voice && (!oppositeVoice || voice.name !== oppositeVoice.name));
-  if (distinctFound) {
-    utterance.pitch = role.includes("student") ? 1.03 : 1.0;
-  } else {
-    utterance.pitch = gender === "female" ? 1.08 : 0.9;
-  }
+  // Always keep natural 1.0 pitch (avoid artificial pitch-warping that sounds robotic)
+  utterance.pitch = 1.0;
 
   if (options?.onEnd) utterance.onend = () => options.onEnd?.();
   if (options?.onError) utterance.onerror = () => options.onError?.();

@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { useSpeech } from "@/hooks/use-speech";
+import { resolveVoiceForRole, useSpeech } from "@/hooks/use-speech";
 
 class RecognitionMock {
   static current: RecognitionMock | undefined;
@@ -22,8 +22,21 @@ class RecognitionMock {
     RecognitionMock.current = this;
   }
 }
+
+function mockVoices(list: { name: string; lang: string }[]) {
+  Object.defineProperty(window, "speechSynthesis", {
+    value: {
+      getVoices: () => list as unknown as SpeechSynthesisVoice[],
+      cancel: vi.fn(),
+      speak: vi.fn(),
+    },
+    configurable: true,
+  });
+}
+
 afterEach(() => {
   Reflect.deleteProperty(window, "SpeechRecognition");
+  Reflect.deleteProperty(window, "speechSynthesis");
   RecognitionMock.current = undefined;
   vi.restoreAllMocks();
 });
@@ -68,5 +81,47 @@ describe("browser ASR lifecycle", () => {
     expect(result.current.supported).toBe(false);
     act(() => result.current.start());
     expect(result.current.error).toBe("unsupported");
+  });
+});
+
+describe("professional Female & Male voice resolution", () => {
+  it("selects studio-grade Google UK English Female (not penalized by 'male' substring) over robotic desktop voices", () => {
+    mockVoices([
+      { name: "Microsoft Hazel - English (United Kingdom)", lang: "en-GB" },
+      { name: "Microsoft Zira - English (United States)", lang: "en-US" },
+      { name: "Google UK English Female", lang: "en-GB" },
+      { name: "Google UK English Male", lang: "en-GB" },
+    ]);
+
+    expect(resolveVoiceForRole("female-teacher")?.name).toBe("Google UK English Female");
+    expect(resolveVoiceForRole("male-teacher")?.name).toBe("Google UK English Male");
+  });
+
+  it("prefers Microsoft Online Natural female voice alongside Natural male voice", () => {
+    mockVoices([
+      { name: "Microsoft Zira Desktop", lang: "en-US" },
+      { name: "Microsoft Maisie Online (Natural) - English (United Kingdom)", lang: "en-GB" },
+      { name: "Microsoft Sonia Online (Natural) - English (United Kingdom)", lang: "en-GB" },
+      { name: "Microsoft Ryan Online (Natural) - English (United Kingdom)", lang: "en-GB" },
+    ]);
+
+    expect(resolveVoiceForRole("female-teacher")?.name).toBe(
+      "Microsoft Sonia Online (Natural) - English (United Kingdom)",
+    );
+    expect(resolveVoiceForRole("male-teacher")?.name).toBe(
+      "Microsoft Ryan Online (Natural) - English (United Kingdom)",
+    );
+  });
+
+  it("falls back to the professional Male voice when only robotic or child female voices are available", () => {
+    mockVoices([
+      { name: "Microsoft Hazel - English (United Kingdom)", lang: "en-GB" },
+      { name: "Microsoft Zira - English (United States)", lang: "en-US" },
+      { name: "Samantha", lang: "en-US" },
+      { name: "Google UK English Male", lang: "en-GB" },
+    ]);
+
+    expect(resolveVoiceForRole("male-teacher")?.name).toBe("Google UK English Male");
+    expect(resolveVoiceForRole("female-teacher")?.name).toBe("Google UK English Male");
   });
 });
