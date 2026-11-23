@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdultsRouteImport } from './routes/adults'
+import { Route as BusinessRouteImport } from './routes/business'
 import { Route as CefrMasteryRouteImport } from './routes/cefr-mastery'
 import { Route as IeltsRouteImport } from './routes/ielts'
 import { Route as IeltsVocabularyRouteImport } from './routes/ielts-vocabulary'
@@ -30,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdultsRoute = AdultsRouteImport.update({
   id: '/adults',
   path: '/adults',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessRoute = BusinessRouteImport.update({
+  id: '/business',
+  path: '/business',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CefrMasteryRoute = CefrMasteryRouteImport.update({
@@ -86,6 +92,7 @@ const LessonsLessonRoute = LessonsLessonRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/adults': typeof AdultsRoute
+  '/business': typeof BusinessRoute
   '/cefr-mastery': typeof CefrMasteryRoute
   '/ielts': typeof IeltsRoute
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/adults': typeof AdultsRoute
+  '/business': typeof BusinessRoute
   '/cefr-mastery': typeof CefrMasteryRoute
   '/ielts': typeof IeltsRoute
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/adults': typeof AdultsRoute
+  '/business': typeof BusinessRoute
   '/cefr-mastery': typeof CefrMasteryRoute
   '/ielts': typeof IeltsRoute
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/adults'
+    | '/business'
     | '/cefr-mastery'
     | '/ielts'
     | '/ielts-vocabulary'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/adults'
+    | '/business'
     | '/cefr-mastery'
     | '/ielts'
     | '/ielts-vocabulary'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/adults'
+    | '/business'
     | '/cefr-mastery'
     | '/ielts'
     | '/ielts-vocabulary'
@@ -174,6 +186,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdultsRoute: typeof AdultsRoute
+  BusinessRoute: typeof BusinessRoute
   CefrMasteryRoute: typeof CefrMasteryRoute
   IeltsRoute: typeof IeltsRoute
   IeltsVocabularyRoute: typeof IeltsVocabularyRoute
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/adults'
       fullPath: '/adults'
       preLoaderRoute: typeof AdultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/business': {
+      id: '/business'
+      path: '/business'
+      fullPath: '/business'
+      preLoaderRoute: typeof BusinessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cefr-mastery': {
@@ -278,6 +298,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdultsRoute: AdultsRoute,
+  BusinessRoute: BusinessRoute,
   CefrMasteryRoute: CefrMasteryRoute,
   IeltsRoute: IeltsRoute,
   IeltsVocabularyRoute: IeltsVocabularyRoute,

@@ -67,6 +67,17 @@ export function SiteFooter() {
             </li>
             <li>
               <Link
+                to="/business"
+                className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
+              >
+                {t.nav.business}{" "}
+                <span className="text-inverse-muted" dir="ltr">
+                  · 18 Sectors
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/courses"
                 className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
               >

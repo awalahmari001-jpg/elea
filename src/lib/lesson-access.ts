@@ -52,11 +52,21 @@ export function lockedLessonIds(lessons: Lesson[], joined: string[]): Set<string
 }
 
 /** Where a locked lesson sends the learner to join its course. */
-export function courseHome(lesson: Lesson):
+export function courseHome(
+  lesson: Lesson,
+):
   | { to: "/kids" | "/adults" | "/ielts" }
   | { to: "/courses/$level"; params: { level: CourseSlug } } {
   if (lesson.course === "kids") return { to: "/kids" };
   if (lesson.course === "adults") return { to: "/adults" };
   if (lesson.course === "ielts") return { to: "/ielts" };
   return { to: "/courses/$level", params: { level: lesson.course as CourseSlug } };
+}
+
+/**
+ * Business English Course access rule: the first module in each track is a free
+ * preview; the rest unlock once the learner joins the Business English Course.
+ */
+export function isBusinessItemUnlocked(index: number, joinedBusiness: boolean): boolean {
+  return index === 0 || joinedBusiness;
 }

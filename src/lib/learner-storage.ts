@@ -18,6 +18,7 @@ const KEYS = {
   ieltsVocab: "ele.ielts.vocab",
   cefrMastery: "ele.cefr.mastery",
   selfLearning: "ele.self.learning",
+  business: "ele.business.course",
 } as const;
 
 function read<T>(key: string): T | null {
@@ -259,7 +260,53 @@ export const learnerStorage = {
     write(KEYS.selfLearning, next);
     return next;
   },
+  getBusiness: (): BusinessCourseProgress => {
+    const saved = read<BusinessCourseProgress>(KEYS.business);
+    if (!saved || typeof saved !== "object") {
+      return {
+        joined: false,
+        masteredVocabIds: [],
+        completedSkillIds: [],
+        completedMeetingIds: [],
+        practicedInterviewIds: [],
+        updatedAt: "",
+      };
+    }
+    return {
+      joined: Boolean(saved.joined),
+      masteredVocabIds: Array.isArray(saved.masteredVocabIds) ? saved.masteredVocabIds : [],
+      completedSkillIds: Array.isArray(saved.completedSkillIds) ? saved.completedSkillIds : [],
+      completedMeetingIds: Array.isArray(saved.completedMeetingIds)
+        ? saved.completedMeetingIds
+        : [],
+      practicedInterviewIds: Array.isArray(saved.practicedInterviewIds)
+        ? saved.practicedInterviewIds
+        : [],
+      updatedAt: typeof saved.updatedAt === "string" ? saved.updatedAt : "",
+    };
+  },
+  saveBusiness: (nextData: Omit<BusinessCourseProgress, "updatedAt">): BusinessCourseProgress => {
+    const next: BusinessCourseProgress = {
+      joined: nextData.joined,
+      masteredVocabIds: Array.from(new Set(nextData.masteredVocabIds)),
+      completedSkillIds: Array.from(new Set(nextData.completedSkillIds)),
+      completedMeetingIds: Array.from(new Set(nextData.completedMeetingIds)),
+      practicedInterviewIds: Array.from(new Set(nextData.practicedInterviewIds)),
+      updatedAt: new Date().toISOString(),
+    };
+    write(KEYS.business, next);
+    return next;
+  },
 };
+
+export interface BusinessCourseProgress {
+  joined: boolean;
+  masteredVocabIds: string[];
+  completedSkillIds: string[];
+  completedMeetingIds: string[];
+  practicedInterviewIds: string[];
+  updatedAt: string;
+}
 
 /**
  * Joining rule: a learner has at most ONE level course (A1–C2) at a time, plus
