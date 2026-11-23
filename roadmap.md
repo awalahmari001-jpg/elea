@@ -39,4 +39,5 @@
 ## Expanded four-skill topics (requested 22 Nov)
 - [ ] Expand IELTS, Kids and Adults to at least 30 different topics for each of listening, reading, writing and speaking
 - [ ] Include level-appropriate teaching, contextual practice, bilingual explanations and writing models
+- [ ] Explain grammar rules before practice, with examples and understanding checks (requested 23 Nov)
 - [ ] Verify topic counts, existing lesson locks and browser lesson flows
