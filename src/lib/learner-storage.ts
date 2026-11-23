@@ -1,11 +1,13 @@
 import { ALL_COURSES, type CefrLevel } from "@/content/courses";
+import type { SelfLearningTopicId, TranslationVerdict } from "@/content/self-learning/types";
 import type { CefrMasteryIndicatorId } from "@/content/vocab/vocab-types";
 import { isJoinableCourse, type JoinableCourse } from "./lesson-access";
 import type { PlacementAnswers, PlacementResult } from "./placement";
+import { computeNextReview } from "./translation-fallback";
 
 /**
- * Saves the learner's test progress, result, courses, vocabulary mastery, and CEFR mastery
- * in this browser. When accounts are added, these move to the learner's account.
+ * Saves the learner's test progress, result, courses, vocabulary mastery, CEFR mastery,
+ * and Self-learning Pace history in this browser. When accounts are added, these move to the learner's account.
  */
 const KEYS = {
   progress: "ele.placement.progress",
@@ -15,6 +17,7 @@ const KEYS = {
   assessments: "ele.assessments.results",
   ieltsVocab: "ele.ielts.vocab",
   cefrMastery: "ele.cefr.mastery",
+  selfLearning: "ele.self.learning",
 } as const;
 
 function read<T>(key: string): T | null {
@@ -69,12 +72,46 @@ export interface CefrLevelMasteryRecord {
 
 export type CefrMasteryProgress = Partial<Record<CefrLevel, CefrLevelMasteryRecord>>;
 
+export interface SelfLearningSentenceRecord {
+  id: string;
+  level: CefrLevel;
+  topic: SelfLearningTopicId;
+  grammarFocus: string;
+  keyVocab: string[];
+  status: TranslationVerdict;
+  lastScore: number;
+  attemptsCount: number;
+  correctCount: number;
+  lastResponse: string;
+  intervalDays: number;
+  nextReviewAt: string;
+  updatedAt: string;
+}
+
+export interface SelfLearningProgress {
+  records: Record<string, SelfLearningSentenceRecord>;
+  totalSecondsSpent: number;
+  dailyDate: string;
+  dailyCompletedIds: string[];
+  updatedAt: string;
+}
+
 export function classifyAwareness(score: number, total = 10): AwarenessBand {
   const ratio = total > 0 ? score / total : 0;
   if (ratio >= 0.9) return "mastery";
   if (ratio >= 0.7) return "proficient";
   if (ratio >= 0.5) return "developing";
   return "review";
+}
+
+function emptySelfLearning(): SelfLearningProgress {
+  return {
+    records: {},
+    totalSecondsSpent: 0,
+    dailyDate: "",
+    dailyCompletedIds: [],
+    updatedAt: "",
+  };
 }
 
 export const learnerStorage = {
@@ -143,6 +180,83 @@ export const learnerStorage = {
       },
     };
     write(KEYS.cefrMastery, next);
+    return next;
+  },
+  getSelfLearning: (): SelfLearningProgress => {
+    const saved = read<SelfLearningProgress>(KEYS.selfLearning);
+    if (!saved || typeof saved !== "object") return emptySelfLearning();
+    return {
+      records: saved.records && typeof saved.records === "object" ? saved.records : {},
+      totalSecondsSpent: typeof saved.totalSecondsSpent === "number" ? saved.totalSecondsSpent : 0,
+      dailyDate: typeof saved.dailyDate === "string" ? saved.dailyDate : "",
+      dailyCompletedIds: Array.isArray(saved.dailyCompletedIds) ? saved.dailyCompletedIds : [],
+      updatedAt: typeof saved.updatedAt === "string" ? saved.updatedAt : "",
+    };
+  },
+  saveSelfLearningAttempt: (input: {
+    id: string;
+    level: CefrLevel;
+    topic: SelfLearningTopicId;
+    grammarFocus: string;
+    keyVocab: string[];
+    verdict: TranslationVerdict;
+    score: number;
+    learnerResponse: string;
+    isDaily?: boolean;
+    todayIso?: string;
+  }): SelfLearningProgress => {
+    const current = learnerStorage.getSelfLearning();
+    const prev = current.records[input.id];
+    const isCorrect =
+      input.verdict === "completely_correct" || input.verdict === "acceptable_alternative";
+    const schedule = computeNextReview(input.verdict, prev?.intervalDays ?? 0);
+    const nowIso = new Date().toISOString();
+    const today = input.todayIso ?? nowIso.slice(0, 10);
+
+    const dailyIds =
+      input.isDaily && isCorrect
+        ? current.dailyDate === today
+          ? Array.from(new Set([...current.dailyCompletedIds, input.id]))
+          : [input.id]
+        : current.dailyDate === today
+          ? current.dailyCompletedIds
+          : [];
+
+    const next: SelfLearningProgress = {
+      records: {
+        ...current.records,
+        [input.id]: {
+          id: input.id,
+          level: input.level,
+          topic: input.topic,
+          grammarFocus: input.grammarFocus,
+          keyVocab: input.keyVocab,
+          status: input.verdict,
+          lastScore: input.score,
+          attemptsCount: (prev?.attemptsCount ?? 0) + 1,
+          correctCount: (prev?.correctCount ?? 0) + (isCorrect ? 1 : 0),
+          lastResponse: input.learnerResponse,
+          intervalDays: schedule.intervalDays,
+          nextReviewAt: schedule.nextReviewAt,
+          updatedAt: nowIso,
+        },
+      },
+      totalSecondsSpent: current.totalSecondsSpent,
+      dailyDate: today,
+      dailyCompletedIds: dailyIds,
+      updatedAt: nowIso,
+    };
+    write(KEYS.selfLearning, next);
+    return next;
+  },
+  addSelfLearningSeconds: (seconds: number): SelfLearningProgress => {
+    const current = learnerStorage.getSelfLearning();
+    const next: SelfLearningProgress = {
+      ...current,
+      totalSecondsSpent: current.totalSecondsSpent + Math.max(0, Math.round(seconds)),
+      updatedAt: new Date().toISOString(),
+    };
+    write(KEYS.selfLearning, next);
     return next;
   },
 };

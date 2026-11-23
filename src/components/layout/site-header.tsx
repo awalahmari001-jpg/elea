@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ClipboardCheck, Menu } from "lucide-react";
+import { BookMarked, ClipboardCheck, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,13 +16,14 @@ import { LanguageSwitcher } from "./language-switcher";
 import { ThemeToggle } from "./theme-toggle";
 
 const NAV_LINKS = [
-  { to: "/", key: "home" },
-  { to: "/kids", key: "kids" },
-  { to: "/adults", key: "adults" },
-  { to: "/ielts", key: "ielts" },
-  { to: "/ielts-vocabulary", key: "ieltsVocab" },
-  { to: "/cefr-mastery", key: "cefrMastery" },
-  { to: "/courses", key: "courses" },
+  { to: "/", key: "home", icon: false },
+  { to: "/kids", key: "kids", icon: false },
+  { to: "/adults", key: "adults", icon: false },
+  { to: "/ielts", key: "ielts", icon: false },
+  { to: "/ielts-vocabulary", key: "ieltsVocab", icon: false },
+  { to: "/cefr-mastery", key: "cefrMastery", icon: false },
+  { to: "/self-learning", key: "selfLearning", icon: true },
+  { to: "/courses", key: "courses", icon: false },
 ] as const;
 
 export function SiteHeader() {
@@ -33,15 +34,16 @@ export function SiteHeader() {
       <div className="container-page flex h-18 items-center justify-between gap-4 py-3">
         <BrandLogo />
 
-        <nav aria-label={t.nav.paths} className="hidden items-center gap-1 lg:flex">
+        <nav aria-label={t.nav.paths} className="hidden items-center gap-1 xl:flex">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.to}
               to={link.to}
               activeOptions={{ exact: true }}
-              className="rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               activeProps={{ className: "bg-secondary text-secondary-foreground" }}
             >
+              {link.icon && <BookMarked className="size-4 text-primary" aria-hidden />}
               {t.nav[link.key]}
             </Link>
           ))}
@@ -69,7 +71,7 @@ export function SiteHeader() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-full lg:hidden"
+                className="rounded-full xl:hidden"
                 aria-label={t.nav.openMenu}
               >
                 <Menu />
@@ -89,9 +91,10 @@ export function SiteHeader() {
                     <Link
                       to={link.to}
                       activeOptions={{ exact: true }}
-                      className="rounded-xl px-4 py-3 text-lg font-semibold text-foreground hover:bg-muted"
+                      className="inline-flex items-center gap-2 rounded-xl px-4 py-3 text-lg font-semibold text-foreground hover:bg-muted"
                       activeProps={{ className: "bg-secondary text-secondary-foreground" }}
                     >
+                      {link.icon && <BookMarked className="size-5 text-primary" aria-hidden />}
                       {t.nav[link.key]}
                     </Link>
                   </SheetClose>
