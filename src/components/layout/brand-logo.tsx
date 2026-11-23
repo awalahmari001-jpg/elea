@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 
-import logo from "@/assets/easy-learning-english-logo.webp.asset.json";
 import { SITE } from "@/config/site";
 import { useI18n } from "@/components/i18n-provider";
 import { cn } from "@/lib/utils";
@@ -17,7 +16,7 @@ export function BrandLogo({
   return (
     <Link to="/" className={cn("group flex items-center gap-3", className)}>
       <img
-        src={logo.url}
+        src="/apple-touch-icon.png"
         alt=""
         width={48}
         height={48}

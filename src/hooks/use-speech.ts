@@ -108,16 +108,22 @@ export function useSpeech(onTranscript: (text: string) => void) {
   return { supported, listening, error, start, stop: () => recognition.current?.stop() };
 }
 
-export function playSpeech(text: string): boolean {
+export function playSpeech(text: string, rate = 0.9): boolean {
   if (!window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined") return false;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "en-GB";
-  utterance.rate = 0.9;
+  utterance.rate = rate;
   const voice =
     window.speechSynthesis.getVoices().find((v) => v.lang.startsWith("en-GB")) ??
     window.speechSynthesis.getVoices().find((v) => v.lang.startsWith("en"));
   if (voice) utterance.voice = voice;
   window.speechSynthesis.speak(utterance);
   return true;
+}
+
+export function stopSpeech(): void {
+  if (typeof window !== "undefined") {
+    window.speechSynthesis?.cancel();
+  }
 }

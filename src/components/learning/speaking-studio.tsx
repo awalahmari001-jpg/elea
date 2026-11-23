@@ -13,15 +13,19 @@ import {
 import { format } from "@/lib/i18n/messages";
 import { SpeakingConversation } from "./speaking-conversation";
 
+const SPEAKING_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
+
 export function SpeakingStudio() {
   const { t, locale } = useI18n();
   const { courses } = useLearner();
   const [category, setCategory] = useState<SpeakingCategory | "all">("all");
+  const [level, setLevel] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(SPEAKING_SITUATIONS[0]?.id ?? "");
   const filtered = SPEAKING_SITUATIONS.filter(
     (s) =>
       (category === "all" || s.category === category) &&
+      (level === "all" || s.level === level) &&
       `${s.title.en} ${s.title.ar} ${s.level}`.toLowerCase().includes(search.toLowerCase().trim()),
   );
   const situation = SPEAKING_SITUATIONS.find((s) => s.id === selected);
@@ -46,7 +50,7 @@ export function SpeakingStudio() {
           {format(t.learning.situationsCount, { count: SPEAKING_SITUATIONS.length })}
         </p>
       </header>
-      <div className="mb-6 flex flex-wrap gap-2" role="group" aria-label={t.learning.choose}>
+      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label={t.learning.choose}>
         <Button
           variant={category === "all" ? "default" : "outline"}
           aria-pressed={category === "all"}
@@ -62,6 +66,28 @@ export function SpeakingStudio() {
             onClick={() => setCategory(c)}
           >
             {c === "ielts" ? t.nav.ielts : t.learning[c]}
+          </Button>
+        ))}
+      </div>
+      <div className="mb-6 flex flex-wrap items-center gap-2" role="group" aria-label={t.learning.levelFilter}>
+        <span className="text-xs font-bold text-muted-foreground">{t.learning.levelFilter}:</span>
+        <Button
+          size="sm"
+          variant={level === "all" ? "secondary" : "outline"}
+          aria-pressed={level === "all"}
+          onClick={() => setLevel("all")}
+        >
+          {t.learning.allLevels}
+        </Button>
+        {SPEAKING_LEVELS.map((lv) => (
+          <Button
+            key={lv}
+            size="sm"
+            variant={level === lv ? "secondary" : "outline"}
+            aria-pressed={level === lv}
+            onClick={() => setLevel(lv)}
+          >
+            {lv}
           </Button>
         ))}
       </div>

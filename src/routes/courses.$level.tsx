@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
-import { ArrowLeft, Check, ClipboardCheck, Mic } from "lucide-react";
+import { ArrowLeft, BookOpen, Check, ClipboardCheck, Headphones, Mic, PenLine, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,16 @@ import { useLearner } from "@/hooks/use-learner";
 import { format, messages } from "@/lib/i18n/messages";
 import { normalizeLocale } from "@/lib/i18n/config";
 import { LessonList } from "@/components/learning/lesson-list";
-import { courseLessons } from "@/content/lessons";
+import { courseLessons, type LessonSkill } from "@/content/lessons";
 import { lockedLessonIds } from "@/lib/lesson-access";
+
+const COURSE_SKILLS: { key: LessonSkill; Icon: typeof BookOpen }[] = [
+  { key: "grammar", Icon: Sparkles },
+  { key: "reading", Icon: BookOpen },
+  { key: "listening", Icon: Headphones },
+  { key: "writing", Icon: PenLine },
+  { key: "speaking", Icon: Mic },
+];
 
 export const Route = createFileRoute("/courses/$level")({
   loader: ({ params }) => {
@@ -46,9 +55,11 @@ function CoursePage() {
   const course = getCourseBySlug(slug);
   const { t, locale } = useI18n();
   const { courses, hasJoined, joinCourse } = useLearner();
+  const [skill, setSkill] = useState<LessonSkill | "all">("all");
   const joined = hasJoined(course.slug);
   const label = course.kind === "level" ? course.badge : course.name[locale];
   const lessons = courseLessons(slug);
+  const visible = lessons.filter((l) => skill === "all" || l.skill === skill);
 
   return (
     <>
@@ -129,9 +140,16 @@ function CoursePage() {
       </section>
       <section className="border-t border-border py-12">
         <div className="container-page">
-          <h2 className="mb-6 text-3xl font-bold">
-            {slug === "speaking" ? t.learning.situationsTitle : t.learning.lessons}
-          </h2>
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+            <h2 className="text-3xl font-bold">
+              {slug === "speaking" ? t.learning.situationsTitle : t.learning.lessons}
+            </h2>
+            {slug !== "speaking" && (
+              <span className="rounded-full bg-secondary px-3.5 py-1 text-sm font-bold text-secondary-foreground">
+                {format(t.learning.lessonCount, { count: visible.length })}
+              </span>
+            )}
+          </div>
           {slug === "speaking" ? (
             <Button asChild size="lg">
               <Link to="/speaking">
@@ -140,7 +158,37 @@ function CoursePage() {
               </Link>
             </Button>
           ) : (
-            <LessonList lessons={lessons} lockedIds={lockedLessonIds(lessons, courses)} />
+            <>
+              <div
+                className="mb-6 flex flex-wrap gap-2"
+                role="group"
+                aria-label={t.learning.lessons}
+              >
+                <Button
+                  variant={skill === "all" ? "default" : "outline"}
+                  aria-pressed={skill === "all"}
+                  onClick={() => setSkill("all")}
+                >
+                  {t.learning.all} ({lessons.length})
+                </Button>
+                {COURSE_SKILLS.map(({ key, Icon }) => {
+                  const count = lessons.filter((l) => l.skill === key).length;
+                  if (count === 0) return null;
+                  return (
+                    <Button
+                      key={key}
+                      variant={skill === key ? "default" : "outline"}
+                      aria-pressed={skill === key}
+                      onClick={() => setSkill(key)}
+                    >
+                      <Icon className="size-4" aria-hidden />
+                      {t.learning[key]} ({count})
+                    </Button>
+                  );
+                })}
+              </div>
+              <LessonList lessons={visible} lockedIds={lockedLessonIds(lessons, courses)} />
+            </>
           )}
         </div>
       </section>

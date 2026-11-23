@@ -46,6 +46,36 @@ export function SpeakingConversation({ situation }: SpeakingConversationProps) {
           })}
         </span>
       </div>
+      {(situation.taskGoal || (situation.keyPhrases && situation.keyPhrases.length > 0)) && (
+        <div className="mt-5 rounded-xl border border-border bg-muted/60 p-4">
+          {situation.taskGoal && (
+            <>
+              <p className="text-xs font-bold text-primary">{t.learning.taskGoal}</p>
+              <p className="mt-1 text-sm leading-relaxed text-foreground">
+                {situation.taskGoal[locale]}
+              </p>
+            </>
+          )}
+          {situation.keyPhrases && situation.keyPhrases.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs font-bold text-muted-foreground">{t.learning.keyPhrases}</p>
+              <div className="mt-2 flex flex-wrap gap-2" lang="en" dir="ltr">
+                {situation.keyPhrases.map((phrase) => (
+                  <button
+                    key={phrase}
+                    type="button"
+                    onClick={() => setVoiceError(!playSpeech(phrase, 0.88))}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-foreground hover:bg-secondary"
+                  >
+                    <Volume2 className="size-3 text-primary" aria-hidden />
+                    {phrase}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       <div className="mt-6 space-y-4">
         {responses.map((response, i) => (
           <div key={i} className="space-y-3 border-b border-border pb-4">

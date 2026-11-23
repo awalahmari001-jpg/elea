@@ -18,9 +18,10 @@ describe("language rules", () => {
     expect(getDirection("en")).toBe("ltr");
   });
 
-  it("falls back to English when no or an unknown language is saved", () => {
-    expect(normalizeLocale(undefined)).toBe("en");
-    expect(normalizeLocale("fr")).toBe("en");
+  it("falls back to Arabic when no or an unknown language is saved", () => {
+    expect(normalizeLocale(undefined)).toBe("ar");
+    expect(normalizeLocale("fr")).toBe("ar");
+    expect(normalizeLocale("en")).toBe("en");
     expect(normalizeLocale("ar")).toBe("ar");
   });
 

@@ -6,15 +6,54 @@ import { compareRecognition, wordCount } from "@/lib/speech";
 
 describe("requested curriculum", () => {
   for (const course of ["a1", "a2", "b1", "b2", "c1", "c2"]) {
-    it(`${course.toUpperCase()} has multiple substantive lessons`, () => {
-      expect(courseLessons(course).length).toBeGreaterThanOrEqual(3);
-      for (const lesson of courseLessons(course)) {
-        expect(lesson.teaching.length).toBeGreaterThanOrEqual(2);
-        expect(lesson.questions.length).toBeGreaterThanOrEqual(2);
-        expect(lesson.pronunciation.length).toBeGreaterThan(10);
+    it(`${course.toUpperCase()} has at least 30 detailed TBLL lessons across all 5 skills`, () => {
+      const lessons = courseLessons(course);
+      expect(lessons.length).toBeGreaterThanOrEqual(30);
+      expect(new Set(lessons.map((l) => l.id)).size).toBe(lessons.length);
+      expect(new Set(lessons.map((l) => l.title.en)).size).toBe(lessons.length);
+      expect(new Set(lessons.map((l) => l.title.ar)).size).toBe(lessons.length);
+      for (const skill of ["grammar", "reading", "listening", "writing", "speaking"]) {
+        expect(lessons.filter((l) => l.skill === skill).length, `${course} ${skill}`).toBeGreaterThanOrEqual(6);
+      }
+      for (const lesson of lessons) {
+        expect(lesson.taskPlan, lesson.id).toBeDefined();
+        expect(lesson.vocab?.length ?? 0, lesson.id).toBeGreaterThanOrEqual(4);
+        expect(lesson.teaching.length, lesson.id).toBeGreaterThanOrEqual(2);
+        expect(lesson.questions.length, lesson.id).toBeGreaterThanOrEqual(4);
+        expect(lesson.pronunciation.length, lesson.id).toBeGreaterThan(15);
       }
     });
   }
+
+  it("provides at least 15 distinct reading passages with 10+ varied questions (vocab, synonyms, antonyms, comprehension) and ASR pronunciation", () => {
+    const passages = LESSONS.filter((l) => l.isReadingPassage);
+    expect(passages.length).toBeGreaterThanOrEqual(15);
+    expect(new Set(passages.map((p) => p.title.en)).size).toBe(passages.length);
+    for (const passage of passages) {
+      expect(passage.questions.length, passage.id).toBeGreaterThanOrEqual(10);
+      const kinds = new Set(passage.questions.map((q) => q.kind));
+      expect(kinds.has("comprehension"), `${passage.id} comprehension`).toBe(true);
+      expect(kinds.has("vocabulary"), `${passage.id} vocabulary`).toBe(true);
+      expect(kinds.has("synonym"), `${passage.id} synonym`).toBe(true);
+      expect(kinds.has("antonym"), `${passage.id} antonym`).toBe(true);
+      expect(passage.vocab?.length ?? 0, passage.id).toBeGreaterThanOrEqual(6);
+      expect(passage.pronunciation.length, passage.id).toBeGreaterThan(20);
+    }
+  });
+
+  it("provides level-based acoustic listening plans with spoken-to-equivalent meaning pairs and vocab across A1–C2", () => {
+    const listeningLessons = LESSONS.filter((l) => l.listeningPlan);
+    expect(listeningLessons.length).toBeGreaterThanOrEqual(36);
+    for (const lesson of listeningLessons) {
+      expect(lesson.listeningPlan?.levelEncouragement.en.length, lesson.id).toBeGreaterThan(30);
+      expect(lesson.listeningPlan?.levelEncouragement.ar.length, lesson.id).toBeGreaterThan(20);
+      expect(lesson.listeningPlan?.acousticsFocus.en.length, lesson.id).toBeGreaterThan(30);
+      expect(lesson.listeningPlan?.steps.length, lesson.id).toBeGreaterThanOrEqual(3);
+      expect(lesson.listeningPlan?.paraphrasePairs.length, lesson.id).toBeGreaterThanOrEqual(4);
+      expect(lesson.vocab?.length ?? 0, lesson.id).toBeGreaterThanOrEqual(4);
+    }
+  });
+
   for (const skill of ["listening", "reading", "writing", "speaking"]) {
     it(`IELTS includes ${skill} lessons`, () => {
       expect(
@@ -22,16 +61,20 @@ describe("requested curriculum", () => {
       ).toBeGreaterThanOrEqual(2);
     });
   }
-  it("provides at least 40 unique speaking settings", () => {
-    expect(SPEAKING_SITUATIONS.length).toBeGreaterThanOrEqual(40);
+  it("provides at least 60 unique speaking settings across CEFR levels A1–C2", () => {
+    expect(SPEAKING_SITUATIONS.length).toBeGreaterThanOrEqual(60);
     expect(new Set(SPEAKING_SITUATIONS.map((s) => s.id)).size).toBe(SPEAKING_SITUATIONS.length);
     expect(new Set(SPEAKING_SITUATIONS.map((s) => s.title.en)).size).toBe(
       SPEAKING_SITUATIONS.length,
     );
+    const levels = new Set(SPEAKING_SITUATIONS.map((s) => s.level));
+    for (const lv of ["A1", "A2", "B1", "B2", "C1", "C2"]) {
+      expect(levels.has(lv), lv).toBe(true);
+    }
   });
   it("has contextual multi-turn practice across all five settings", () => {
     for (const category of SPEAKING_CATEGORIES)
-      expect(SPEAKING_SITUATIONS.filter((s) => s.category === category).length).toBe(8);
+      expect(SPEAKING_SITUATIONS.filter((s) => s.category === category).length).toBeGreaterThanOrEqual(12);
     for (const situation of SPEAKING_SITUATIONS) {
       expect(situation.turns.length).toBeGreaterThanOrEqual(3);
       expect(new Set(situation.turns.map((turn) => turn.prompt)).size).toBe(situation.turns.length);

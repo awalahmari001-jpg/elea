@@ -1,4 +1,5 @@
 import type { Bilingual } from "./lesson-types";
+import { EXTRA_SPEAKING_SITUATIONS } from "./speaking-situations-extra";
 
 export const SPEAKING_CATEGORIES = ["everyday", "travel", "work", "study", "ielts"] as const;
 export type SpeakingCategory = (typeof SPEAKING_CATEGORIES)[number];
@@ -8,10 +9,12 @@ export interface SpeakingSituation {
   category: SpeakingCategory;
   level: string;
   role: Bilingual;
+  taskGoal?: Bilingual;
+  keyPhrases?: string[];
   turns: { prompt: string; model: string }[];
 }
 
-export const SPEAKING_SITUATIONS: SpeakingSituation[] = [
+const BASE_SPEAKING_SITUATIONS: SpeakingSituation[] = [
   {
     id: "cafe",
     title: {
@@ -1146,4 +1149,10 @@ export const SPEAKING_SITUATIONS: SpeakingSituation[] = [
       },
     ],
   },
+];
+
+/** 60 diverse speaking situations (12 per category across CEFR levels A1–C2). */
+export const SPEAKING_SITUATIONS: SpeakingSituation[] = [
+  ...BASE_SPEAKING_SITUATIONS,
+  ...EXTRA_SPEAKING_SITUATIONS,
 ];

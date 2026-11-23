@@ -43,7 +43,15 @@ export function LessonList({ lessons, lockedIds }: LessonListProps) {
                 </span>
               </span>
             </div>
-            <h3 className="mt-4 text-xl font-bold">{lesson.title[locale]}</h3>
+            {lesson.unit && (
+              <p className="mt-3 text-xs font-semibold text-primary">{lesson.unit[locale]}</p>
+            )}
+            <h3 className="mt-2 text-xl font-bold">{lesson.title[locale]}</h3>
+            {lesson.isReadingPassage && (
+              <span className="mt-2 self-start rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground">
+                {t.learning.readingPassageBadge}
+              </span>
+            )}
             <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
               {lesson.goal[locale]}
             </p>
