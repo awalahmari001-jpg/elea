@@ -63,6 +63,23 @@ export interface DetailedRuleGuide {
 export type VideoSceneLayout =
   "hook" | "diagram" | "pause-predict" | "comparison" | "walkthrough" | "summary";
 
+export type TeacherSpeaker = "layla" | "omar";
+export type TeacherMood = "excited" | "curious" | "encouraging" | "celebrating";
+export type MotionFocusTool = "arrow" | "circle" | "box" | "highlight" | "pointer";
+
+export interface TeacherLine {
+  speaker: TeacherSpeaker;
+  mood: TeacherMood;
+  textEn: string;
+  textAr: string;
+}
+
+export interface TimelineNode {
+  marker: string;
+  label: string;
+  active?: boolean;
+}
+
 export interface PausePredictPrompt {
   challengeNumber: 1 | 2;
   question: Bilingual;
@@ -92,6 +109,14 @@ export interface VideoScene {
   /** Dual-coding storyboard right column: conversational second-person ("you") spoken narration. */
   narrationEn: string;
   subtitleAr: string;
+  /** Dynamic interaction between expressive animated teachers (Layla & Omar) speaking directly to the learner. */
+  dialogue: TeacherLine[];
+  /** Animated chronological or sequential visual timeline (tenses, dates, eras, or steps). */
+  timeline?: TimelineNode[];
+  /** High-quality visual illustration & icon set matched to the lesson skill. */
+  illustration: LessonSkill;
+  /** Motion graphics focus tools (arrows, pointers, circles, boxes, highlights). */
+  focusTools: MotionFocusTool[];
   /** Visual Progress Roadmap transition cue (e.g., "Step 1 of 3 complete"). */
   roadmapStep?: RoadmapMilestone;
   /** Explicit Pause & Predict mini-challenge (at least 2 per video). */
@@ -109,6 +134,8 @@ export interface VideoScene {
 
 export interface ExplainerVideo {
   title: Bilingual;
+  /** Course key for selecting tailored high-res visual media. */
+  course: LessonCourse;
   /** Focused 4-to-5-minute micro-lesson (240–300 seconds). */
   durationSeconds: number;
   /** One clear learning objective for the micro-lesson. */

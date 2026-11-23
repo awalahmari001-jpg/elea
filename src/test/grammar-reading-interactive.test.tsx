@@ -70,7 +70,7 @@ describe("question-engine and interactive grammar/reading UI", () => {
     );
   });
 
-  it("renders the 4–5 min dual-coding RuleVideoPlayer with Progress Roadmap, Pause & Predict reveal, and two-column storyboard", () => {
+  it("renders the 4–5 min dual-coding RuleVideoPlayer with Coach Layla & Coach Omar, animated timeline, motion tools, Pause & Predict reveal, and storyboard", () => {
     const lesson = findLesson("ielts-reading-academic")!;
     render(
       <I18nProvider locale="en" theme="light">
@@ -80,9 +80,15 @@ describe("question-engine and interactive grammar/reading UI", () => {
 
     expect(screen.getAllByText(/4–5 min/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/IELTS · Band 7 Focus/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Coach Layla/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Coach Omar/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Visuals & On-Screen Actions/i)).toBeInTheDocument();
     expect(screen.getByText(/Spoken Narration/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Step 1 of 3 complete/i).length).toBeGreaterThan(0);
+
+    // Jump to Step 1 to verify the animated chronological / sequential visual timeline renders
+    fireEvent.click(screen.getAllByRole("button", { name: /Step 1 · Core Visual/i })[0]!);
+    expect(screen.getByText(/Visual timeline & progression/i)).toBeInTheDocument();
 
     // Jump to Pause & Predict #1 and reveal the answer
     fireEvent.click(screen.getAllByRole("button", { name: /Pause & Predict #1/i })[0]!);

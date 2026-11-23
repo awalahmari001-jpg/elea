@@ -174,7 +174,19 @@ describe("requested curriculum", () => {
         expect(sc.pausePredict!.answer.length, `${lesson.id} pp answer`).toBeGreaterThan(0);
       }
 
-      // 6. 15-second active summary + reflection/takeaway task
+      // 6. Expressive teacher duo dialogue, chronological timeline, visual aids & motion graphics focus tools
+      for (const sc of video.scenes) {
+        expect(sc.dialogue.length, `${lesson.id} ${sc.id} dialogue >= 2`).toBeGreaterThanOrEqual(2);
+        const speakers = new Set(sc.dialogue.map((d) => d.speaker));
+        expect(speakers.has("layla"), `${lesson.id} ${sc.id} layla`).toBe(true);
+        expect(speakers.has("omar"), `${lesson.id} ${sc.id} omar`).toBe(true);
+        expect(sc.focusTools.length, `${lesson.id} ${sc.id} focusTools`).toBeGreaterThanOrEqual(2);
+        expect(sc.illustration, `${lesson.id} ${sc.id} illustration`).toBe(lesson.skill);
+      }
+      const timelineScenes = video.scenes.filter((s) => (s.timeline?.length ?? 0) >= 3);
+      expect(timelineScenes.length, `${lesson.id} visual timeline`).toBeGreaterThanOrEqual(2);
+
+      // 7. 15-second active summary + reflection/takeaway task
       const last = video.scenes[video.scenes.length - 1]!;
       expect(last.layout, `${lesson.id} summary layout`).toBe("summary");
       expect(last.durationSeconds, `${lesson.id} summary 15s`).toBe(15);
