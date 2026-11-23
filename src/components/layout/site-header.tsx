@@ -20,6 +20,8 @@ const NAV_LINKS = [
   { to: "/kids", key: "kids" },
   { to: "/adults", key: "adults" },
   { to: "/ielts", key: "ielts" },
+  { to: "/ielts-vocabulary", key: "ieltsVocab" },
+  { to: "/cefr-mastery", key: "cefrMastery" },
   { to: "/courses", key: "courses" },
 ] as const;
 
@@ -49,7 +51,12 @@ export function SiteHeader() {
           <LanguageSwitcher className="hidden sm:inline-flex" />
           <ThemeToggle />
           {/* Level test: always visible (icon only on small screens) */}
-          <Button asChild variant="accent" className="rounded-full px-3 md:px-4" title={t.nav.levelTest}>
+          <Button
+            asChild
+            variant="accent"
+            className="rounded-full px-3 md:px-4"
+            title={t.nav.levelTest}
+          >
             <Link to="/level-test" aria-label={t.nav.levelTest}>
               <ClipboardCheck aria-hidden />
               <span className="hidden md:inline">{t.nav.levelTest}</span>
@@ -59,11 +66,20 @@ export function SiteHeader() {
           {/* Mobile menu */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full lg:hidden" aria-label={t.nav.openMenu}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full lg:hidden"
+                aria-label={t.nav.openMenu}
+              >
                 <Menu />
               </Button>
             </SheetTrigger>
-            <SheetContent side={dir === "rtl" ? "left" : "right"} className="flex flex-col gap-6" dir={dir}>
+            <SheetContent
+              side={dir === "rtl" ? "left" : "right"}
+              className="flex flex-col gap-6"
+              dir={dir}
+            >
               <SheetHeader>
                 <SheetTitle className="text-start">{t.nav.menuTitle}</SheetTitle>
               </SheetHeader>

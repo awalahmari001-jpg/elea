@@ -27,17 +27,49 @@ export function SiteFooter() {
                   to={path.to}
                   className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
                 >
-                  {path.name[locale]} <span className="text-inverse-muted">· {path.audience[locale]}</span>
+                  {path.name[locale]}{" "}
+                  <span className="text-inverse-muted">· {path.audience[locale]}</span>
                 </Link>
               </li>
             ))}
             <li>
-              <Link to="/courses" className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent">
-                {t.nav.courses} <span className="text-inverse-muted" dir="ltr">· A1–C2</span>
+              <Link
+                to="/ielts-vocabulary"
+                className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
+              >
+                {t.nav.ieltsVocab}{" "}
+                <span className="text-inverse-muted" dir="ltr">
+                  · Band 7+
+                </span>
               </Link>
             </li>
             <li>
-              <Link to="/level-test" className="text-sm font-semibold text-accent transition-colors hover:text-inverse-foreground">
+              <Link
+                to="/cefr-mastery"
+                className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
+              >
+                {t.nav.cefrMastery}{" "}
+                <span className="text-inverse-muted" dir="ltr">
+                  · A1–C2
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/courses"
+                className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
+              >
+                {t.nav.courses}{" "}
+                <span className="text-inverse-muted" dir="ltr">
+                  · A1–C2
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/level-test"
+                className="text-sm font-semibold text-accent transition-colors hover:text-inverse-foreground"
+              >
                 {t.nav.levelTest}
               </Link>
             </li>

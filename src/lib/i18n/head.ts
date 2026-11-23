@@ -1,7 +1,8 @@
 import { messages } from "./messages";
 import type { Locale } from "./config";
 
-type MetaKey = "home" | "kids" | "adults" | "ielts" | "placement" | "courses";
+type MetaKey =
+  "home" | "kids" | "adults" | "ielts" | "placement" | "courses" | "ieltsVocab" | "cefrMastery";
 
 /** Builds the page title + social-share tags in the visitor's language. */
 export function pageMeta(locale: Locale | undefined, key: MetaKey) {

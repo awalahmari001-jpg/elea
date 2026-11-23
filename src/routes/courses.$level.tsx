@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { stageLabel } from "@/components/courses/course-card";
 import { LevelBadge } from "@/components/courses/level-badge";
 import { useI18n } from "@/components/i18n-provider";
-import { getCourseBySlug, isCourseSlug } from "@/content/courses";
+import { getCourseBySlug, isCourseSlug, type CefrLevel } from "@/content/courses";
 import { useLearner } from "@/hooks/use-learner";
 import { format, messages } from "@/lib/i18n/messages";
 import { normalizeLocale } from "@/lib/i18n/config";
@@ -114,6 +114,14 @@ function CoursePage() {
                     {t.courses.takeTest}
                   </Link>
                 </Button>
+                {course.kind === "level" && (
+                  <Button asChild variant="secondary" size="xl">
+                    <Link to="/cefr-mastery" search={{ level: course.badge as CefrLevel }}>
+                      <Sparkles aria-hidden />
+                      {t.vocab.openCefrMasteryCta}
+                    </Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>

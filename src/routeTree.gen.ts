@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdultsRouteImport } from './routes/adults'
+import { Route as CefrMasteryRouteImport } from './routes/cefr-mastery'
 import { Route as IeltsRouteImport } from './routes/ielts'
+import { Route as IeltsVocabularyRouteImport } from './routes/ielts-vocabulary'
 import { Route as KidsRouteImport } from './routes/kids'
 import { Route as LevelTestRouteImport } from './routes/level-test'
 import { Route as SpeakingRouteImport } from './routes/speaking'
@@ -29,9 +31,19 @@ const AdultsRoute = AdultsRouteImport.update({
   path: '/adults',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CefrMasteryRoute = CefrMasteryRouteImport.update({
+  id: '/cefr-mastery',
+  path: '/cefr-mastery',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IeltsRoute = IeltsRouteImport.update({
   id: '/ielts',
   path: '/ielts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IeltsVocabularyRoute = IeltsVocabularyRouteImport.update({
+  id: '/ielts-vocabulary',
+  path: '/ielts-vocabulary',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KidsRoute = KidsRouteImport.update({
@@ -68,7 +80,9 @@ const LessonsLessonRoute = LessonsLessonRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/adults': typeof AdultsRoute
+  '/cefr-mastery': typeof CefrMasteryRoute
   '/ielts': typeof IeltsRoute
+  '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
   '/speaking': typeof SpeakingRoute
@@ -79,7 +93,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/adults': typeof AdultsRoute
+  '/cefr-mastery': typeof CefrMasteryRoute
   '/ielts': typeof IeltsRoute
+  '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
   '/speaking': typeof SpeakingRoute
@@ -91,7 +107,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/adults': typeof AdultsRoute
+  '/cefr-mastery': typeof CefrMasteryRoute
   '/ielts': typeof IeltsRoute
+  '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
   '/speaking': typeof SpeakingRoute
@@ -104,7 +122,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/adults'
+    | '/cefr-mastery'
     | '/ielts'
+    | '/ielts-vocabulary'
     | '/kids'
     | '/level-test'
     | '/speaking'
@@ -115,7 +135,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/adults'
+    | '/cefr-mastery'
     | '/ielts'
+    | '/ielts-vocabulary'
     | '/kids'
     | '/level-test'
     | '/speaking'
@@ -126,7 +148,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/adults'
+    | '/cefr-mastery'
     | '/ielts'
+    | '/ielts-vocabulary'
     | '/kids'
     | '/level-test'
     | '/speaking'
@@ -138,7 +162,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdultsRoute: typeof AdultsRoute
+  CefrMasteryRoute: typeof CefrMasteryRoute
   IeltsRoute: typeof IeltsRoute
+  IeltsVocabularyRoute: typeof IeltsVocabularyRoute
   KidsRoute: typeof KidsRoute
   LevelTestRoute: typeof LevelTestRoute
   SpeakingRoute: typeof SpeakingRoute
@@ -163,11 +189,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdultsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cefr-mastery': {
+      id: '/cefr-mastery'
+      path: '/cefr-mastery'
+      fullPath: '/cefr-mastery'
+      preLoaderRoute: typeof CefrMasteryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ielts': {
       id: '/ielts'
       path: '/ielts'
       fullPath: '/ielts'
       preLoaderRoute: typeof IeltsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ielts-vocabulary': {
+      id: '/ielts-vocabulary'
+      path: '/ielts-vocabulary'
+      fullPath: '/ielts-vocabulary'
+      preLoaderRoute: typeof IeltsVocabularyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kids': {
@@ -218,7 +258,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdultsRoute: AdultsRoute,
+  CefrMasteryRoute: CefrMasteryRoute,
   IeltsRoute: IeltsRoute,
+  IeltsVocabularyRoute: IeltsVocabularyRoute,
   KidsRoute: KidsRoute,
   LevelTestRoute: LevelTestRoute,
   SpeakingRoute: SpeakingRoute,

@@ -1,10 +1,11 @@
-import { ALL_COURSES } from "@/content/courses";
+import { ALL_COURSES, type CefrLevel } from "@/content/courses";
+import type { CefrMasteryIndicatorId } from "@/content/vocab/vocab-types";
 import { isJoinableCourse, type JoinableCourse } from "./lesson-access";
 import type { PlacementAnswers, PlacementResult } from "./placement";
 
 /**
- * Saves the learner's test progress, result and chosen course in this browser.
- * When accounts are added, these move to the learner's account.
+ * Saves the learner's test progress, result, courses, vocabulary mastery, and CEFR mastery
+ * in this browser. When accounts are added, these move to the learner's account.
  */
 const KEYS = {
   progress: "ele.placement.progress",
@@ -12,6 +13,8 @@ const KEYS = {
   courses: "ele.courses.joined",
   review: "ele.placement.review",
   assessments: "ele.assessments.results",
+  ieltsVocab: "ele.ielts.vocab",
+  cefrMastery: "ele.cefr.mastery",
 } as const;
 
 function read<T>(key: string): T | null {
@@ -52,6 +55,20 @@ export interface AssessmentAttempt {
 export type AssessmentRecord = Partial<Record<AssessmentKind, AssessmentAttempt>>;
 export type AllAssessmentRecords = Record<string, AssessmentRecord>;
 
+export interface IeltsVocabProgress {
+  masteredIds: string[];
+  quizBestScore: number;
+  completedModes: string[];
+  updatedAt: string;
+}
+
+export interface CefrLevelMasteryRecord {
+  passedIndicators: CefrMasteryIndicatorId[];
+  updatedAt: string;
+}
+
+export type CefrMasteryProgress = Partial<Record<CefrLevel, CefrLevelMasteryRecord>>;
+
 export function classifyAwareness(score: number, total = 10): AwarenessBand {
   const ratio = total > 0 ? score / total : 0;
   if (ratio >= 0.9) return "mastery";
@@ -90,6 +107,42 @@ export const learnerStorage = {
       },
     };
     write(KEYS.assessments, next);
+    return next;
+  },
+  getIeltsVocab: (): IeltsVocabProgress => {
+    const saved = read<IeltsVocabProgress>(KEYS.ieltsVocab);
+    if (!saved) {
+      return { masteredIds: [], quizBestScore: 0, completedModes: [], updatedAt: "" };
+    }
+    return {
+      masteredIds: Array.isArray(saved.masteredIds) ? saved.masteredIds : [],
+      quizBestScore: typeof saved.quizBestScore === "number" ? saved.quizBestScore : 0,
+      completedModes: Array.isArray(saved.completedModes) ? saved.completedModes : [],
+      updatedAt: typeof saved.updatedAt === "string" ? saved.updatedAt : "",
+    };
+  },
+  saveIeltsVocab: (progress: Omit<IeltsVocabProgress, "updatedAt">): IeltsVocabProgress => {
+    const next: IeltsVocabProgress = {
+      masteredIds: Array.from(new Set(progress.masteredIds)),
+      quizBestScore: progress.quizBestScore,
+      completedModes: Array.from(new Set(progress.completedModes)),
+      updatedAt: new Date().toISOString(),
+    };
+    write(KEYS.ieltsVocab, next);
+    return next;
+  },
+  getCefrMastery: (): CefrMasteryProgress => read<CefrMasteryProgress>(KEYS.cefrMastery) ?? {},
+  saveCefrIndicator: (level: CefrLevel, indicator: CefrMasteryIndicatorId): CefrMasteryProgress => {
+    const all = read<CefrMasteryProgress>(KEYS.cefrMastery) ?? {};
+    const prev = all[level]?.passedIndicators ?? [];
+    const next: CefrMasteryProgress = {
+      ...all,
+      [level]: {
+        passedIndicators: Array.from(new Set([...prev, indicator])),
+        updatedAt: new Date().toISOString(),
+      },
+    };
+    write(KEYS.cefrMastery, next);
     return next;
   },
 };

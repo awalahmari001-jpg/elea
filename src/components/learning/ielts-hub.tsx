@@ -55,12 +55,20 @@ export function IeltsHub() {
       <div className="container-page py-10">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-3xl font-bold">{t.learning.lessons}</h2>
-          <Button asChild variant="outline">
-            <Link to="/speaking">
-              <Mic aria-hidden />
-              {t.learning.browseSpeaking}
-            </Link>
-          </Button>
+          <div className="flex flex-wrap gap-2.5">
+            <Button asChild variant="accent">
+              <Link to="/ielts-vocabulary">
+                <BookOpen aria-hidden />
+                {t.vocab.openIeltsVocabCta}
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/speaking">
+                <Mic aria-hidden />
+                {t.learning.browseSpeaking}
+              </Link>
+            </Button>
+          </div>
         </div>
         <div className="mb-6 flex flex-wrap gap-2" role="group" aria-label={t.learning.lessons}>
           <Button
