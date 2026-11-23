@@ -60,7 +60,23 @@ export interface DetailedRuleGuide {
   memoryTip: Bilingual;
 }
 
-export type VideoSceneLayout = "intro" | "formula" | "comparison" | "practice";
+export type VideoSceneLayout =
+  "hook" | "diagram" | "pause-predict" | "comparison" | "walkthrough" | "summary";
+
+export interface PausePredictPrompt {
+  challengeNumber: 1 | 2;
+  question: Bilingual;
+  hint: Bilingual;
+  answer: string;
+  explanation: Bilingual;
+}
+
+export interface RoadmapMilestone {
+  current: 1 | 2 | 3;
+  total: 3;
+  status: "in-progress" | "complete";
+  label: Bilingual;
+}
 
 export interface VideoScene {
   id: string;
@@ -69,21 +85,36 @@ export interface VideoScene {
   layout: VideoSceneLayout;
   chapterLabel: Bilingual;
   headline: Bilingual;
+  /** Dual-coding storyboard left column: dynamic animations, diagrams, live sketching & visual signaling cues. */
+  visualAction: Bilingual;
+  /** Short, high-signal visual labels (never text-heavy slides). */
   visualPoints: string[];
+  /** Dual-coding storyboard right column: conversational second-person ("you") spoken narration. */
   narrationEn: string;
   subtitleAr: string;
+  /** Visual Progress Roadmap transition cue (e.g., "Step 1 of 3 complete"). */
+  roadmapStep?: RoadmapMilestone;
+  /** Explicit Pause & Predict mini-challenge (at least 2 per video). */
+  pausePredict?: PausePredictPrompt;
+  /** Final 15-second reflection question or takeaway task. */
+  takeawayTask?: Bilingual;
   highlight?: {
     wrong?: string;
     right?: string;
     badge?: string;
     formula?: string;
+    signalTag?: string;
   };
 }
 
 export interface ExplainerVideo {
   title: Bilingual;
-  /** Strictly <= 240 seconds (4 minutes maximum). */
+  /** Focused 4-to-5-minute micro-lesson (240–300 seconds). */
   durationSeconds: number;
+  /** One clear learning objective for the micro-lesson. */
+  learningObjective: Bilingual;
+  /** CEFR or IELTS level badge tailored to the learner. */
+  levelTag: string;
   presenterNote: Bilingual;
   scenes: VideoScene[];
   videoUrl?: string;

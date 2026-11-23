@@ -70,22 +70,29 @@ describe("question-engine and interactive grammar/reading UI", () => {
     );
   });
 
-  it("renders the <=4-minute AI RuleVideoPlayer with chapters, play/pause, and bilingual captions", () => {
-    const lesson = findLesson("a1-introductions")!;
+  it("renders the 4–5 min dual-coding RuleVideoPlayer with Progress Roadmap, Pause & Predict reveal, and two-column storyboard", () => {
+    const lesson = findLesson("ielts-reading-academic")!;
     render(
       <I18nProvider locale="en" theme="light">
         <RuleVideoPlayer video={lesson.explainerVideo!} />
       </I18nProvider>,
     );
 
-    expect(screen.getAllByText(/Under 4 min/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/1\. Rule & Real Context/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/2\. Core Formula/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/4–5 min/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/IELTS · Band 7 Focus/i)).toBeInTheDocument();
+    expect(screen.getByText(/Visuals & On-Screen Actions/i)).toBeInTheDocument();
+    expect(screen.getByText(/Spoken Narration/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Step 1 of 3 complete/i).length).toBeGreaterThan(0);
 
-    // Jump to Chapter 3 (Common Traps)
-    fireEvent.click(screen.getByRole("button", { name: /3\. Common Traps/i }));
-    expect(screen.getByText(/Avoid These Classic Mistakes/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Pause video/i })).toBeInTheDocument();
+    // Jump to Pause & Predict #1 and reveal the answer
+    fireEvent.click(screen.getAllByRole("button", { name: /Pause & Predict #1/i })[0]!);
+    expect(screen.getByRole("button", { name: /Reveal answer & continue/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Reveal answer & continue/i }));
+    expect(screen.getByText(/Revealed answer/i)).toBeInTheDocument();
+
+    // Jump to 15-Second Summary & Takeaway Task
+    fireEvent.click(screen.getAllByRole("button", { name: /15s Summary & Task/i })[0]!);
+    expect(screen.getByText(/15-Second Recap & Your Quick Task/i)).toBeInTheDocument();
   });
 
   it("renders DetailedRuleGuideView with formulas, mistakes comparison, and memory tip", () => {

@@ -28,25 +28,28 @@ function mergeFourFormatQuestions(
 }
 
 /**
- * Enriches every Grammar and Reading lesson across all courses (A1–C2, IELTS, Kids, Adults) with:
- * 1. A detailed bilingual rule / reading breakdown guide (`detailedGuide`)
- * 2. An appealing <= 4-minute AI Animated Explainer Video (`explainerVideo`)
- * 3. At least 4 distinct interactive question formats:
- *    - multiple-choice
- *    - pick-right-word
- *    - rearrange-words
- *    - fit-sentence
+ * Enriches EVERY lesson across all courses (A1–C2, IELTS, Kids, Adults) and all 5 skills with:
+ * 1. An evidence-based 4-to-5-minute interactive micro-lesson video & dual-coding storyboard (`explainerVideo`)
+ * And additionally enriches every Grammar and Reading lesson with:
+ * 2. A detailed bilingual rule / reading breakdown guide (`detailedGuide`)
+ * 3. At least 4 distinct interactive question formats (multiple-choice, pick-right-word, rearrange-words, fit-sentence)
  */
 export function enrichLesson(lesson: Lesson): Lesson {
   if (lesson.skill !== "grammar" && lesson.skill !== "reading") {
-    return lesson;
+    return {
+      ...lesson,
+      explainerVideo: buildExplainerVideo(lesson),
+    };
   }
 
   const entry: LessonEnrichmentEntry | undefined =
     lesson.skill === "grammar" ? ALL_GRAMMAR_GUIDES[lesson.id] : getReadingEnrichment(lesson);
 
   if (!entry) {
-    return lesson;
+    return {
+      ...lesson,
+      explainerVideo: buildExplainerVideo(lesson),
+    };
   }
 
   const explainerVideo = buildExplainerVideo(lesson, entry.guide);

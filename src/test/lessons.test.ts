@@ -120,7 +120,70 @@ describe("requested curriculum", () => {
     expect(wordCount(task?.model ?? "")).toBeGreaterThanOrEqual(250);
   });
 
-  it("every grammar and reading lesson across all courses includes a detailed explanation, <=4-min AI video, and at least 4 question formats", () => {
+  it("every lesson on the website (CEFR A1–C2, IELTS, Kids, Adults) has a 4–5 min dual-coding video script & storyboard", () => {
+    expect(LESSONS.length).toBeGreaterThanOrEqual(209);
+
+    for (const lesson of LESSONS) {
+      expect(lesson.explainerVideo, `${lesson.id} explainerVideo`).toBeDefined();
+      const video = lesson.explainerVideo!;
+
+      // 1. Focused 4-to-5-minute micro-lesson (240–300 seconds) with clear objective & level tag
+      expect(video.durationSeconds, `${lesson.id} >= 240s`).toBeGreaterThanOrEqual(240);
+      expect(video.durationSeconds, `${lesson.id} <= 300s`).toBeLessThanOrEqual(300);
+      expect(video.learningObjective.en.length, `${lesson.id} objective.en`).toBeGreaterThan(15);
+      expect(video.learningObjective.ar.length, `${lesson.id} objective.ar`).toBeGreaterThan(10);
+      expect(video.levelTag.length, `${lesson.id} levelTag`).toBeGreaterThan(3);
+
+      // Exact scene timing sum
+      const totalSceneDuration = video.scenes.reduce((acc, s) => acc + s.durationSeconds, 0);
+      expect(totalSceneDuration, `${lesson.id} scene sum`).toBe(video.durationSeconds);
+
+      // 2. The Hook (0:00 – 0:15)
+      const first = video.scenes[0]!;
+      expect(first.startSeconds, `${lesson.id} hook start`).toBe(0);
+      expect(first.durationSeconds, `${lesson.id} hook 15s`).toBe(15);
+      expect(first.layout, `${lesson.id} hook layout`).toBe("hook");
+
+      // 3. Dual-coding visuals + conversational second-person narration ("you")
+      const fullNarration = video.scenes.map((s) => s.narrationEn).join(" ");
+      expect(/\byou(r|'ll|'re|'ve)?\b/i.test(fullNarration), `${lesson.id} second-person`).toBe(
+        true,
+      );
+      for (const sc of video.scenes) {
+        expect(sc.visualAction.en.length, `${lesson.id} ${sc.id} visualAction.en`).toBeGreaterThan(
+          20,
+        );
+        expect(sc.visualAction.ar.length, `${lesson.id} ${sc.id} visualAction.ar`).toBeGreaterThan(
+          15,
+        );
+        expect(sc.narrationEn.length, `${lesson.id} ${sc.id} narrationEn`).toBeGreaterThan(25);
+        expect(sc.subtitleAr.length, `${lesson.id} ${sc.id} subtitleAr`).toBeGreaterThan(15);
+      }
+
+      // 4. Visual Progress Roadmap milestones (Step 1, 2, 3 of 3 complete)
+      const roadmapSteps = video.scenes
+        .map((s) => s.roadmapStep?.current)
+        .filter((n): n is 1 | 2 | 3 => n !== undefined);
+      expect(roadmapSteps, `${lesson.id} roadmap steps`).toEqual([1, 2, 3]);
+
+      // 5. At least 2 explicit "Pause & Predict" challenges
+      const pauseChallenges = video.scenes.filter((s) => Boolean(s.pausePredict));
+      expect(pauseChallenges.length, `${lesson.id} >= 2 pause & predict`).toBeGreaterThanOrEqual(2);
+      for (const sc of pauseChallenges) {
+        expect(sc.pausePredict!.question.en.length, `${lesson.id} pp question`).toBeGreaterThan(10);
+        expect(sc.pausePredict!.answer.length, `${lesson.id} pp answer`).toBeGreaterThan(0);
+      }
+
+      // 6. 15-second active summary + reflection/takeaway task
+      const last = video.scenes[video.scenes.length - 1]!;
+      expect(last.layout, `${lesson.id} summary layout`).toBe("summary");
+      expect(last.durationSeconds, `${lesson.id} summary 15s`).toBe(15);
+      expect(last.takeawayTask?.en.length ?? 0, `${lesson.id} takeaway.en`).toBeGreaterThan(20);
+      expect(last.takeawayTask?.ar.length ?? 0, `${lesson.id} takeaway.ar`).toBeGreaterThan(15);
+    }
+  });
+
+  it("every grammar and reading lesson across all courses includes a detailed explanation and at least 4 question formats", () => {
     const targets = LESSONS.filter((l) => l.skill === "grammar" || l.skill === "reading");
     expect(targets.length).toBeGreaterThanOrEqual(81);
 
@@ -136,16 +199,7 @@ describe("requested curriculum", () => {
       expect(guide.memoryTip.en.length, `${lesson.id} memoryTip.en`).toBeGreaterThan(15);
       expect(guide.memoryTip.ar.length, `${lesson.id} memoryTip.ar`).toBeGreaterThan(10);
 
-      // 2. Appealing AI explainer video strictly <= 4 minutes (240 seconds)
-      expect(lesson.explainerVideo, `${lesson.id} explainerVideo`).toBeDefined();
-      const video = lesson.explainerVideo!;
-      expect(video.durationSeconds, `${lesson.id} video > 0`).toBeGreaterThan(0);
-      expect(video.durationSeconds, `${lesson.id} video <= 240s`).toBeLessThanOrEqual(240);
-      expect(video.scenes.length, `${lesson.id} scenes`).toBe(4);
-      const totalSceneDuration = video.scenes.reduce((acc, s) => acc + s.durationSeconds, 0);
-      expect(totalSceneDuration, `${lesson.id} scene sum`).toBe(video.durationSeconds);
-
-      // 3. At least 4 distinct interactive question formats
+      // 2. At least 4 distinct interactive question formats
       const formats = new Set(lesson.questions.map(getQuestionFormat));
       expect(formats.size, `${lesson.id} format count`).toBeGreaterThanOrEqual(4);
       expect(formats.has("multiple-choice"), `${lesson.id} multiple-choice`).toBe(true);
@@ -153,7 +207,7 @@ describe("requested curriculum", () => {
       expect(formats.has("rearrange-words"), `${lesson.id} rearrange-words`).toBe(true);
       expect(formats.has("fit-sentence"), `${lesson.id} fit-sentence`).toBe(true);
 
-      // 4. Validate each interactive question structure
+      // 3. Validate each interactive question structure
       for (const q of lesson.questions) {
         const fmt = getQuestionFormat(q);
         if (fmt === "pick-right-word") {
