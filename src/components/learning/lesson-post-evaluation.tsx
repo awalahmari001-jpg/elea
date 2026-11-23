@@ -11,8 +11,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n-provider";
-import type { LessonObjective, PostEvaluationQuestion } from "@/content/lesson-types";
+import type { Bilingual, LessonObjective, PostEvaluationQuestion } from "@/content/lesson-types";
+import type { LessonSkill } from "@/content/lessons";
 import { classifyAwareness, type AwarenessBand } from "@/lib/learner-storage";
+import { learningRecord, type LessonStatus } from "@/lib/learning-record";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { HighlightedText } from "./highlighted-text";
 
@@ -50,6 +52,15 @@ export interface LessonPostEvaluationProps {
   objectives: LessonObjective[];
   questions: PostEvaluationQuestion[];
   keywords?: string[];
+  lessonMeta?: {
+    lessonId: string;
+    course: string;
+    skill: LessonSkill;
+    title: Bilingual;
+    unit?: Bilingual;
+    minutes?: number;
+  };
+  onEvaluated?: (status: LessonStatus) => void;
 }
 
 /**
@@ -60,6 +71,8 @@ export function LessonPostEvaluation({
   objectives,
   questions,
   keywords,
+  lessonMeta,
+  onEvaluated,
 }: LessonPostEvaluationProps) {
   const { locale, t } = useI18n();
   const [open, setOpen] = useState(false);
@@ -316,7 +329,25 @@ export function LessonPostEvaluation({
                   type="button"
                   size="lg"
                   disabled={!allAnswered}
-                  onClick={() => setSubmitted(true)}
+                  onClick={() => {
+                    setSubmitted(true);
+                    if (lessonMeta) {
+                      const masteredCount = objectiveBreakdown.filter((b) => b.mastered).length;
+                      const saved = learningRecord.recordLessonPostEval({
+                        lessonId: lessonMeta.lessonId,
+                        course: lessonMeta.course,
+                        skill: lessonMeta.skill,
+                        title: lessonMeta.title,
+                        ...(lessonMeta.unit ? { unit: lessonMeta.unit } : {}),
+                        ...(lessonMeta.minutes ? { minutes: lessonMeta.minutes } : {}),
+                        score,
+                        total: questions.length,
+                        masteredObjectives: masteredCount,
+                        totalObjectives: objectives.length,
+                      });
+                      onEvaluated?.(saved.status);
+                    }
+                  }}
                 >
                   <Check className="size-4" aria-hidden />
                   {t.learning.submitAssessment}

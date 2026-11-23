@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -25,6 +25,7 @@ import { format } from "@/lib/i18n/messages";
 import { wordCount } from "@/lib/speech";
 import { playSpeech, stopSpeech } from "@/hooks/use-speech";
 import { courseHome } from "@/lib/lesson-access";
+import { learningRecord, type LessonStatus } from "@/lib/learning-record";
 import {
   getQuestionFormat,
   isQuestionAnswered,
@@ -43,7 +44,16 @@ export function LessonView({ lesson }: LessonViewProps) {
   const [writing, setWriting] = useState("");
   const [review, setReview] = useState(false);
   const [complete, setComplete] = useState(false);
+  const [lessonStatus, setLessonStatus] = useState<LessonStatus>("in_progress");
   const [audioError, setAudioError] = useState(false);
+
+  useEffect(() => {
+    const rec = learningRecord.markLessonOpened(lesson);
+    setLessonStatus(rec.status);
+    if (rec.status === "completed" || rec.status === "mastered") {
+      setComplete(true);
+    }
+  }, [lesson]);
 
   const home = courseHome(lesson);
   const isListeningLesson =
@@ -54,6 +64,15 @@ export function LessonView({ lesson }: LessonViewProps) {
   const allAnswered = lesson.questions.every((q, i) => isQuestionAnswered(q, answers[i]));
   const distinctFormats = new Set(lesson.questions.map(getQuestionFormat));
   const paragraphs = lesson.example.split("\n\n").filter(Boolean);
+
+  const statusText =
+    lessonStatus === "mastered"
+      ? t.dashboard.statusMastered
+      : lessonStatus === "completed"
+        ? t.dashboard.statusCompleted
+        : lessonStatus === "requires_revision"
+          ? t.dashboard.statusRequiresRevision
+          : t.dashboard.statusInProgress;
 
   return (
     <div className="container-page max-w-5xl py-8 md:py-12">
@@ -73,10 +92,25 @@ export function LessonView({ lesson }: LessonViewProps) {
             {t.learning.back}
           </Link>
         )}
-        <span className="text-sm font-semibold text-muted-foreground">
-          <span dir="ltr">{lesson.course.toUpperCase()}</span> · {t.learning[lesson.skill]} ·{" "}
-          {format(t.learning.minutes, { count: lesson.minutes })}
-        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
+              lessonStatus === "mastered"
+                ? "bg-success/15 text-success"
+                : lessonStatus === "requires_revision"
+                  ? "bg-destructive/15 text-destructive"
+                  : lessonStatus === "completed"
+                    ? "bg-secondary text-secondary-foreground"
+                    : "bg-primary/15 text-primary"
+            }`}
+          >
+            {statusText}
+          </span>
+          <span className="text-sm font-semibold text-muted-foreground">
+            <span dir="ltr">{lesson.course.toUpperCase()}</span> · {t.learning[lesson.skill]} ·{" "}
+            {format(t.learning.minutes, { count: lesson.minutes })}
+          </span>
+        </div>
       </div>
 
       <header className="border-b border-border py-8">
@@ -455,9 +489,21 @@ export function LessonView({ lesson }: LessonViewProps) {
         <div className="mt-5 flex flex-wrap items-center gap-4">
           <Button
             disabled={!allAnswered}
-            onClick={() =>
-              checked ? (setChecked(false), setAnswers({}), setComplete(false)) : setChecked(true)
-            }
+            onClick={() => {
+              if (checked) {
+                setChecked(false);
+                setAnswers({});
+                setComplete(false);
+              } else {
+                setChecked(true);
+                const saved = learningRecord.recordLessonExercises(
+                  lesson,
+                  score,
+                  lesson.questions.length,
+                );
+                setLessonStatus(saved.status);
+              }
+            }}
           >
             {checked ? t.learning.retry : t.learning.check}
           </Button>
@@ -583,13 +629,26 @@ export function LessonView({ lesson }: LessonViewProps) {
             objectives={lesson.objectives}
             questions={lesson.postEvaluation}
             {...(lesson.highlightKeywords ? { keywords: lesson.highlightKeywords } : {})}
+            lessonMeta={{
+              lessonId: lesson.id,
+              course: lesson.course,
+              skill: lesson.skill,
+              title: lesson.title,
+              ...(lesson.unit ? { unit: lesson.unit } : {}),
+              minutes: lesson.minutes,
+            }}
+            onEvaluated={(status) => setLessonStatus(status)}
           />
         )}
 
       <div className="border-t border-border py-6">
         <Button
           disabled={!checked || (Boolean(lesson.writing) && !review)}
-          onClick={() => setComplete(true)}
+          onClick={() => {
+            setComplete(true);
+            const saved = learningRecord.markLessonCompleted(lesson);
+            setLessonStatus(saved.status);
+          }}
         >
           <Check aria-hidden />
           {t.learning.finishLesson}

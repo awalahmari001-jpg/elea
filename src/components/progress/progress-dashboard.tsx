@@ -52,6 +52,7 @@ import {
   type AwarenessBand,
   type LearnerBackupSnapshot,
 } from "@/lib/learner-storage";
+import { learningRecord } from "@/lib/learning-record";
 
 function emptySnapshot(): LearnerBackupSnapshot {
   return {
@@ -155,6 +156,7 @@ export function ProgressDashboard() {
 
   const handleConfirmReset = () => {
     learnerStorage.clearAll();
+    learningRecord.clearJourney();
     refreshFromStorage();
     setConfirmingReset(false);
     setBackupNotice({ tone: "ok", text: pt.resetSuccess });

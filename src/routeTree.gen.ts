@@ -13,10 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdultsRouteImport } from './routes/adults'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as CefrMasteryRouteImport } from './routes/cefr-mastery'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IeltsRouteImport } from './routes/ielts'
 import { Route as IeltsVocabularyRouteImport } from './routes/ielts-vocabulary'
 import { Route as KidsRouteImport } from './routes/kids'
 import { Route as LevelTestRouteImport } from './routes/level-test'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as SelfLearningRouteImport } from './routes/self-learning'
 import { Route as SpeakingRouteImport } from './routes/speaking'
@@ -45,6 +47,11 @@ const CefrMasteryRoute = CefrMasteryRouteImport.update({
   path: '/cefr-mastery',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IeltsRoute = IeltsRouteImport.update({
   id: '/ielts',
   path: '/ielts',
@@ -63,6 +70,11 @@ const KidsRoute = KidsRouteImport.update({
 const LevelTestRoute = LevelTestRouteImport.update({
   id: '/level-test',
   path: '/level-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProgressRoute = ProgressRouteImport.update({
@@ -106,10 +118,12 @@ export interface FileRoutesByFullPath {
   '/adults': typeof AdultsRoute
   '/business': typeof BusinessRoute
   '/cefr-mastery': typeof CefrMasteryRoute
+  '/dashboard': typeof DashboardRoute
   '/ielts': typeof IeltsRoute
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
+  '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
   '/self-learning': typeof SelfLearningRoute
   '/speaking': typeof SpeakingRoute
@@ -123,10 +137,12 @@ export interface FileRoutesByTo {
   '/adults': typeof AdultsRoute
   '/business': typeof BusinessRoute
   '/cefr-mastery': typeof CefrMasteryRoute
+  '/dashboard': typeof DashboardRoute
   '/ielts': typeof IeltsRoute
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
+  '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
   '/self-learning': typeof SelfLearningRoute
   '/speaking': typeof SpeakingRoute
@@ -141,10 +157,12 @@ export interface FileRoutesById {
   '/adults': typeof AdultsRoute
   '/business': typeof BusinessRoute
   '/cefr-mastery': typeof CefrMasteryRoute
+  '/dashboard': typeof DashboardRoute
   '/ielts': typeof IeltsRoute
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
+  '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
   '/self-learning': typeof SelfLearningRoute
   '/speaking': typeof SpeakingRoute
@@ -160,10 +178,12 @@ export interface FileRouteTypes {
     | '/adults'
     | '/business'
     | '/cefr-mastery'
+    | '/dashboard'
     | '/ielts'
     | '/ielts-vocabulary'
     | '/kids'
     | '/level-test'
+    | '/profile'
     | '/progress'
     | '/self-learning'
     | '/speaking'
@@ -177,10 +197,12 @@ export interface FileRouteTypes {
     | '/adults'
     | '/business'
     | '/cefr-mastery'
+    | '/dashboard'
     | '/ielts'
     | '/ielts-vocabulary'
     | '/kids'
     | '/level-test'
+    | '/profile'
     | '/progress'
     | '/self-learning'
     | '/speaking'
@@ -194,10 +216,12 @@ export interface FileRouteTypes {
     | '/adults'
     | '/business'
     | '/cefr-mastery'
+    | '/dashboard'
     | '/ielts'
     | '/ielts-vocabulary'
     | '/kids'
     | '/level-test'
+    | '/profile'
     | '/progress'
     | '/self-learning'
     | '/speaking'
@@ -212,10 +236,12 @@ export interface RootRouteChildren {
   AdultsRoute: typeof AdultsRoute
   BusinessRoute: typeof BusinessRoute
   CefrMasteryRoute: typeof CefrMasteryRoute
+  DashboardRoute: typeof DashboardRoute
   IeltsRoute: typeof IeltsRoute
   IeltsVocabularyRoute: typeof IeltsVocabularyRoute
   KidsRoute: typeof KidsRoute
   LevelTestRoute: typeof LevelTestRoute
+  ProfileRoute: typeof ProfileRoute
   ProgressRoute: typeof ProgressRoute
   SelfLearningRoute: typeof SelfLearningRoute
   SpeakingRoute: typeof SpeakingRoute
@@ -255,6 +281,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CefrMasteryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ielts': {
       id: '/ielts'
       path: '/ielts'
@@ -281,6 +314,13 @@ declare module '@tanstack/react-router' {
       path: '/level-test'
       fullPath: '/level-test'
       preLoaderRoute: typeof LevelTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/progress': {
@@ -340,10 +380,12 @@ const rootRouteChildren: RootRouteChildren = {
   AdultsRoute: AdultsRoute,
   BusinessRoute: BusinessRoute,
   CefrMasteryRoute: CefrMasteryRoute,
+  DashboardRoute: DashboardRoute,
   IeltsRoute: IeltsRoute,
   IeltsVocabularyRoute: IeltsVocabularyRoute,
   KidsRoute: KidsRoute,
   LevelTestRoute: LevelTestRoute,
+  ProfileRoute: ProfileRoute,
   ProgressRoute: ProgressRoute,
   SelfLearningRoute: SelfLearningRoute,
   SpeakingRoute: SpeakingRoute,

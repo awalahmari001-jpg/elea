@@ -100,13 +100,32 @@ export function SiteFooter() {
             </li>
             <li>
               <Link
+                to="/dashboard"
+                className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
+              >
+                {t.nav.dashboard}{" "}
+                <span className="text-inverse-muted" dir="ltr">
+                  · Hub
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/progress"
                 className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
               >
                 {t.nav.progress}{" "}
                 <span className="text-inverse-muted" dir="ltr">
-                  · Dashboard
+                  · Analytics
                 </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/profile"
+                className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
+              >
+                {t.nav.profile}
               </Link>
             </li>
             <li>

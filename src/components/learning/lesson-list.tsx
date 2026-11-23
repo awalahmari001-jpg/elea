@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen, Clock, Lock, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n-provider";
 import { format } from "@/lib/i18n/messages";
 import { isLessonFree } from "@/lib/lesson-access";
+import { learningRecord, type LessonStatus } from "@/lib/learning-record";
 import type { Lesson } from "@/content/lessons";
 
 export interface LessonListProps {
@@ -11,12 +13,45 @@ export interface LessonListProps {
   /** Ids of lessons locked until the learner joins the course. */
   lockedIds?: Set<string>;
 }
+
+const STATUS_STYLE: Record<Exclude<LessonStatus, "not_started">, string> = {
+  in_progress: "bg-primary/15 text-primary",
+  completed: "bg-secondary text-secondary-foreground",
+  mastered: "bg-success/15 text-success",
+  requires_revision: "bg-destructive/15 text-destructive",
+};
+
 export function LessonList({ lessons, lockedIds }: LessonListProps) {
   const { t, locale } = useI18n();
+  const [statuses, setStatuses] = useState<Record<string, LessonStatus>>({});
+
+  useEffect(() => {
+    const map = learningRecord.getLessonMap();
+    const next: Record<string, LessonStatus> = {};
+    for (const [id, rec] of Object.entries(map)) {
+      next[id] = rec.status;
+    }
+    setStatuses(next);
+  }, []);
+
+  const statusLabel = (s: Exclude<LessonStatus, "not_started">) => {
+    switch (s) {
+      case "in_progress":
+        return t.dashboard.statusInProgress;
+      case "completed":
+        return t.dashboard.statusCompleted;
+      case "mastered":
+        return t.dashboard.statusMastered;
+      case "requires_revision":
+        return t.dashboard.statusRequiresRevision;
+    }
+  };
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {lessons.map((lesson, i) => {
         const locked = lockedIds?.has(lesson.id) ?? false;
+        const st = statuses[lesson.id] ?? "not_started";
         return (
           <article
             key={lesson.id}
@@ -32,6 +67,12 @@ export function LessonList({ lessons, lockedIds }: LessonListProps) {
                   <span className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
                     <Lock className="size-3" aria-hidden />
                     {t.learning.locked}
+                  </span>
+                ) : st !== "not_started" ? (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS_STYLE[st]}`}
+                  >
+                    {statusLabel(st)}
                   </span>
                 ) : isLessonFree(lesson) ? (
                   <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-semibold text-foreground">
