@@ -3,22 +3,19 @@ import {
   Award,
   Check,
   CheckCircle2,
-  ClipboardCheck,
   GraduationCap,
   RotateCcw,
   Sparkles,
-  TrendingUp,
   XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n-provider";
 import type { LessonCourse } from "@/content/lesson-types";
-import { getCourseAssessmentQuestions, type AssessmentFocus } from "@/content/course-assessments";
+import { getPostTestQuestions, type AssessmentFocus } from "@/content/course-assessments";
 import {
   classifyAwareness,
   learnerStorage,
-  type AssessmentKind,
-  type AssessmentRecord,
+  type AssessmentAttempt,
   type AwarenessBand,
 } from "@/lib/learner-storage";
 import { format, type Messages } from "@/lib/i18n/messages";
@@ -66,36 +63,35 @@ export interface CourseAssessmentPanelProps {
 
 export function CourseAssessmentPanel({ course }: CourseAssessmentPanelProps) {
   const { locale, t } = useI18n();
-  const [activeKind, setActiveKind] = useState<AssessmentKind | null>(null);
+  const [open, setOpen] = useState(false);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
-  const [saved, setSaved] = useState<AssessmentRecord>({});
+  const [savedPost, setSavedPost] = useState<AssessmentAttempt | undefined>(undefined);
 
   useEffect(() => {
     const all = learnerStorage.getAssessments();
-    setSaved(all[course] ?? {});
+    setSavedPost(all[course]?.post);
   }, [course]);
 
-  const questions = activeKind ? getCourseAssessmentQuestions(course, activeKind) : [];
+  const questions = getPostTestQuestions(course);
   const answeredCount = Object.keys(answers).length;
   const allAnswered = questions.length === 10 && answeredCount === questions.length;
   const score = questions.filter((q, idx) => answers[idx] === q.correct).length;
   const band = classifyAwareness(score, questions.length || 10);
 
-  function startAssessment(kind: AssessmentKind) {
-    setActiveKind(kind);
+  function startPostTest() {
+    setOpen(true);
     setAnswers({});
     setSubmitted(false);
   }
 
   function handleSubmit() {
-    if (!activeKind || !allAnswered) return;
+    if (!allAnswered) return;
     setSubmitted(true);
-    const updated = learnerStorage.saveAssessment(course, activeKind, score, questions.length);
-    setSaved(updated[course] ?? {});
+    const updated = learnerStorage.saveAssessment(course, "post", score, questions.length);
+    setSavedPost(updated[course]?.post);
   }
 
-  // Group breakdown by focus area
   const breakdown = (["grammar", "reading", "vocabulary", "error-spotting"] as AssessmentFocus[])
     .map((focus) => {
       const items = questions
@@ -106,107 +102,73 @@ export function CourseAssessmentPanel({ course }: CourseAssessmentPanelProps) {
     })
     .filter((b) => b.total > 0);
 
+  const savedMeta = savedPost ? AWARENESS_META[savedPost.awarenessBand] : null;
+
   return (
     <section id="assessments" className="border-t border-border bg-muted/30 py-14">
       <div className="container-page">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="eyebrow flex items-center gap-1.5 text-primary">
-              <GraduationCap className="size-4" aria-hidden />
-              {t.learning.assessmentsEyebrow}
-            </p>
-            <h2 className="mt-2 text-3xl font-bold text-foreground">
-              {t.learning.assessmentsTitle}
-            </h2>
-            <p className="mt-2 max-w-3xl text-base text-muted-foreground">
-              {t.learning.assessmentsSubtitle}
-            </p>
-          </div>
-          {saved.summative && saved.post && (
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-card px-4 py-2 text-xs font-bold text-primary shadow-xs">
-              <TrendingUp className="size-4" aria-hidden />
-              <span>
-                {format(t.learning.growthSummary, {
-                  summative: saved.summative.score,
-                  post: saved.post.score,
-                })}
-              </span>
-            </div>
-          )}
+        <div>
+          <p className="eyebrow flex items-center gap-1.5 text-primary">
+            <GraduationCap className="size-4" aria-hidden />
+            {t.learning.assessmentsEyebrow}
+          </p>
+          <h2 className="mt-2 text-3xl font-bold text-foreground">{t.learning.assessmentsTitle}</h2>
+          <p className="mt-2 max-w-3xl text-base text-muted-foreground">
+            {t.learning.assessmentsSubtitle}
+          </p>
         </div>
 
-        {/* Overview Cards (Summative + Post-Test) */}
-        {!activeKind && (
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
-            {(["summative", "post"] as const).map((kind) => {
-              const attempt = saved[kind];
-              const isSummative = kind === "summative";
-              const meta = attempt ? AWARENESS_META[attempt.awarenessBand] : null;
-              return (
-                <article
-                  key={kind}
-                  className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-card"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                      {isSummative ? (
-                        <ClipboardCheck className="size-3.5" aria-hidden />
-                      ) : (
-                        <Award className="size-3.5" aria-hidden />
-                      )}
-                      <span dir="ltr">10 MCQs</span>
-                    </span>
-                    {attempt && meta && (
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-bold ${meta.badgeClass}`}
-                      >
-                        {format(t.learning.lastScore, {
-                          score: attempt.score,
-                          total: attempt.total,
-                        })}
-                      </span>
-                    )}
-                  </div>
+        {/* Focused Post-Lesson Test Overview Card */}
+        {!open && (
+          <div className="mt-8 max-w-2xl">
+            <article className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-card">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                  <Award className="size-3.5" aria-hidden />
+                  <span dir="ltr">10 MCQs</span>
+                </span>
+                {savedPost && savedMeta && (
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-bold ${savedMeta.badgeClass}`}
+                  >
+                    {format(t.learning.lastScore, {
+                      score: savedPost.score,
+                      total: savedPost.total,
+                    })}
+                  </span>
+                )}
+              </div>
 
-                  <h3 className="mt-4 text-2xl font-bold text-foreground">
-                    {isSummative ? t.learning.summativeTitle : t.learning.postTestTitle}
-                  </h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
-                    {isSummative ? t.learning.summativeDesc : t.learning.postTestDesc}
-                  </p>
+              <h3 className="mt-4 text-2xl font-bold text-foreground">
+                {t.learning.postTestTitle}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {t.learning.postTestDesc}
+              </p>
 
-                  {attempt && meta && (
-                    <p className="mt-4 rounded-xl bg-muted/60 px-3.5 py-2.5 text-xs font-semibold text-foreground">
-                      {t.learning[meta.labelKey]}
-                    </p>
-                  )}
+              {savedPost && savedMeta && (
+                <p className="mt-4 rounded-xl bg-muted/60 px-3.5 py-2.5 text-xs font-semibold text-foreground">
+                  {t.learning[savedMeta.labelKey]}
+                </p>
+              )}
 
-                  <div className="mt-6">
-                    <Button
-                      type="button"
-                      variant={isSummative ? "default" : "secondary"}
-                      className="w-full sm:w-auto"
-                      onClick={() => startAssessment(kind)}
-                    >
-                      <Sparkles className="size-4" aria-hidden />
-                      {isSummative ? t.learning.startSummative : t.learning.startPostTest}
-                    </Button>
-                  </div>
-                </article>
-              );
-            })}
+              <div className="mt-6">
+                <Button type="button" className="w-full sm:w-auto" onClick={startPostTest}>
+                  <Sparkles className="size-4" aria-hidden />
+                  {t.learning.startPostTest}
+                </Button>
+              </div>
+            </article>
           </div>
         )}
 
-        {/* Active 10-MCQ Assessment Runner */}
-        {activeKind && (
+        {/* Active 10-MCQ Post-Lesson Test Runner */}
+        {open && (
           <div className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-card md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-5">
               <div>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                  {activeKind === "summative"
-                    ? t.learning.summativeTitle
-                    : t.learning.postTestTitle}
+                  {t.learning.postTestTitle}
                   {" · "}
                   <span dir="ltr">10 MCQs</span>
                 </span>
@@ -217,7 +179,7 @@ export function CourseAssessmentPanel({ course }: CourseAssessmentPanelProps) {
                   })}
                 </p>
               </div>
-              <Button type="button" variant="ghost" onClick={() => setActiveKind(null)}>
+              <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
                 {t.learning.closeAssessment}
               </Button>
             </div>
@@ -251,22 +213,10 @@ export function CourseAssessmentPanel({ course }: CourseAssessmentPanelProps) {
                       </span>
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => startAssessment(activeKind)}
-                    >
-                      <RotateCcw className="size-4" aria-hidden />
-                      {t.learning.retakeAssessment}
-                    </Button>
-                    {activeKind === "summative" && (
-                      <Button type="button" onClick={() => startAssessment("post")}>
-                        <Sparkles className="size-4" aria-hidden />
-                        {t.learning.switchToPostTest}
-                      </Button>
-                    )}
-                  </div>
+                  <Button type="button" variant="outline" onClick={startPostTest}>
+                    <RotateCcw className="size-4" aria-hidden />
+                    {t.learning.retakeAssessment}
+                  </Button>
                 </div>
                 <p className="mt-3 text-sm leading-relaxed text-foreground">
                   {t.learning[AWARENESS_META[band].noteKey]}
@@ -378,24 +328,12 @@ export function CourseAssessmentPanel({ course }: CourseAssessmentPanelProps) {
                   {t.learning.submitAssessment}
                 </Button>
               ) : (
-                <div className="flex flex-wrap gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => startAssessment(activeKind)}
-                  >
-                    <RotateCcw className="size-4" aria-hidden />
-                    {t.learning.retakeAssessment}
-                  </Button>
-                  {activeKind === "summative" && (
-                    <Button type="button" onClick={() => startAssessment("post")}>
-                      <Sparkles className="size-4" aria-hidden />
-                      {t.learning.switchToPostTest}
-                    </Button>
-                  )}
-                </div>
+                <Button type="button" variant="outline" onClick={startPostTest}>
+                  <RotateCcw className="size-4" aria-hidden />
+                  {t.learning.retakeAssessment}
+                </Button>
               )}
-              <Button type="button" variant="ghost" onClick={() => setActiveKind(null)}>
+              <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
                 {t.learning.closeAssessment}
               </Button>
             </div>

@@ -32,10 +32,10 @@ function getCoreFormula(lesson: Lesson, guide?: DetailedRuleGuide): string {
   if (guide?.formulas[0]?.pattern) return guide.formulas[0].pattern;
   if (lesson.listeningPlan?.paraphrasePairs[0]) {
     const p = lesson.listeningPlan.paraphrasePairs[0];
-    return `Hear: "${p.spoken}" → Means: "${p.equivalent}"`;
+    return `🔊 "${p.spoken}" → 💡 "${p.equivalent}"`;
   }
   if (lesson.writing) {
-    return `Plan → Clear Opening → Supporting Detail → ${lesson.writing.minimum}+ Words`;
+    return `📝 Plan → 🎯 Clear Opening → 💡 Detail → ✅ ${lesson.writing.minimum}+ Words`;
   }
   if (lesson.taskPlan?.languageFocus.en) {
     return clip(lesson.taskPlan.languageFocus.en, 88);
@@ -91,106 +91,103 @@ function getTrapComparison(
   };
 }
 
-/** Builds a clear chronological or sequential visual timeline tailored to each lesson's topic, tense, dates, or steps. */
+/** Builds a visual chronological or sequential timeline with expressive emojis explaining progression. */
 function buildTopicTimeline(lesson: Lesson): TimelineNode[] {
   const combined = `${lesson.id} ${lesson.title.en}`.toLowerCase();
 
-  // Chronological verb-tense & time-axis timelines
   if (combined.includes("past-continuous")) {
     return [
-      { marker: "Ongoing Past", label: "was / were + -ing" },
-      { marker: "Interruption", label: "when + Past Simple", active: true },
-      { marker: "Outcome", label: "Completed Story" },
+      { marker: "Ongoing Past", label: "was / were + -ing", emoji: "⏪" },
+      { marker: "Interruption", label: "when + Past Simple", emoji: "⚡", active: true },
+      { marker: "Outcome", label: "Completed Story", emoji: "🏁" },
     ];
   }
   if (combined.includes("present-perfect") || combined.includes("experiences")) {
     return [
-      { marker: "Past Experience", label: "have / has + V3", active: true },
-      { marker: "Link to Now", label: "Still True Today" },
-      { marker: "Exact Date?", label: "Switch to Past Simple" },
+      { marker: "Past Experience", label: "have / has + V3", emoji: "🌟", active: true },
+      { marker: "Bridge to Now", label: "Still True Today", emoji: "🌉" },
+      { marker: "Exact Date?", label: "Switch to Past Simple", emoji: "📅" },
     ];
   }
   if (combined.includes("past") || combined.includes("story-past")) {
     return [
-      { marker: "Finished Past", label: "V-ed / Irregular V2", active: true },
-      { marker: "Negative / Ask", label: "didn't / Did + Base" },
-      { marker: "Now", label: "Story Complete" },
+      { marker: "Finished Past", label: "V-ed / Irregular V2", emoji: "⏪", active: true },
+      { marker: "Ask / Negative", label: "Did / didn't + Base", emoji: "❓" },
+      { marker: "Now", label: "Story Complete", emoji: "✅" },
     ];
   }
   if (combined.includes("future") || combined.includes("going to")) {
     return [
-      { marker: "Decided Now", label: "will + Base Verb" },
-      { marker: "Prior Plan", label: "be going to + Verb", active: true },
-      { marker: "Fixed Date", label: "Present Continuous" },
+      { marker: "Decided Now", label: "will + Base Verb", emoji: "⚡" },
+      { marker: "Prior Plan", label: "be going to + Verb", emoji: "🗺️", active: true },
+      { marker: "Fixed Date", label: "Present Continuous", emoji: "📅" },
     ];
   }
   if (combined.includes("present-continuous")) {
     return [
-      { marker: "Habit (Always)", label: "Present Simple" },
-      { marker: "Right Now", label: "am/is/are + V-ing", active: true },
-      { marker: "This Week", label: "Temporary Project" },
+      { marker: "Daily Habit", label: "Present Simple", emoji: "🔁" },
+      { marker: "Right Now", label: "am/is/are + V-ing", emoji: "📍", active: true },
+      { marker: "This Week", label: "Temporary Project", emoji: "⏳" },
     ];
   }
   if (combined.includes("hypothetical") || combined.includes("conditional")) {
     return [
-      { marker: "Condition", label: "If / Had / Were", active: true },
-      { marker: "Pivot Arrow", label: "Cause → Effect" },
-      { marker: "Result", label: "will / would (have)" },
+      { marker: "Condition", label: "If / Had / Were", emoji: "🔀", active: true },
+      { marker: "Link", label: "Cause → Effect", emoji: "➡️" },
+      { marker: "Result", label: "will / would (have)", emoji: "🎯" },
     ];
   }
   if (combined.includes("school-day")) {
     return [
-      { marker: "First", label: "Morning Reading", active: true },
-      { marker: "Next / Then", label: "Classes & Play" },
-      { marker: "Finally", label: "Walk Home" },
+      { marker: "First", label: "Morning Reading", emoji: "🌅", active: true },
+      { marker: "Next / Then", label: "Classes & Play", emoji: "⚽" },
+      { marker: "Finally", label: "Walk Home", emoji: "🏡" },
     ];
   }
 
-  // Extract chronological years if the passage mentions historical/progression dates
   const yearMatches = Array.from(
     new Set(lesson.example.match(/\b(19\d{2}|20\d{2})\b/g) ?? []),
   ).sort();
   if (yearMatches.length >= 2) {
     return [
-      { marker: yearMatches[0]!, label: "Earlier Milestone" },
-      { marker: yearMatches[1]!, label: "Key Turning Point", active: true },
-      { marker: yearMatches[2] ?? "Today", label: "Modern Impact" },
+      { marker: yearMatches[0]!, label: "Earlier Milestone", emoji: "📜" },
+      { marker: yearMatches[1]!, label: "Key Turning Point", emoji: "⚡", active: true },
+      { marker: yearMatches[2] ?? "Today", label: "Modern Impact", emoji: "🚀" },
     ];
   }
 
-  // Skill-specific sequential timelines
   if (lesson.skill === "grammar") {
     return [
-      { marker: "Step 1", label: "Spot the Signal", active: true },
-      { marker: "Step 2", label: "Match the Pattern" },
-      { marker: "Step 3", label: "Check & Speak" },
+      { marker: "Step 1", label: "Spot the Signal", emoji: "🔍", active: true },
+      { marker: "Step 2", label: "Build the Pattern", emoji: "🧩" },
+      { marker: "Step 3", label: "Check & Speak", emoji: "🗣️" },
     ];
   }
   if (lesson.skill === "reading") {
     return [
-      { marker: "Pass 1", label: "Skim Main Idea" },
-      { marker: "Pass 2", label: "Scan Exact Clues", active: true },
-      { marker: "Pass 3", label: "Verify & Eliminate" },
+      { marker: "Pass 1", label: "Skim Main Idea", emoji: "👀" },
+      { marker: "Pass 2", label: "Scan Exact Clues", emoji: "🔍", active: true },
+      { marker: "Pass 3", label: "Verify & Solve", emoji: "✅" },
     ];
   }
   if (lesson.skill === "listening") {
     return [
-      { marker: "Pre-Listen", label: "Preview Paraphrases" },
-      { marker: "0.75× → 0.95×", label: "Track Sound Clues", active: true },
-      { marker: "Shadow", label: "Speak Key Line" },
+      { marker: "Pre-Listen", label: "Preview Paraphrases", emoji: "📋" },
+      { marker: "0.75× → 0.95×", label: "Track Sound Clues", emoji: "🎧", active: true },
+      { marker: "Shadow", label: "Speak Key Line", emoji: "🎙️" },
     ];
   }
   if (lesson.skill === "writing") {
     return [
-      { marker: "Min 1", label: "Outline 3 Points" },
-      { marker: "Draft", label: "Write Clear Flow", active: true },
-      { marker: "Polish", label: "Checklist Review" },
+      { marker: "Min 1", label: "Outline 3 Points", emoji: "🗺️" },
+      { marker: "Draft", label: "Write Clear Flow", emoji: "✍️", active: true },
+      { marker: "Polish", label: "Checklist Review", emoji: "✨" },
     ];
   }
   return [
-    { marker: "Listen", label: "Catch the Prompt" },
-    { marker: "Respond", label: "Direct Answer + Detail", active: true },
-    { marker: "Extend", label: "Natural Follow-Up" },
+    { marker: "Listen", label: "Catch the Prompt", emoji: "👂" },
+    { marker: "Respond", label: "Answer + Detail", emoji: "🗣️", active: true },
+    { marker: "Extend", label: "Natural Follow-Up", emoji: "🤝" },
   ];
 }
 
@@ -198,6 +195,7 @@ function buildHook(
   lesson: Lesson,
   trap: { wrong: string; right: string },
 ): {
+  sceneEmoji: string;
   headline: Bilingual;
   visualAction: Bilingual;
   narrationEn: string;
@@ -210,33 +208,36 @@ function buildHook(
 
   if (lesson.skill === "grammar") {
     const l1En = isKids
-      ? `Hey superstar! Quick puzzle for you—look at these two sentences: "${trap.wrong}" or "${trap.right}"?`
-      : `Hey there! Quick challenge right off the bat—would you say "${trap.wrong}" or "${trap.right}"?`;
-    const l2En = `Ooh, great question, Layla! Almost everyone pauses on this one—and in the next four minutes, you're going to nail it with total confidence!`;
+      ? `Hey superstar! 🌟 Quick puzzle for you—which one sounds right: "${trap.wrong}" or "${trap.right}"?`
+      : `Hey there! 🎯 Quick challenge right off the bat—would you say "${trap.wrong}" or "${trap.right}"?`;
+    const l2En = `Ooh, great question, Layla! 🤔 Almost everyone pauses here—and in 4 fun minutes, you'll nail it every time! 🚀`;
     return {
+      sceneEmoji: "🧩",
       headline: {
-        en: "Wait—Which One Sounds Right to You?",
-        ar: "توقّف للحظة—أي جملة تبدو صحيحة لك؟",
+        en: "Wait—Which One Sounds Right to You? 🤔",
+        ar: "توقّف للحظة—أي جملة تبدو صحيحة لك؟ 🤔",
       },
       visualAction: {
-        en: `0:00–0:15 · Coach Layla & Coach Omar pop onto a vibrant split-screen! Dynamic glowing arrows point to "${clip(trap.wrong, 44)}" vs "${clip(trap.right, 44)}" inside neon geometric boxes—zero long intro!`,
-        ar: `٠:٠٠–٠:١٥ · تظهر المدرّبة ليلى والمدرّب عمر بحماس مع أسهم متحركة تشير إلى الجملتين داخل مربعات هندسية مضيئة—دون مقدمة طويلة!`,
+        en: `0:00–0:15 · 👩‍🏫 Coach Layla waves excitedly & 👨‍🏫 Coach Omar points with animated arrows to "${clip(trap.wrong, 42)}" vs "${clip(trap.right, 42)}" while 🙋‍♀️ Sara raises her hand!`,
+        ar: `٠:٠٠–٠:١٥ · 👩‍🏫 تلوّح المدرّبة ليلى بحماس ويشير 👨‍🏫 عمر بأسهم متحركة إلى الجملتين بينما ترفع 🙋‍♀️ سارة يدها بتساؤل!`,
       },
       narrationEn: `${l1En} ${l2En}`,
-      subtitleAr: `مرحبًا! تحدٍ سريع لك الآن: هل تقول "${trap.wrong}" أم "${trap.right}"؟ خلال الدقائق الأربع القادمة ستتقن الفرق بثقة رائعة!`,
-      visualPoints: [`? "${clip(trap.wrong, 52)}"`, `? "${clip(trap.right, 52)}"`],
+      subtitleAr: `مرحبًا! 🎯 تحدٍ سريع لك: هل تقول "${trap.wrong}" أم "${trap.right}"؟ خلال ٤ دقائق ممتعة ستتقنه بثقة! 🚀`,
+      visualPoints: [`🤔 "${clip(trap.wrong, 50)}"`, `✨ "${clip(trap.right, 50)}"`],
       dialogue: [
         {
           speaker: "layla",
           mood: "excited",
+          emoji: "👋",
           textEn: l1En,
-          textAr: `مرحبًا يا بطل! سؤال سريع لك الآن: هل تقول "${trap.wrong}" أم "${trap.right}"؟`,
+          textAr: `مرحبًا يا بطل! 🌟 سؤال سريع لك الآن: هل تقول "${trap.wrong}" أم "${trap.right}"؟`,
         },
         {
           speaker: "omar",
           mood: "encouraging",
+          emoji: "🚀",
           textEn: l2En,
-          textAr: `سؤال ذكي يا ليلى! كثيرون يترددون هنا—وخلال أربع دقائق ستتقنه تمامًا وتطبّقه بسهولة!`,
+          textAr: `سؤال ذكي يا ليلى! 🤔 خلال ٤ دقائق ممتعة ستتقنه وتطبّقه بثقة تامة! 🚀`,
         },
       ],
     };
@@ -244,46 +245,49 @@ function buildHook(
 
   if (lesson.skill === "reading") {
     const l1En = isIelts
-      ? `Hey! Imagine the IELTS clock ticking down—you spot a question word inside paragraph two. Do you pick it right away?`
-      : `Welcome! Picture having just thirty seconds to scan "${lesson.title.en}". Would you read every word, or lock onto the hidden clue?`;
+      ? `Hey! ⏱️ Picture the IELTS clock ticking—you spot a question word in paragraph 2. Do you pick it right away?`
+      : `Welcome! 📚 Imagine having 30 seconds to scan "${lesson.title.en}". Would you read every word, or hunt the clue? 🔍`;
     const l2En = isIelts
-      ? `Hold on—that's the classic Band 6 distractor trap! Stick with Layla and me for four fun minutes and you'll spot real Band 7 evidence fast!`
-      : `Love that question, Layla! Watch our animated highlighter arrows—we're about to make your reading faster and sharper!`;
+      ? `Hold on! 🚦 That's the classic Band 6 trap! Stick with Layla, Sara, Tariq, and me to spot real Band 7 evidence fast! 🎯`
+      : `Love that question, Layla! 💡 Watch our glowing highlighter arrows—your reading speed is about to level up! 🚀`;
     return {
+      sceneEmoji: "🔍",
       headline: {
         en: isIelts
-          ? "60 Seconds on the Clock—Can You Beat the Distractor?"
-          : "Would You Catch the Hidden Clue in 10 Seconds?",
+          ? "60 Seconds Left—Can You Beat the Trap? ⏱️"
+          : "Can You Spot the Hidden Clue Fast? 🔍",
         ar: isIelts
-          ? "٦٠ ثانية على المؤقت—هل تتجاوز المشتت بنجاح؟"
-          : "هل تلتقط الدليل الحقيقي في ١٠ ثوانٍ؟",
+          ? "٦٠ ثانية على المؤقت—هل تتجاوز الفخ؟ ⏱️"
+          : "هل تصطاد الدليل الحقيقي بسرعة؟ 🔍",
       },
       visualAction: {
-        en: `0:00–0:15 · Coach Layla aims an animated magnifying glass while Coach Omar sweeps a bright highlighter beam across the text, circling the true clue and bouncing a red distractor away.`,
-        ar: `٠:٠٠–٠:١٥ · توجّه المدرّبة ليلى عدسة مكبّرة متحركة بينما يمرّر المدرّب عمر قلم التظليل المضيء لتمييز الدليل الحقيقي وإبعاد المشتت.`,
+        en: `0:00–0:15 · 👩‍🏫 Layla aims an animated magnifying lens 🔍 while 👨‍🏫 Omar sweeps a bright highlighter beam, bouncing a ❌ distractor away as 🙋‍♀️ Sara watches eagerly!`,
+        ar: `٠:٠٠–٠:١٥ · 👩‍🏫 توجّه ليلى عدسة مكبرة 🔍 بينما يمرّر 👨‍🏫 عمر قلم تظليل مضيء لإبعاد المشتت ❌ أمام 🙋‍♀️ سارة!`,
       },
       narrationEn: `${l1En} ${l2En}`,
       subtitleAr: isIelts
-        ? `تخيّل مؤقت الآيلتس يدق—لا تنخدع بأول كلمة متطابقة! خلال ٤ دقائق ستتعلم مع ليلى وعمر كيف تلتقط دليل الدرجة ٧ بسرعة.`
-        : `مرحبًا! تخيّل لديك ٣٠ ثانية لمسح «${lesson.title.ar}». مع ليلى وعمر ستكتشف كيف تصطاد الدليل الحقيقي بسرعة!`,
+        ? `⏱️ تخيّل مؤقت الآيلتس يدق—لا تنخدع بأول كلمة! مع ليلى وعمر وسارة ستصطاد الدليل الحقيقي بسرعة! 🎯`
+        : `📚 تخيّل لديك ٣٠ ثانية لمسح «${lesson.title.ar}»—تابع أسهم التظليل معنا لترفع سرعتك ودقتك! 🔍`,
       visualPoints: [
-        isIelts ? "Band 7 Evidence Lens" : "Smart Clue Hunting",
-        clip(lesson.title.en, 56),
+        isIelts ? "🎯 Band 7 Evidence Lens" : "🔍 Smart Clue Hunting",
+        `📖 ${clip(lesson.title.en, 50)}`,
       ],
       dialogue: [
         {
           speaker: "layla",
           mood: "curious",
+          emoji: "🔍",
           textEn: l1En,
           textAr: isIelts
-            ? `تخيّل مؤقت الآيلتس يعمل ووجدت كلمة السؤال في الفقرة الثانية—هل تختارها فورًا؟`
-            : `أهلًا بك! تخيّل أن لديك ٣٠ ثانية فقط لقراءة «${lesson.title.ar}»—كيف تجد الإجابة؟`,
+            ? `⏱️ تخيّل مؤقت الآيلتس يعمل ووجدت كلمة السؤال في الفقرة ٢—هل تختارها فورًا؟`
+            : `📚 أهلًا بك! لديك ٣٠ ثانية فقط لقراءة «${lesson.title.ar}»—كيف تجد الدليل بسرعة؟`,
         },
         {
           speaker: "omar",
           mood: "excited",
+          emoji: "💡",
           textEn: l2En,
-          textAr: `لحظة! هذا هو الفخ الكلاسيكي—اتبع أسهم التظليل معنا وستصبح قراءتك أسرع وأدق بكثير!`,
+          textAr: `🚦 لحظة! اتبع أسهم التظليل المضيئة معنا وستصبح قراءتك أسرع وأدق! 💡`,
         },
       ],
     };
@@ -292,22 +296,23 @@ function buildHook(
   if (lesson.skill === "listening") {
     const pair = lesson.listeningPlan?.paraphrasePairs[0];
     const l1En = pair
-      ? `Hey! Ever hear fast English like "${pair.spoken}" and wonder why your quiz shows "${pair.equivalent}" instead?`
-      : `Hey! Ever miss a listening answer because the speaker changed their mind halfway through?`;
-    const l2En = `You're not alone! Watch the glowing soundwaves with us—in four upbeat minutes, you'll train your ear to catch every cue!`;
+      ? `Hey! 🎧 Ever hear fast English like "${pair.spoken}" and wonder why your quiz shows "${pair.equivalent}" instead?`
+      : `Hey! 🎧 Ever miss a listening answer because the speaker changed their mind mid-sentence? 😮`;
+    const l2En = `You're not alone! 💡 Watch the animated soundwaves with us—in 4 upbeat minutes, your ear will catch every clue! 🚀`;
     return {
+      sceneEmoji: "🎧",
       headline: {
-        en: "Why Did Those Words Blur Together?",
-        ar: "لماذا بدت الكلمات متداخلة عند سماعها؟",
+        en: "Why Did Those Words Blur Together? 🎧",
+        ar: "لماذا بدت الكلمات متداخلة عند سماعها؟ 🎧",
       },
       visualAction: {
-        en: `0:00–0:15 · Coach Omar taps a glowing studio waveform; animated arrows split fast speech into bright color-coded stress circles while Coach Layla points straight at the meaning match.`,
-        ar: `٠:٠٠–٠:١٥ · ينقر المدرّب عمر على موجة صوتية متوهجة فتتفكك الكلمات بأسهم ودوائر ملونة بينما تشير المدرّبة ليلى للمعنى المكافئ.`,
+        en: `0:00–0:15 · 👨‍🏫 Omar taps a pulsing studio waveform 🔊; animated arrows split fast speech into glowing emoji badges while 👩‍🏫 Layla & 🙋‍♀️ Sara cheer!`,
+        ar: `٠:٠٠–٠:١٥ · 👨‍🏫 ينقر عمر على موجة صوتية نابضة 🔊 فتتفكك الكلمات بأسهم ملونة بينما تشجع 👩‍🏫 ليلى و🙋‍♀️ سارة!`,
       },
       narrationEn: `${l1En} ${l2En}`,
       subtitleAr: pair
-        ? `مرحبًا! هل سمعت عبارة سريعة مثل "${pair.spoken}" ووجدت في السؤال "${pair.equivalent}"؟ خلال ٤ دقائق ستدرّب أذنك مع ليلى وعمر!`
-        : `مرحبًا! هل فاتتك إجابة بسبب تصحيح المتحدث لكلامه؟ خلال ٤ دقائق ستتقن التقاط الإشارات الصوتية معنا!`,
+        ? `🎧 هل سمعت "${pair.spoken}" ووجدت في السؤال "${pair.equivalent}"؟ خلال ٤ دقائق ستدرّب أذنك بمتعة! 🚀`
+        : `🎧 هل فاتتك إجابة بسبب تصحيح المتحدث لكلامه؟ خلال ٤ دقائق ستتقن التقاط كل إشارة صوتية! 🚀`,
       visualPoints: pair
         ? [`🔊 "${pair.spoken}"`, `💡 "${pair.equivalent}"`]
         : ["🔊 Fast Speech Signals", "🎯 Catch Corrections"],
@@ -315,16 +320,18 @@ function buildHook(
         {
           speaker: "omar",
           mood: "curious",
+          emoji: "🎧",
           textEn: l1En,
           textAr: pair
-            ? `هل سمعت يومًا عبارة "${pair.spoken}" وتساءلت لماذا يظهر في السؤال "${pair.equivalent}"؟`
-            : `هل فاتتك إجابة استماع لأن المتحدث غيّر رأيه في منتصف الجملة؟`,
+            ? `🎧 هل سمعت "${pair.spoken}" وتساءلت لماذا يظهر في السؤال "${pair.equivalent}"؟`
+            : `🎧 هل فاتتك إجابة لأن المتحدث صحّح كلامه في منتصف الجملة؟`,
         },
         {
           speaker: "layla",
           mood: "encouraging",
+          emoji: "✨",
           textEn: l2En,
-          textAr: `لست وحدك! تابع الموجات الصوتية المضيئة معنا وسندرّب أذنك في أربع دقائق ممتعة!`,
+          textAr: `💡 لست وحدك! تابع الموجات الصوتية المتحركة معنا وسندرّب أذنك في ٤ دقائق ممتعة! 🚀`,
         },
       ],
     };
@@ -332,72 +339,99 @@ function buildHook(
 
   if (lesson.skill === "writing") {
     const l1En = isIelts
-      ? `Welcome! Picture an IELTS examiner opening your writing—what earns Band 7 in the first ten seconds?`
-      : `Hey there! Picture a busy reader opening your text on "${lesson.title.en}"—will your point jump off the page?`;
-    const l2En = `Spoiler: it's clean structure, not fancy jargon! Watch our geometric blueprint blocks snap together with Layla and me!`;
+      ? `Welcome! ✍️ Picture an IELTS examiner opening your script—what wins Band 7 in the first 10 seconds? 🏆`
+      : `Hey there! ✍️ Picture a busy reader opening your writing on "${lesson.title.en}"—will your point pop off the page? ✨`;
+    const l2En = `Spoiler: clean structure beats complicated words every time! 🧩 Watch our animated blueprint blocks snap together! 🚀`;
     return {
+      sceneEmoji: "✍️",
       headline: {
         en: isIelts
-          ? "What Does an Examiner Notice in the First 10 Seconds?"
-          : "Would Your Reader Understand Your Message Instantly?",
+          ? "What Wins Band 7 in the First 10 Seconds? 🏆"
+          : "Will Your Reader Get Your Point Instantly? ✍️",
         ar: isIelts
-          ? "ما أول شيء يلاحظه الممتحن في أول ١٠ ثوانٍ؟"
-          : "هل يفهم القارئ رسالتك من النظرة الأولى؟",
+          ? "ما الذي يكسبك الدرجة ٧ في أول ١٠ ثوانٍ؟ 🏆"
+          : "هل يفهم القارئ رسالتك فورًا؟ ✍️",
       },
       visualAction: {
-        en: `0:00–0:15 · Coach Layla sketches 3 vibrant geometric boxes (Opening → Support → Close) connected by animated glowing arrows as Coach Omar cheers the learner on.`,
-        ar: `٠:٠٠–٠:١٥ · ترسم المدرّبة ليلى ٣ مربعات هندسية مترابطة بأسهم مضيئة (افتتاحية ← دعم ← خاتمة) بينما يشجع المدرّب عمر المتعلم.`,
+        en: `0:00–0:15 · 👩‍🏫 Layla sketches 3 vibrant boxes (🎯 Opening → 💡 Proof → ✅ Close) linked by glowing arrows while 👨‍🏫 Omar & 🙋‍♀️ Sara nod excitedly!`,
+        ar: `٠:٠٠–٠:١٥ · 👩‍🏫 ترسم ليلى ٣ كتل مضيئة بأسهم متحركة (🎯 افتتاحية ← 💡 دعم ← ✅ خاتمة) وسط تفاعل 👨‍🏫 عمر و🙋‍♀️ سارة!`,
       },
       narrationEn: `${l1En} ${l2En}`,
-      subtitleAr: `مرحبًا! الوضوح والتنظيم يصنعان الفارق في أول ١٠ ثوانٍ—شاهد مخطط الكتابة الذكي مع ليلى وعمر!`,
-      visualPoints: ["1. Clear Opening", "2. Proof & Detail", "3. Strong Close"],
+      subtitleAr: `✍️ الوضوح والتنظيم يصنعان الفارق من اللحظة الأولى—شاهد مخطط الكتابة الذكي معنا الآن! 🚀`,
+      visualPoints: ["🎯 1. Clear Opening", "💡 2. Proof & Detail", "✅ 3. Strong Close"],
       dialogue: [
         {
           speaker: "layla",
           mood: "excited",
+          emoji: "✍️",
           textEn: l1En,
-          textAr: `أهلًا بك! تخيّل القارئ أو الممتحن يفتح كتابتك الآن—ما الذي يجذبه في أول ١٠ ثوانٍ؟`,
+          textAr: `✍️ أهلًا بك! ما أول شيء يجذب القارئ أو الممتحن في أول ١٠ ثوانٍ من كتابتك؟`,
         },
         {
           speaker: "omar",
           mood: "encouraging",
+          emoji: "🧩",
           textEn: l2En,
-          textAr: `السر هو التنظيم الواضح لا الكلمات المعقدة! شاهد كتل البناء الذكية تتجمع معنا الآن!`,
+          textAr: `🧩 السر هو التنظيم الواضح! شاهد كتل البناء المتحركة تتجمع معنا الآن! 🚀`,
         },
       ],
     };
   }
 
   // Speaking
-  const l1En = `Hey! Someone turns to you right now about "${lesson.title.en}"—do you freeze, or jump in with a smooth answer?`;
-  const l2En = `You've got this! Let's team up—Layla and I will hand you a natural rhythm and animated phrase map in four energizing minutes!`;
+  const l1En = `Hey! 🗣️ Someone asks you right now about "${lesson.title.en}"—do you freeze, or jump in smoothly? ⚡`;
+  const l2En = `You've got this! 💪 Team up with Layla, Omar, Sara & Tariq—we'll train your natural rhythm in 4 fun minutes! 🎉`;
   return {
+    sceneEmoji: "🗣️",
     headline: {
-      en: "Someone Asks You Right Now—What Do You Say?",
-      ar: "شخص يسألك الآن مباشرة—كيف ترد بسلاسة؟",
+      en: "Someone Asks You Right Now—What Do You Say? 🗣️",
+      ar: "شخص يسألك الآن مباشرة—كيف ترد بسلاسة؟ 🗣️",
     },
     visualAction: {
-      en: `0:00–0:15 · Coach Layla and Coach Omar face each other with animated speech arcs and a glowing microphone icon; pointer arrows highlight 3 quick speaking blocks.`,
-      ar: `٠:٠٠–٠:١٥ · تتفاعل المدرّبة ليلى والمدرّب عمر بأقواس حوار متحركة وميكروفون مضيء مع أسهم تشير لـ ٣ خطوات للرد السلس.`,
+      en: `0:00–0:15 · 👩‍🏫 Layla & 👨‍🏫 Omar trade animated speech bubbles 💬 with a glowing microphone 🎙️ while 🙋‍♀️ Sara practices along!`,
+      ar: `٠:٠٠–٠:١٥ · 👩‍🏫 تتبادل ليلى و👨‍🏫 عمر فقاعات حوار متحركة 💬 مع ميكروفون مضيء 🎙️ بينما تتدرب 🙋‍♀️ سارة!`,
     },
     narrationEn: `${l1En} ${l2En}`,
-    subtitleAr: `أهلًا بك! لو سألك أحد الآن حول «${lesson.title.ar}»، ستتعلم مع ليلى وعمر كيف ترد بطلاقة وإيقاع طبيعي!`,
-    visualPoints: ["Direct Answer", "+ Natural Detail", "+ Smooth Rhythm"],
+    subtitleAr: `🗣️ لو سألك شخص الآن حول «${lesson.title.ar}»، ستتدرب معنا على الرد بطلاقة وثقة خلال ٤ دقائق! 🎉`,
+    visualPoints: ["🎯 Direct Answer", "💡 + Natural Detail", "🗣️ + Smooth Rhythm"],
     dialogue: [
       {
         speaker: "layla",
         mood: "excited",
+        emoji: "🗣️",
         textEn: l1En,
-        textAr: `مرحبًا! لو سألك شخص الآن عن «${lesson.title.ar}»، هل تتوقف أم ترد بسلاسة؟`,
+        textAr: `🗣️ مرحبًا! لو سألك شخص الآن عن «${lesson.title.ar}»، كيف ترد بطبيعية؟`,
       },
       {
         speaker: "omar",
         mood: "encouraging",
+        emoji: "💪",
         textEn: l2En,
-        textAr: `أنت قادر عليها! سأشاركك أنا وليلى خريطة عبارات طبيعية وإيقاعًا سلسًا في أربع دقائق ممتعة!`,
+        textAr: `💪 أنت قادر عليها! تدرّب معنا على العبارات والإيقاع الطبيعي في ٤ دقائق ممتعة! 🎉`,
       },
     ],
   };
+}
+
+function buildDistinctChoices(correct: string, candidates: string[]): string[] {
+  const seen = new Set<string>([correct.toLowerCase()]);
+  const extras: string[] = [];
+  for (const c of candidates) {
+    const clean = c.trim();
+    if (clean && !seen.has(clean.toLowerCase())) {
+      seen.add(clean.toLowerCase());
+      extras.push(clean);
+    }
+    if (extras.length === 2) break;
+  }
+  while (extras.length < 2) {
+    extras.push(extras.length === 0 ? "Skip checking the rule" : "Use literal word-by-word order");
+  }
+  // Deterministically place correct choice among the 3 buttons
+  const pos = correct.length % 3;
+  const out = [...extras];
+  out.splice(pos, 0, correct);
+  return out;
 }
 
 function buildPausePredictPair(
@@ -412,9 +446,13 @@ function buildPausePredictPair(
     ? {
         challengeNumber: 1,
         question: {
-          en: `${q1.prompt} (${q1.options.slice(0, 3).join(" / ")})`,
+          en: q1.prompt,
           ar: `توقّع الإجابة الصحيحة: ${q1.prompt}`,
         },
+        choices: buildDistinctChoices(
+          q1.options[q1.correct] ?? "",
+          q1.options.filter((_, idx) => idx !== q1.correct),
+        ),
         hint: {
           en: clip(lesson.teaching[0]?.en ?? lesson.goal.en, 110),
           ar: clip(lesson.teaching[0]?.ar ?? lesson.goal.ar, 110),
@@ -425,9 +463,10 @@ function buildPausePredictPair(
     : {
         challengeNumber: 1,
         question: {
-          en: `Which option is stronger: "${trap.wrong}" or "${trap.right}"?`,
-          ar: `أي خيار هو الأدق: "${trap.wrong}" أم "${trap.right}"؟`,
+          en: `Which option is stronger?`,
+          ar: `أي خيار هو الأدق؟`,
         },
+        choices: buildDistinctChoices(trap.right, [trap.wrong, "Drop the main verb completely"]),
         hint: {
           en: "Check the core pattern from Step 1.",
           ar: "راجع الصيغة الأساسية من الخطوة الأولى.",
@@ -447,6 +486,10 @@ function buildPausePredictPair(
         en: `Spot and fix the mistake: "${secondMistake.wrong}"`,
         ar: `اكتشف الخطأ وصحّحه: "${secondMistake.wrong}"`,
       },
+      choices: buildDistinctChoices(secondMistake.right, [
+        secondMistake.wrong,
+        "Keep it unchanged — both are identical",
+      ]),
       hint: {
         en: clip(secondMistake.why.en, 100),
         ar: clip(secondMistake.why.ar, 100),
@@ -455,14 +498,16 @@ function buildPausePredictPair(
       explanation: secondMistake.why,
     };
   } else if (secondPair) {
+    const otherEquiv = lesson.listeningPlan?.paraphrasePairs[0]?.equivalent ?? "unrelated detail";
     challenge2 = {
       challengeNumber: 2,
       question: {
-        en: `You hear "${secondPair.spoken}" in the recording. What equivalent meaning should you match?`,
+        en: `You hear "${secondPair.spoken}" in the audio. Which equivalent meaning matches?`,
         ar: `سمعت عبارة "${secondPair.spoken}" في التسجيل—ما المعنى المكافئ لها؟`,
       },
+      choices: buildDistinctChoices(secondPair.equivalent, [otherEquiv, "opposite meaning"]),
       hint: {
-        en: `Think of the Arabic cue: ${secondPair.arabic}`,
+        en: `Arabic clue: ${secondPair.arabic}`,
         ar: `تلميح بالمعنى العربي: ${secondPair.arabic}`,
       },
       answer: secondPair.equivalent,
@@ -475,9 +520,13 @@ function buildPausePredictPair(
     challenge2 = {
       challengeNumber: 2,
       question: {
-        en: `${q2.prompt} (${q2.options.slice(0, 3).join(" / ")})`,
+        en: q2.prompt,
         ar: `تحدٍ ثانٍ: ${q2.prompt}`,
       },
+      choices: buildDistinctChoices(
+        q2.options[q2.correct] ?? "",
+        q2.options.filter((_, idx) => idx !== q2.correct),
+      ),
       hint: {
         en: clip(lesson.teaching[1]?.en ?? lesson.goal.en, 110),
         ar: clip(lesson.teaching[1]?.ar ?? lesson.goal.ar, 110),
@@ -489,9 +538,13 @@ function buildPausePredictPair(
     challenge2 = {
       challengeNumber: 2,
       question: {
-        en: `How would you say the model line smoothly out loud?`,
-        ar: `كيف تنطق الجملة النموذجية بسلاسة ووضوح؟`,
+        en: `Which choice shows the natural target model for this lesson?`,
+        ar: `أي خيار يمثّل الجملة النموذجية الطبيعية لهذا الدرس؟`,
       },
+      choices: buildDistinctChoices(lesson.pronunciation, [
+        trap.wrong,
+        "Translate word by word without checking rhythm",
+      ]),
       hint: lesson.pronunciationTip,
       answer: lesson.pronunciation,
       explanation: lesson.pronunciationTip,
@@ -504,42 +557,41 @@ function buildPausePredictPair(
 function buildTakeawayTask(lesson: Lesson): Bilingual {
   if (lesson.skill === "grammar") {
     return {
-      en: `Quick Takeaway Task: Right now, create one true sentence about your own day using "${lesson.title.en}"—then test yourself in the 4 question types below!`,
-      ar: `مهمتك السريعة: كوّن الآن جملة حقيقية من يومك تطبق فيها قاعدة «${lesson.title.ar}»، ثم اختبر نفسك في الأنماط الأربعة أدناه!`,
+      en: `🚀 Quick Takeaway: Create one true sentence about your own day using "${lesson.title.en}"—then crush the 4 interactive question types below!`,
+      ar: `🚀 مهمتك السريعة: كوّن الآن جملة حقيقية من يومك تطبق فيها قاعدة «${lesson.title.ar}»، ثم تدرّب على الأنماط الأربعة أدناه!`,
     };
   }
   if (lesson.skill === "reading") {
     return {
-      en: `Quick Reflection: Which reading clue helped you spot the answer fastest today? Apply that exact habit to the passage and 4 question types below!`,
-      ar: `تأمل سريع: ما الدليل القرائي الذي ساعدك أكثر اليوم؟ طبّقه مباشرة على النص والأنماط الأربعة من الأسئلة أدناه!`,
+      en: `🔍 Quick Reflection: Which clue helped you spot the answer fastest today? Apply that exact move to the passage & 4 question types below!`,
+      ar: `🔍 تأمل سريع: ما الدليل القرائي الذي ساعدك أكثر اليوم؟ طبّقه مباشرة على النص والأنماط الأربعة أدناه!`,
     };
   }
   if (lesson.skill === "listening") {
     return {
-      en: `Quick Takeaway Task: Press Listen at natural speed once without opening the transcript, and write down 2 spoken-to-equivalent pairs you catch!`,
-      ar: `مهمتك السريعة: استمع للتسجيل بالسرعة الطبيعية مرة دون فتح النص، واكتب زوجين من الكلمات المسموعة ومعانيها المكافئة!`,
+      en: `🎧 Quick Takeaway: Hit Listen at natural speed once before opening the transcript and spot 2 spoken-to-equivalent pairs!`,
+      ar: `🎧 مهمتك السريعة: استمع بالسرعة الطبيعية مرة قبل فتح النص والتقط زوجين من المعاني المكافئة!`,
     };
   }
   if (lesson.skill === "writing") {
     return {
-      en: `Quick Takeaway Task: Jot down a 3-bullet outline in 60 seconds before typing your response below, then review it with the self-check list!`,
-      ar: `مهمتك السريعة: دوّن مخططًا من ٣ نقاط في ٦٠ ثانية قبل كتابة إجابتك أدناه، ثم راجعها بقائمة التحقق!`,
+      en: `✍️ Quick Takeaway: Sketch a 3-bullet outline in 60 seconds before typing your response below, then run the checklist!`,
+      ar: `✍️ مهمتك السريعة: دوّن مخططًا من ٣ نقاط في ٦٠ ثانية قبل كتابة مسودتك أدناه ثم راجعها!`,
     };
   }
   return {
-    en: `Quick Takeaway Task: Tap the microphone below, speak the model sentence aloud with natural pauses, and add one personal detail of your own!`,
-    ar: `مهمتك السريعة: اضغط على الميكروفون أدناه وانطق الجملة النموذجية بوقفات طبيعية ثم أضف تفصيلًا شخصيًا من عندك!`,
+    en: `🎙️ Quick Takeaway: Tap the microphone below, speak the model sentence with smooth rhythm, and add one detail about yourself!`,
+    ar: `🎙️ مهمتك السريعة: اضغط الميكروفون أدناه وانطق الجملة النموذجية بإيقاع سلس وأضف تفصيلًا عن نفسك!`,
   };
 }
 
 /**
- * Generates an engaging 4:30 (270s) interactive educational video script & dual-coding storyboard
+ * Generates an interactive 4:30 (270s) animated classroom video script & dual-coding storyboard
  * for EVERY lesson on the website (209 lessons across CEFR A1–C2, IELTS, Kids, and Adults):
- * - Two expressive animated teacher characters (Coach Layla & Coach Omar) interacting dynamically
- * - High-quality skill visual aids, icons, and illustrations
- * - Clear animated chronological / sequential visual timelines
- * - Continuous motion graphics & focus tools (arrows, pointers, circles, boxes, highlights)
- * - 0:00–0:15 Hook, 3-step Progress Roadmap, 2 interactive Pause & Predict challenges, 15s Active Summary + Takeaway Task
+ * - Expressive animated Teachers (Coach Layla 👩‍🏫 & Coach Omar 👨‍🏫) AND Learners (Sara 🙋‍♀️ & Tariq 🧑‍🎓)
+ * - Content-explaining emojis throughout every scene, timeline, and interaction
+ * - Live clickable interactive mini-challenges inside both Pause & Predict moments
+ * - Chronological / sequential visual timelines & motion-graphics focus tools
  */
 export function buildExplainerVideo(lesson: Lesson, guide?: DetailedRuleGuide): ExplainerVideo {
   const levelTag = LEVEL_TAGS[lesson.course] ?? lesson.course.toUpperCase();
@@ -561,18 +613,27 @@ export function buildExplainerVideo(lesson: Lesson, guide?: DetailedRuleGuide): 
       startSeconds: 0,
       durationSeconds: 15,
       layout: "hook",
-      chapterLabel: { en: "Hook (0:00–0:15)", ar: "الافتتاحية المشوّقة (0:00–0:15)" },
+      sceneEmoji: hook.sceneEmoji,
+      chapterLabel: { en: "⚡ Hook (0:00–0:15)", ar: "⚡ الافتتاحية (0:00–0:15)" },
       headline: hook.headline,
       visualAction: hook.visualAction,
       visualPoints: hook.visualPoints,
       narrationEn: hook.narrationEn,
       subtitleAr: hook.subtitleAr,
       dialogue: hook.dialogue,
+      learnerReaction: {
+        student: "sara",
+        emoji: "🙋‍♀️",
+        bubble: {
+          en: "Wait—I always wonder about this! Show us the trick! 🤔",
+          ar: "لحظة—لطالما تساءلت عن هذا! أرونا السر! 🤔",
+        },
+      },
       illustration: lesson.skill,
       focusTools: ["arrow", "box", "pointer"],
       highlight: {
         badge: `${levelTag} · Hook`,
-        signalTag: "No intro — straight into the puzzle!",
+        signalTag: "No intro — jump right in! ⚡",
       },
     },
 
@@ -582,34 +643,45 @@ export function buildExplainerVideo(lesson: Lesson, guide?: DetailedRuleGuide): 
       startSeconds: 15,
       durationSeconds: 50,
       layout: "diagram",
-      chapterLabel: { en: "Step 1 · Core Visual", ar: "الخطوة ١ · المخطط الأساسي" },
+      sceneEmoji: "💡",
+      chapterLabel: { en: "💡 Step 1 · Core Visual", ar: "💡 الخطوة ١ · المخطط" },
       headline: {
-        en: "See the Pattern & Timeline Come Alive",
-        ar: "شاهد النمط والخط الزمني بوضوح مرئي",
+        en: "See the Pattern & Timeline Come Alive 💡",
+        ar: "شاهد النمط والخط الزمني بوضوح مرئي 💡",
       },
       visualAction: {
-        en: `0:15–1:05 · Coach Layla draws glowing color-coded geometric boxes for "${clip(formula, 56)}" while Coach Omar animates directional arrows along the visual timeline. Progress Roadmap clicks to "Step 1 of 3 complete ✓".`,
-        ar: `٠:١٥–١:٠٥ · ترسم المدرّبة ليلى مربعات هندسية ملونة للتركيب الأساسي بينما يحرّك المدرّب عمر الأسهم على الخط الزمني البصري، ثم تضيء: «اكتملت الخطوة ١ من ٣ ✓».`,
+        en: `0:15–1:05 · 👩‍🏫 Layla draws glowing color-coded boxes for "${clip(formula, 52)}" while 👨‍🏫 Omar animates directional arrows along the emoji timeline and 🧑‍🎓 Tariq has a 💡 lightbulb moment! Roadmap: "Step 1 of 3 complete ✓".`,
+        ar: `٠:١٥–١:٠٥ · 👩‍🏫 ترسم ليلى مربعات ملونة للقاعدة بينما يحرّك 👨‍🏫 عمر الأسهم على الخط الزمني ويتفاعل 🧑‍🎓 طارق بحماس 💡! اكتملت الخطوة ١ من ٣ ✓.`,
       },
       visualPoints: guide?.formulas
-        ? guide.formulas.slice(0, 3).map((f) => `${f.label.en}: ${f.example}`)
-        : lesson.teaching.slice(0, 2).map((t) => clip(t.en, 88)),
-      narrationEn: `Watch these glowing boxes with me! ${lesson.teaching[0]?.en ?? lesson.goal.en} Follow Omar's arrows along the timeline: ${formula}. Every single piece clicks together cleanly—awesome work, that's Step 1 of 3 complete!`,
-      subtitleAr: `شاهد هذه الكتل المضيئة مع ليلى وعمر: ${lesson.teaching[0]?.ar ?? lesson.goal.ar} وتتبّع الأسهم على الخط الزمني. رائع—اكتملت الخطوة ١ من ٣!`,
+        ? guide.formulas.slice(0, 3).map((f) => `✨ ${f.label.en}: ${f.example}`)
+        : lesson.teaching.slice(0, 2).map((t) => `💡 ${clip(t.en, 84)}`),
+      narrationEn: `Watch these glowing boxes with me! ${lesson.teaching[0]?.en ?? lesson.goal.en} Follow Omar's arrows along the timeline: ${formula}. Awesome work—that's Step 1 of 3 complete!`,
+      subtitleAr: `💡 شاهد المربعات المضيئة مع ليلى وعمر وطارق: ${lesson.teaching[0]?.ar ?? lesson.goal.ar}. رائع—اكتملت الخطوة ١ من ٣! ✅`,
       dialogue: [
         {
           speaker: "layla",
           mood: "excited",
+          emoji: "💡",
           textEn: `Watch these glowing boxes with me! ${lesson.teaching[0]?.en ?? lesson.goal.en}`,
-          textAr: `تأمّل هذه المربعات المضيئة معي! ${lesson.teaching[0]?.ar ?? lesson.goal.ar}`,
+          textAr: `💡 تأمّل هذه المربعات المضيئة معي! ${lesson.teaching[0]?.ar ?? lesson.goal.ar}`,
         },
         {
           speaker: "omar",
           mood: "encouraging",
-          textEn: `And follow my arrows along the timeline: ${formula}. You're already mastering this—Step 1 of 3 complete!`,
-          textAr: `وتتبّع أسهمي على الخط الزمني: ${formula}. تقدّمك رائع—اكتملت الخطوة ١ من ٣!`,
+          emoji: "➡️",
+          textEn: `Follow my arrows along the timeline: ${formula}. You're already getting it—Step 1 of 3 complete! ✅`,
+          textAr: `➡️ تتبّع أسهمي على الخط الزمني: ${formula}. تقدّمك رائع—اكتملت الخطوة ١ من ٣! ✅`,
         },
       ],
+      learnerReaction: {
+        student: "tariq",
+        emoji: "🤩",
+        bubble: {
+          en: "Aha! Seeing the timeline arrows makes it click instantly! 💡",
+          ar: "آها! رؤية الخط الزمني والأسهم جعلت الفكرة واضحة فورًا! 💡",
+        },
+      },
       timeline,
       illustration: lesson.skill,
       focusTools: ["arrow", "box", "circle", "highlight"],
@@ -622,47 +694,58 @@ export function buildExplainerVideo(lesson: Lesson, guide?: DetailedRuleGuide): 
       highlight: {
         badge: "Step 1 · Visual Blueprint",
         formula,
-        signalTag: "Animated timeline + color-coded boxes",
+        signalTag: "Animated timeline + color-coded boxes 🧩",
       },
     },
 
-    // BEAT 3: 1:05 – 1:40 (35s) — PAUSE & PREDICT #1
+    // BEAT 3: 1:05 – 1:40 (35s) — INTERACTIVE PAUSE & PREDICT #1
     {
       id: `${lesson.id}-scene-3`,
       startSeconds: 65,
       durationSeconds: 35,
       layout: "pause-predict",
-      chapterLabel: { en: "Pause & Predict #1", ar: "توقّف وتوقّع #١" },
+      sceneEmoji: "🎯",
+      chapterLabel: { en: "🎯 Pause & Predict #1", ar: "🎯 توقّف وتوقّع #١" },
       headline: {
-        en: "Your Turn! Pause & Predict #1",
-        ar: "دورك الآن! توقّف وتوقّع #١",
+        en: "Your Turn! Tap Your Answer 🎯",
+        ar: "دورك الآن! اضغط على توقّعك 🎯",
       },
       visualAction: {
-        en: `1:05–1:40 · Coach Omar drops a pulsing amber geometric challenge box ("⏸ PAUSE & PREDICT #1") with bouncing pointer arrows. When you click Reveal, Coach Layla circles the winning answer in emerald green!`,
-        ar: `١:٠٥–١:٤٠ · يعرض المدرّب عمر بطاقة التحدي النابضة «⏸ توقّف وتوقّع #١» مع أسهم مؤشّرة، وعند الكشف ترسم المدرّبة ليلى دائرة خضراء حول الحل الصحيح!`,
+        en: `1:05–1:40 · 👨‍🏫 Omar launches an interactive clickable quiz card right on stage ("⏸ PAUSE & PREDICT #1") while 🙋‍♀️ Sara thinks aloud 🧠—picking the right option triggers 🎉 confetti emojis!`,
+        ar: `١:٠٥–١:٤٠ · 👨‍🏫 يطلق عمر بطاقة اختبار تفاعلية قابلة للنقر مباشرة داخل الفيديو مع تفكير 🙋‍♀️ سارة 🧠—والإجابة الصحيحة تطلق احتفالًا بالرموز التعبيرية 🎉!`,
       },
       visualPoints: [clip(pp1.question.en, 95)],
-      narrationEn: `Alright, it's your turn to shine! Hit pause right now and predict: ${pp1.question.en} Ready to check with Layla? Boom—the answer is "${pp1.answer}"! ${pp1.explanation.en}`,
-      subtitleAr: `دورك الآن للتألق! أوقف الفيديو وتوقّع: ${pp1.question.ar}. الإجابة الصحيحة هي "${pp1.answer}" — ${pp1.explanation.ar}`,
+      narrationEn: `Alright, it's your turn to play! Tap your answer right on screen: ${pp1.question.en} Ready? Boom—"${pp1.answer}"! ${pp1.explanation.en}`,
+      subtitleAr: `🎯 دورك للتفاعل الآن! اختر إجابتك مباشرة على الشاشة: ${pp1.question.ar}. الإجابة الصحيحة هي "${pp1.answer}"! 🎉`,
       dialogue: [
         {
           speaker: "omar",
           mood: "curious",
-          textEn: `Alright, your turn to shine! Hit pause right now and solve this: ${pp1.question.en}`,
-          textAr: `الآن دورك لتتألق! أوقف الفيديو وحلّ هذا التحدي: ${pp1.question.ar}`,
+          emoji: "🎯",
+          textEn: `Your turn to jump in! Tap the right choice right here on stage: ${pp1.question.en}`,
+          textAr: `🎯 دورك لتشارك معنا! اضغط على الإجابة الصحيحة مباشرة هنا: ${pp1.question.ar}`,
         },
         {
           speaker: "layla",
           mood: "celebrating",
-          textEn: `Nice thinking! The answer is "${pp1.answer}"—${pp1.explanation.en}`,
-          textAr: `تفكير رائع! الإجابة هي "${pp1.answer}" لأن: ${pp1.explanation.ar}`,
+          emoji: "🎉",
+          textEn: `Yes!! "${pp1.answer}" is spot on—${pp1.explanation.en} 🎉`,
+          textAr: `🎉 أحسنت!! "${pp1.answer}" إجابة دقيقة—${pp1.explanation.ar} 👏`,
         },
       ],
+      learnerReaction: {
+        student: "sara",
+        emoji: "🧠",
+        bubble: {
+          en: "Ooh, I think I know this one! Tap an option with me! 👇",
+          ar: "أظنني أعرف الإجابة! اختر معي أحد الخيارات! 👇",
+        },
+      },
       illustration: lesson.skill,
       focusTools: ["pointer", "box", "circle"],
       pausePredict: pp1,
       highlight: {
-        badge: "Active Recall · #1",
+        badge: "Interactive Quiz · #1",
         right: pp1.answer,
       },
     },
@@ -673,32 +756,43 @@ export function buildExplainerVideo(lesson: Lesson, guide?: DetailedRuleGuide): 
       startSeconds: 100,
       durationSeconds: 50,
       layout: "comparison",
-      chapterLabel: { en: "Step 2 · Beat the Trap", ar: "الخطوة ٢ · تجاوز الفخ" },
+      sceneEmoji: "🚦",
+      chapterLabel: { en: "🚦 Step 2 · Beat the Trap", ar: "🚦 الخطوة ٢ · تجاوز الفخ" },
       headline: {
-        en: "Spot the Classic Trap Before It Catches You",
-        ar: "اكتشف الخطأ الشائع قبل أن تقع فيه",
+        en: "Beat the Classic Trap: ❌ vs ✅",
+        ar: "تجاوز الخطأ الشائع: ❌ مقابل ✅",
       },
       visualAction: {
-        en: `1:40–2:30 · Animated red X-line crosses out "${clip(trap.wrong, 44)}" while a glowing green arrow sweeps right onto "${clip(trap.right, 44)}" inside a focus circle. Progress Roadmap hits "Step 2 of 3 complete ✓"!`,
-        ar: `١:٤٠–٢:٣٠ · خط أحمر متحرك يشطب الخطأ الشائع بينما يتجه سهم أخضر مضيء نحو الصياغة الصحيحة داخل دائرة تركيز، وتكتمل الخطوة ٢ من ٣ ✓!`,
+        en: `1:40–2:30 · Animated ❌ red box crosses out "${clip(trap.wrong, 42)}" while a glowing green arrow ➡️ spotlights ✅ "${clip(trap.right, 42)}" as 🧑‍🎓 Tariq reacts 😮! Roadmap: "Step 2 of 3 complete ✓".`,
+        ar: `١:٤٠–٢:٣٠ · يشطب المربع الأحمر ❌ الخطأ الشائع بينما يشير السهم الأخضر ➡️ إلى ✅ الصياغة الصحيحة بتفاعل 🧑‍🎓 طارق 😮! اكتملت الخطوة ٢ من ٣ ✓.`,
       },
       visualPoints: [trap.why.en],
-      narrationEn: `Watch out right here—let's dodge the biggest trap! On the red side, skip "${trap.wrong}". Follow our green arrow straight to "${trap.right}". Why? ${trap.why.en} High five—Step 2 of 3 complete!`,
-      subtitleAr: `انتبه مع ليلى وعمر لتتجنب هذا الفخ: اترك (${trap.wrong}) واتبع السهم الأخضر نحو (${trap.right}). ${trap.why.ar} ممتاز—اكتملت الخطوة ٢ من ٣!`,
+      narrationEn: `Watch out right here—let's dodge the red trap! Skip "${trap.wrong}" and follow our green arrow straight to "${trap.right}". ${trap.why.en} High five—Step 2 of 3 complete!`,
+      subtitleAr: `🚦 انتبه للفخ الأحمر ❌ (${trap.wrong}) واتبع السهم الأخضر نحو ✅ (${trap.right}). ${trap.why.ar} ممتاز—اكتملت الخطوة ٢ من ٣! 👏`,
       dialogue: [
         {
           speaker: "layla",
           mood: "curious",
-          textEn: `Watch out right here—see the red box? Skip "${trap.wrong}". Omar, show them the clean fix!`,
-          textAr: `انتبه هنا للمربع الأحمر: تجنّب (${trap.wrong}). عمر، أرِهم التصحيح السليم!`,
+          emoji: "⚠️",
+          textEn: `Watch the red box ❌! Skip "${trap.wrong}". Omar, show them the green upgrade!`,
+          textAr: `⚠️ انتبه للمربع الأحمر ❌! تجنّب (${trap.wrong}). عمر، أرِهم البديل الأخضر الصحيح!`,
         },
         {
           speaker: "omar",
           mood: "celebrating",
-          textEn: `Follow this green arrow straight to "${trap.right}"! ${trap.why.en} High five—Step 2 of 3 complete!`,
-          textAr: `اتبع هذا السهم الأخضر نحو (${trap.right})! ${trap.why.ar} رائع—اكتملت الخطوة ٢ من ٣!`,
+          emoji: "✅",
+          textEn: `Follow this green arrow ➡️ straight to "${trap.right}"! ${trap.why.en} High five—Step 2 of 3 complete! 👏`,
+          textAr: `✅ اتبع السهم الأخضر ➡️ نحو (${trap.right})! ${trap.why.ar} رائع—اكتملت الخطوة ٢ من ٣! 👏`,
         },
       ],
+      learnerReaction: {
+        student: "tariq",
+        emoji: "😮",
+        bubble: {
+          en: "Whoa! Seeing ❌ vs ✅ side by side makes the mistake impossible to miss!",
+          ar: "واو! رؤية ❌ مقابل ✅ جنبًا إلى جنب تمنع الوقوع في الخطأ تمامًا!",
+        },
+      },
       illustration: lesson.skill,
       focusTools: ["arrow", "circle", "highlight", "box"],
       roadmapStep: {
@@ -708,50 +802,61 @@ export function buildExplainerVideo(lesson: Lesson, guide?: DetailedRuleGuide): 
         label: { en: "Step 2 of 3 complete", ar: "اكتملت الخطوة ٢ من ٣" },
       },
       highlight: {
-        badge: "Step 2 · Motion Contrast",
+        badge: "Step 2 · ❌ vs ✅ Contrast",
         wrong: trap.wrong,
         right: trap.right,
-        signalTag: "Red cross-out → Green spotlight",
+        signalTag: "Red trap ❌ → Green fix ✅",
       },
     },
 
-    // BEAT 5: 2:30 – 3:05 (35s) — PAUSE & PREDICT #2
+    // BEAT 5: 2:30 – 3:05 (35s) — INTERACTIVE PAUSE & PREDICT #2
     {
       id: `${lesson.id}-scene-5`,
       startSeconds: 150,
       durationSeconds: 35,
       layout: "pause-predict",
-      chapterLabel: { en: "Pause & Predict #2", ar: "توقّف وتوقّع #٢" },
+      sceneEmoji: "🔥",
+      chapterLabel: { en: "🔥 Pause & Predict #2", ar: "🔥 توقّف وتوقّع #٢" },
       headline: {
-        en: "Level Up! Pause & Predict #2",
-        ar: "تحدٍ أقوى! توقّف وتوقّع #٢",
+        en: "Level Up! Interactive Challenge #2 🔥",
+        ar: "تحدٍ أقوى! اختبر نفسك #٢ 🔥",
       },
       visualAction: {
-        en: `2:30–3:05 · Coach Layla slides in Challenge #2 with animated pointer chevrons; revealing triggers a glowing green highlight sweep and a celebration star from Coach Omar!`,
-        ar: `٢:٣٠–٣:٠٥ · تقدّم المدرّبة ليلى التحدي الثاني بأسهم متحركة، وعند كشف الحل يلمع التظليل الأخضر مع نجمة تشجيع من المدرّب عمر!`,
+        en: `2:30–3:05 · 👩‍🏫 Layla slides in Challenge #2 with clickable answer buttons; answering lights up a celebration burst 🎉✨ from 👨‍🏫 Omar and 🙋‍♀️ Sara!`,
+        ar: `٢:٣٠–٣:٠٥ · 👩‍🏫 تقدّم ليلى التحدي التفاعلي الثاني بأزرار قابلة للنقر، والحل الصحيح يطلق احتفالًا 🎉✨ من 👨‍🏫 عمر و🙋‍♀️ سارة!`,
       },
       visualPoints: [clip(pp2.question.en, 95)],
-      narrationEn: `Ready to level up? Hit pause again and test yourself: ${pp2.question.en} Use the green-arrow trick from Step 2! Got it? Yes—"${pp2.answer}"! ${pp2.explanation.en}`,
-      subtitleAr: `مستعد لرفع المستوى؟ أوقف الفيديو وحل التحدي الثاني: ${pp2.question.ar}. نعم—الإجابة هي "${pp2.answer}"! ${pp2.explanation.ar}`,
+      narrationEn: `Ready to level up? Tap your answer for Challenge Two: ${pp2.question.en} Use the green-arrow trick from Step 2! Yes—"${pp2.answer}"! ${pp2.explanation.en}`,
+      subtitleAr: `🔥 مستعد للتحدي الثاني؟ اختر الإجابة الصحيحة على الشاشة: ${pp2.question.ar}. الإجابة هي "${pp2.answer}"! 🎉`,
       dialogue: [
         {
           speaker: "layla",
           mood: "excited",
-          textEn: `Ready to level up? Hit pause and solve Challenge Two: ${pp2.question.en}`,
-          textAr: `مستعد لرفع المستوى؟ أوقف الفيديو وجرّب التحدي الثاني: ${pp2.question.ar}`,
+          emoji: "🔥",
+          textEn: `Ready to level up? Tap your answer for Challenge Two: ${pp2.question.en}`,
+          textAr: `🔥 مستعد لرفع المستوى؟ اختر إجابتك في التحدي الثاني: ${pp2.question.ar}`,
         },
         {
           speaker: "omar",
           mood: "celebrating",
-          textEn: `You nailed it! The winning move is "${pp2.answer}"—${pp2.explanation.en}`,
-          textAr: `أبدعت! الحل الصحيح هو "${pp2.answer}" — ${pp2.explanation.ar}`,
+          emoji: "🏆",
+          textEn: `Boom! You crushed it! "${pp2.answer}"—${pp2.explanation.en} 🏆`,
+          textAr: `🏆 أبدعت! الحل الصحيح هو "${pp2.answer}" — ${pp2.explanation.ar} 🌟`,
         },
       ],
+      learnerReaction: {
+        student: "sara",
+        emoji: "💪",
+        bubble: {
+          en: "We've got this! Use the green-arrow trick from Step 2! 🔥",
+          ar: "نحن قدّها! استخدم حيلة السهم الأخضر من الخطوة الثانية! 🔥",
+        },
+      },
       illustration: lesson.skill,
       focusTools: ["pointer", "highlight", "box"],
       pausePredict: pp2,
       highlight: {
-        badge: "Active Recall · #2",
+        badge: "Interactive Quiz · #2",
         right: pp2.answer,
       },
     },
@@ -762,38 +867,47 @@ export function buildExplainerVideo(lesson: Lesson, guide?: DetailedRuleGuide): 
       startSeconds: 185,
       durationSeconds: 70,
       layout: "walkthrough",
-      chapterLabel: { en: "Step 3 · Real Action", ar: "الخطوة ٣ · تطبيق واقعي" },
+      sceneEmoji: "🎙️",
+      chapterLabel: { en: "🎙️ Step 3 · Real Action", ar: "🎙️ الخطوة ٣ · تطبيق حي" },
       headline: {
-        en: "Watch It Work in Real-World English",
-        ar: "شاهد التطبيق الحي في الإنجليزية الواقعية",
+        en: "Hear & Speak It in Real Life 🎙️",
+        ar: "اسمعها وانطقها في الواقع 🎙️",
       },
       visualAction: {
-        en: `3:05–4:15 · Live-sketch neon highlight moves word-by-word across "${clip(lesson.pronunciation, 58)}" while the timeline advances to its final node and Coach Layla & Coach Omar celebrate "Step 3 of 3 complete ✓"!`,
-        ar: `٣:٠٥–٤:١٥ · ينساب تظليل حي كلمة بكلمة فوق الجملة النموذجية بينما يكتمل الخط الزمني وتحتفل ليلى وعمر بـ «اكتملت الخطوة ٣ من ٣ ✓»!`,
+        en: `3:05–4:15 · Animated neon highlight sweeps across "${clip(lesson.pronunciation, 56)}" while the emoji timeline hits its final milestone and 🧑‍🎓 Tariq practices aloud with 👩‍🏫 Layla & 👨‍🏫 Omar! Roadmap: "Step 3 of 3 complete ✓".`,
+        ar: `٣:٠٥–٤:١٥ · ينساب تظليل حي فوق الجملة النموذجية بينما يكتمل الخط الزمني ويتدرب 🧑‍🎓 طارق بصوته مع 👩‍🏫 ليلى و👨‍🏫 عمر! اكتملت الخطوة ٣ من ٣ ✓.`,
       },
       visualPoints: [
-        `Model: "${clip(lesson.pronunciation, 90)}"`,
-        `Voice tip: ${clip(lesson.pronunciationTip.en, 88)}`,
-        ...(lesson.vocab?.[0]
-          ? [`Keyword: ${lesson.vocab[0].word} = ${lesson.vocab[0].meaningEn}`]
-          : []),
+        `🗣️ "${clip(lesson.pronunciation, 88)}"`,
+        `💡 ${clip(lesson.pronunciationTip.en, 86)}`,
+        ...(lesson.vocab?.[0] ? [`🔑 ${lesson.vocab[0].word} = ${lesson.vocab[0].meaningEn}`] : []),
       ],
-      narrationEn: `Now hear how awesome this sounds in real life! Say this line with us: "${lesson.pronunciation}" Watch our glowing highlight: ${lesson.teaching[1]?.en ?? lesson.pronunciationTip.en} Fantastic job—Step 3 of 3 complete!`,
-      subtitleAr: `اسمع روعة الجملة في الواقع وردّدها مع ليلى وعمر: "${lesson.pronunciation}". ${lesson.teaching[1]?.ar ?? lesson.pronunciationTip.ar}. عمل رائع—اكتملت الخطوة ٣ من ٣!`,
+      narrationEn: `Now hear how smooth this sounds in real life! Tap the model card and say it with us: "${lesson.pronunciation}" ${lesson.teaching[1]?.en ?? lesson.pronunciationTip.en} Fantastic—Step 3 of 3 complete!`,
+      subtitleAr: `🎙️ اسمع سلاسة الجملة وردّدها معنا: "${lesson.pronunciation}". ${lesson.teaching[1]?.ar ?? lesson.pronunciationTip.ar}. أحسنت—اكتملت الخطوة ٣ من ٣! 🌟`,
       dialogue: [
         {
           speaker: "omar",
           mood: "excited",
-          textEn: `Hear how smooth this sounds in real life! Say it out loud with me: "${lesson.pronunciation}"`,
-          textAr: `اسمع كم تبدو سلسة في الواقع! ردّدها بصوتك معي: "${lesson.pronunciation}"`,
+          emoji: "🎙️",
+          textEn: `Listen how smooth this sounds in real life! Tap & say it with me: "${lesson.pronunciation}"`,
+          textAr: `🎙️ اسمع كم تبدو سلسة في الواقع! ردّدها معي الآن: "${lesson.pronunciation}"`,
         },
         {
           speaker: "layla",
           mood: "celebrating",
-          textEn: `Watch the glowing highlight: ${lesson.teaching[1]?.en ?? lesson.pronunciationTip.en} You crushed it—Step 3 of 3 complete!`,
-          textAr: `لاحظ التظليل المضيء: ${lesson.teaching[1]?.ar ?? lesson.pronunciationTip.ar}. أحسنت جدًا—اكتملت الخطوة ٣ من ٣!`,
+          emoji: "🌟",
+          textEn: `Love that rhythm! ${lesson.teaching[1]?.en ?? lesson.pronunciationTip.en} Step 3 of 3 complete! 🌟`,
+          textAr: `🌟 إيقاع رائع! ${lesson.teaching[1]?.ar ?? lesson.pronunciationTip.ar}. اكتملت الخطوة ٣ من ٣! 🌟`,
         },
       ],
+      learnerReaction: {
+        student: "tariq",
+        emoji: "🗣️",
+        bubble: {
+          en: "Saying it aloud makes it stick in my memory! Let's tap to hear it! 🔊",
+          ar: "نطقها بصوت عالٍ يثبّتها في ذاكرتي فورًا! اضغط للاستماع! 🔊",
+        },
+      },
       timeline: timeline.map((node, i) => ({ ...node, active: i === timeline.length - 1 })),
       illustration: lesson.skill,
       focusTools: ["highlight", "arrow", "circle"],
@@ -816,36 +930,47 @@ export function buildExplainerVideo(lesson: Lesson, guide?: DetailedRuleGuide): 
       startSeconds: 255,
       durationSeconds: 15,
       layout: "summary",
-      chapterLabel: { en: "15s Summary & Task", ar: "ملخص ١٥ ثانية ومهمة" },
+      sceneEmoji: "🎉",
+      chapterLabel: { en: "🎉 15s Summary & Task", ar: "🎉 ملخص ١٥ ثانية" },
       headline: {
-        en: "15-Second Recap & Your Quick Task",
-        ar: "ملخص ١٥ ثانية ومهمتك السريعة",
+        en: "15-Second Victory Recap & Task 🎉",
+        ar: "ملخص الانتصار في ١٥ ثانية 🎉",
       },
       visualAction: {
-        en: `4:15–4:30 · Both Coach Layla and Coach Omar celebrate as 3 geometric takeaway badges pop in with glowing stars, ending on a golden pointer box highlighting your quick reflection task!`,
-        ar: `٤:١٥–٤:٣٠ · تحتفل ليلى وعمر بظهور ٣ بطاقات ملخصة مع نجوم مضيئة، وتنتهي بصندوق ذهبي ومؤشر لمهمتك التطبيقية السريعة!`,
+        en: `4:15–4:30 · 👩‍🏫 Layla, 👨‍🏫 Omar, 🙋‍♀️ Sara & 🧑‍🎓 Tariq all jump in celebration 🎉🌟 as 3 emoji takeaway cards pop in with your quick action task!`,
+        ar: `٤:١٥–٤:٣٠ · تحتفل 👩‍🏫 ليلى و👨‍🏫 عمر و🙋‍♀️ سارة و🧑‍🎓 طارق معًا 🎉🌟 مع ظهور بطاقات الملخص ومهمتك السريعة!`,
       },
       visualPoints: [
-        `1. Pattern: ${clip(formula, 58)}`,
-        `2. Golden Rule: ${clip(memoryTip.en, 62)}`,
-        `3. Model: "${clip(lesson.pronunciation, 60)}"`,
+        `🧩 ${clip(formula, 56)}`,
+        `💡 ${clip(memoryTip.en, 60)}`,
+        `🗣️ "${clip(lesson.pronunciation, 58)}"`,
       ],
-      narrationEn: `Fifteen-second victory recap: lock in "${memoryTip.en}", dodge the red trap, and use "${lesson.pronunciation}" today! Now take action: ${takeawayTask.en}`,
-      subtitleAr: `ملخص ١٥ ثانية: ثبّت (${memoryTip.ar}) واستخدم الجملة النموذجية بثقة! مهمتك السريعة الآن: ${takeawayTask.ar}`,
+      narrationEn: `Fifteen-second victory recap! Lock in "${memoryTip.en}", dodge the red trap, and use "${lesson.pronunciation}" today! Now take action: ${takeawayTask.en}`,
+      subtitleAr: `🎉 ملخص ١٥ ثانية: ثبّت (${memoryTip.ar}) وانطق الجملة بثقة! مهمتك السريعة الآن: ${takeawayTask.ar}`,
       dialogue: [
         {
           speaker: "layla",
           mood: "celebrating",
-          textEn: `Fifteen-second victory recap! Lock in "${memoryTip.en}" and keep "${lesson.pronunciation}" ready to use!`,
-          textAr: `ملخص ١٥ ثانية سريع! ثبّت (${memoryTip.ar}) واجعل الجملة النموذجية جاهزة على لسانك!`,
+          emoji: "🎉",
+          textEn: `Fifteen-second victory recap! 🎉 Remember "${memoryTip.en}" and keep "${lesson.pronunciation}" ready!`,
+          textAr: `🎉 ملخص ١٥ ثانية! تذكّر (${memoryTip.ar}) واجعل الجملة جاهزة على لسانك!`,
         },
         {
           speaker: "omar",
           mood: "encouraging",
-          textEn: `We're so proud of your progress—now jump right into your quick task: ${takeawayTask.en}`,
-          textAr: `فخورون بتقدّمك الرائع—والآن انطلق إلى مهمتك السريعة: ${takeawayTask.ar}`,
+          emoji: "🚀",
+          textEn: `We're so proud of you! 👏 Jump into your quick takeaway task now: ${takeawayTask.en}`,
+          textAr: `🚀 فخورون بتقدّمك الرائع! 👏 انطلق الآن إلى مهمتك السريعة: ${takeawayTask.ar}`,
         },
       ],
+      learnerReaction: {
+        student: "sara",
+        emoji: "🎉",
+        bubble: {
+          en: "Woohoo! 3/3 steps done—now let's crush the practice & Post-Lesson Test! 🚀",
+          ar: "يا سلام! أنهينا ٣/٣ خطوات—لننطلق للتدريبات والاختبار البعدي! 🚀",
+        },
+      },
       illustration: lesson.skill,
       focusTools: ["box", "pointer", "highlight"],
       takeawayTask,
@@ -861,16 +986,16 @@ export function buildExplainerVideo(lesson: Lesson, guide?: DetailedRuleGuide): 
 
   return {
     title: {
-      en: `Interactive Micro-Lesson Video: ${lesson.title.en}`,
-      ar: `فيديو الدرس المصغّر التفاعلي: ${lesson.title.ar}`,
+      en: `Interactive Animated Lesson Video: ${lesson.title.en}`,
+      ar: `فيديو الدرس التفاعلي المتحرك: ${lesson.title.ar}`,
     },
     course: lesson.course,
     durationSeconds,
     learningObjective: lesson.goal,
     levelTag,
     presenterNote: {
-      en: "4:30 vibrant animated micro-lesson featuring Coach Layla & Coach Omar, skill illustrations, chronological timelines, dynamic motion-graphics arrows & highlights, 2 Pause & Predict challenges, and a dual-coding storyboard.",
-      ar: "درس فيديو تفاعلي حيوي (٤:٣٠ دقائق) مع المدرّبة ليلى والمدرّب عمر، ورسوم توضيحية، وخط زمني متحرك، وأسهم ومؤشرات تركيز، وتحدّيَي توقّف وتوقّع، ولوحة مشاهد ثنائية العمود.",
+      en: "4:30 interactive animated classroom featuring Coach Layla & Coach Omar, animated learners Sara & Tariq, content emojis, live clickable mini-quizzes, chronological timelines, and a dual-coding storyboard.",
+      ar: "فصل دراسي تفاعلي متحرك (٤:٣٠ دقائق) مع المدرّبة ليلى والمدرّب عمر والمتعلمَين سارة وطارق، مع رموز تعبيرية شارحة، واختبارات تفاعلية مباشرة، وخط زمني متحرك، ولوحة مشاهد ثنائية العمود.",
     },
     scenes,
   };

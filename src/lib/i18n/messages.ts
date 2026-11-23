@@ -372,6 +372,9 @@ const en = {
     storyboardHide: "Hide two-column storyboard",
     teacherLayla: "Coach Layla",
     teacherOmar: "Coach Omar",
+    learnerSara: "Sara",
+    learnerTariq: "Tariq",
+    videoReactPrompt: "React live:",
     videoTimelineTitle: "Visual timeline & progression",
     videoFocusTools: "Motion graphics focus",
     videoSpeakingNow: "Speaking now",
@@ -407,18 +410,14 @@ const en = {
     fitSentenceMissing: "Make sure your sentence includes: {missing}",
     fitSentenceShort: "Write a fuller sentence (at least {min} words).",
     yourSentence: "Your sentence",
-    assessmentsEyebrow: "Knowledge awareness assessments",
-    assessmentsTitle: "Summative Test & Post-Test",
+    assessmentsEyebrow: "Knowledge awareness check",
+    assessmentsTitle: "Post-Lesson Test",
     assessmentsSubtitle:
-      "Measure your mastery and awareness of grammar rules, reading strategies, and vocabulary with two separate 10-question multiple-choice assessments.",
-    summativeTitle: "Summative Test",
-    summativeDesc:
-      "10 multiple-choice questions measuring your cumulative understanding across the course’s core rules and reading skills.",
-    postTestTitle: "Post-Test",
+      "Measure your mastery and awareness of grammar rules, reading strategies, and vocabulary with a 10-question multiple-choice Post-Lesson Test.",
+    postTestTitle: "Post-Lesson Test",
     postTestDesc:
-      "10 brand-new multiple-choice questions measuring post-study retention, error awareness, and real-world rule transfer.",
-    startSummative: "Start Summative Test (10 MCQs)",
-    startPostTest: "Start Post-Test (10 MCQs)",
+      "10 multiple-choice questions measuring post-study knowledge awareness, error recognition, reading clues, and real-world rule transfer.",
+    startPostTest: "Start Post-Lesson Test (10 MCQs)",
     retakeAssessment: "Retake test",
     submitAssessment: "Submit answers (out of 10)",
     closeAssessment: "Back to overview",
@@ -433,7 +432,7 @@ const en = {
     awarenessProficientNote:
       "Solid awareness of the core rules. Review the missed items below to reach full mastery.",
     awarenessDevelopingNote:
-      "Good foundation, with a few recurring traps. Re-watch the AI explainer videos and retry.",
+      "Good foundation, with a few recurring traps. Re-watch the interactive animated videos and retry.",
     awarenessReviewNote:
       "Revisit the detailed rule guides and 4-format exercises, then retake this 10-question test.",
     focusGrammar: "Grammar Awareness",
@@ -441,12 +440,10 @@ const en = {
     focusVocabulary: "Vocabulary & Meaning",
     focusErrorSpotting: "Error Recognition",
     skillBreakdown: "Knowledge awareness breakdown",
-    switchToPostTest: "Take Post-Test now (10 new MCQs)",
-    growthSummary: "Summative: {summative}/10 · Post-Test: {post}/10",
     lessonAssessmentCtaTitle: "Ready to measure your knowledge awareness?",
     lessonAssessmentCtaBody:
-      "Test your mastery with the course’s 10-question Summative Test and 10-question Post-Test.",
-    lessonAssessmentCtaButton: "Go to Summative & Post-Test",
+      "Test your mastery with the course’s 10-question multiple-choice Post-Lesson Test.",
+    lessonAssessmentCtaButton: "Take Post-Lesson Test (10 MCQs)",
   },
   footer: {
     about:
@@ -818,6 +815,9 @@ const ar: Messages = {
     storyboardHide: "إخفاء جدول لوحة المشاهد",
     teacherLayla: "المدرّبة ليلى",
     teacherOmar: "المدرّب عمر",
+    learnerSara: "سارة",
+    learnerTariq: "طارق",
+    videoReactPrompt: "تفاعل مباشرة:",
     videoTimelineTitle: "الخط الزمني والتسلسل البصري",
     videoFocusTools: "أدوات التركيز والرسوم المتحركة",
     videoSpeakingNow: "يتحدث الآن",
@@ -853,17 +853,13 @@ const ar: Messages = {
     fitSentenceMissing: "تأكد من تضمين الكلمات المستهدفة التالية في جملتك: {missing}",
     fitSentenceShort: "اكتب جملة مكتملة أكثر (على الأقل {min} كلمات).",
     yourSentence: "جملتك",
-    assessmentsEyebrow: "اختبارات قياس الوعي المعرفي",
-    assessmentsTitle: "الاختبار الختامي (Summative) والاختبار البعدي (Post-Test)",
+    assessmentsEyebrow: "قياس الوعي المعرفي بعد الدرس",
+    assessmentsTitle: "الاختبار البعدي (Post-Lesson Test)",
     assessmentsSubtitle:
-      "قِس مدى إتقانك ووعيك بقواعد اللغة واستراتيجيات القراءة والمفردات من خلال اختبارين منفصلين، يتكون كل منهما من ١٠ أسئلة اختيار من متعدد.",
-    summativeTitle: "الاختبار الختامي (Summative Test)",
-    summativeDesc:
-      "١٠ أسئلة اختيار من متعدد تقيس فهمك التراكمي لقواعد الدورة ومهارات القراءة الأساسية.",
-    postTestTitle: "الاختبار البعدي (Post-Test)",
+      "قِس مدى إتقانك ووعيك بقواعد اللغة واستراتيجيات القراءة والمفردات من خلال اختبار بعدي مكوّن من ١٠ أسئلة اختيار من متعدد.",
+    postTestTitle: "الاختبار البعدي (Post-Lesson Test)",
     postTestDesc:
-      "١٠ أسئلة اختيار من متعدد جديدة كليًا تقيس ثبات المعرفة، وتمييز الأخطاء، وتطبيق القواعد بعد الدراسة.",
-    startSummative: "ابدأ الاختبار الختامي (١٠ أسئلة)",
+      "١٠ أسئلة اختيار من متعدد تقيس الوعي المعرفي بعد الدراسة، وتمييز الأخطاء، وفهم القراءة، وتطبيق القواعد.",
     startPostTest: "ابدأ الاختبار البعدي (١٠ أسئلة)",
     retakeAssessment: "إعادة الاختبار",
     submitAssessment: "تسليم الإجابات (من ١٠)",
@@ -879,7 +875,7 @@ const ar: Messages = {
     awarenessProficientNote:
       "وعي قوي بالقواعد الأساسية. راجع الأسئلة التي أخطأت فيها أدناه للوصول إلى الإتقان الكامل.",
     awarenessDevelopingNote:
-      "تأسيس جيد مع بعض الأخطاء المتكررة. أعد مشاهدة فيديوهات الشرح بالذكاء الاصطناعي ثم أعد الاختبار.",
+      "تأسيس جيد مع بعض الأخطاء المتكررة. أعد مشاهدة الفيديوهات التفاعلية المتحركة ثم أعد الاختبار.",
     awarenessReviewNote:
       "راجع الشرح التفصيلي للقواعد والتدريبات الأربعة المتنوعة، ثم أعد اختبار العشرة أسئلة.",
     focusGrammar: "الوعي القواعدي",
@@ -887,12 +883,10 @@ const ar: Messages = {
     focusVocabulary: "المفردات والمعاني",
     focusErrorSpotting: "تمييز الأخطاء",
     skillBreakdown: "تحليل الوعي المعرفي حسب المهارة",
-    switchToPostTest: "ابدأ الاختبار البعدي الآن (١٠ أسئلة جديدة)",
-    growthSummary: "الختامي: {summative}/10 · البعدي: {post}/10",
     lessonAssessmentCtaTitle: "هل أنت مستعد لقياس وعيك المعرفي؟",
     lessonAssessmentCtaBody:
-      "اختبر إتقانك عبر الاختبار الختامي (١٠ أسئلة) والاختبار البعدي (١٠ أسئلة) الخاصين بهذه الدورة.",
-    lessonAssessmentCtaButton: "انتقل للاختبار الختامي والبعدي",
+      "اختبر إتقانك عبر الاختبار البعدي المكوّن من ١٠ أسئلة اختيار من متعدد لهذه الدورة.",
+    lessonAssessmentCtaButton: "ابدأ الاختبار البعدي (١٠ أسئلة)",
   },
   footer: {
     about:

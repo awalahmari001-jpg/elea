@@ -23,16 +23,25 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n-provider";
 import type { ExplainerVideo, VideoScene } from "@/content/lesson-types";
 import { format } from "@/lib/i18n/messages";
+import { playSpeech } from "@/hooks/use-speech";
 import {
   AnimatedChronologicalTimeline,
-  AnimatedTeacherDuo,
+  AnimatedClassroomCast,
   CourseMediaBackdrop,
+  FloatingEmojiBurst,
   MotionFocusBadges,
   SkillVisualAid,
 } from "./video-visuals";
 
 type SubtitleMode = "both" | "en" | "ar" | "off";
 const SPEEDS = [0.75, 1, 1.25] as const;
+
+const REACTION_EMOJIS = [
+  { symbol: "💡", labelEn: "Got it!", labelAr: "فهمت!" },
+  { symbol: "🔥", labelEn: "Awesome!", labelAr: "رائع!" },
+  { symbol: "🤔", labelEn: "Thinking", labelAr: "أفكّر" },
+  { symbol: "👏", labelEn: "Nice!", labelAr: "أحسنت!" },
+] as const;
 
 function formatClock(seconds: number): string {
   const clamped = Math.max(0, Math.floor(seconds));
@@ -77,6 +86,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
   const stageRef = useRef<HTMLDivElement | null>(null);
   const spokenKeyRef = useRef<string | null>(null);
   const autoPausedScenesRef = useRef<Set<string>>(new Set());
+  const burstIdRef = useRef(0);
 
   const [playing, setPlaying] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -84,8 +94,14 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
   const [speedIndex, setSpeedIndex] = useState(1);
   const [subtitles, setSubtitles] = useState<SubtitleMode>("both");
   const [revealedChallenges, setRevealedChallenges] = useState<Record<string, boolean>>({});
+  const [pickedChoices, setPickedChoices] = useState<Record<string, string>>({});
   const [shownHints, setShownHints] = useState<Record<string, boolean>>({});
   const [showStoryboard, setShowStoryboard] = useState(true);
+  const [xp, setXp] = useState(0);
+  const [celebrating, setCelebrating] = useState(false);
+  const [floatingEmojis, setFloatingEmojis] = useState<
+    { id: number; symbol: string; left: number }[]
+  >([]);
   const [manualLineOverride, setManualLineOverride] = useState<{
     sceneId: string;
     lineIdx: number;
@@ -104,14 +120,29 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
       : computedLineIdx;
   const activeLine = activeScene?.dialogue[activeLineIndex] ?? activeScene?.dialogue[0];
 
-  // Clear manual teacher-turn override when advancing scenes.
+  function launchEmojiBurst(symbols: string[], celebrate = false) {
+    const batch = symbols.map((symbol, idx) => ({
+      id: ++burstIdRef.current,
+      symbol,
+      left: 16 + ((idx * 19 + (burstIdRef.current % 15)) % 68),
+    }));
+    setFloatingEmojis((prev) => [...prev, ...batch]);
+    if (celebrate) {
+      setCelebrating(true);
+      window.setTimeout(() => setCelebrating(false), 1800);
+    }
+    window.setTimeout(() => {
+      const ids = new Set(batch.map((b) => b.id));
+      setFloatingEmojis((prev) => prev.filter((item) => !ids.has(item.id)));
+    }, 1600);
+  }
+
   useEffect(() => {
     if (manualLineOverride && activeScene && manualLineOverride.sceneId !== activeScene.id) {
       setManualLineOverride(null);
     }
   }, [activeScene, manualLineOverride]);
 
-  // Stop speech cleanly on unmount.
   useEffect(() => {
     return () => {
       if (typeof window !== "undefined") {
@@ -136,7 +167,6 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
     }
   }, [activeScene, playing, revealedChallenges]);
 
-  // Advance video clock smoothly while playing.
   useEffect(() => {
     if (!playing) return;
     const tickMs = 250;
@@ -154,7 +184,6 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
     return () => window.clearInterval(id);
   }, [playing, speed, video.durationSeconds]);
 
-  // Synchronize Web Speech API voiceover per teacher turn (distinct pitches for Coach Layla & Coach Omar!).
   useEffect(() => {
     if (
       !activeScene ||
@@ -174,7 +203,9 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
     if (spokenKeyRef.current === key) return;
     spokenKeyRef.current = key;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(activeLine.textEn);
+    const utterance = new SpeechSynthesisUtterance(
+      activeLine.textEn.replace(/[\u{1F300}-\u{1FAFF}]/gu, ""),
+    );
     utterance.lang = "en-GB";
     utterance.rate = Math.min(1.4, Math.max(0.75, speed * 0.98));
     utterance.pitch = activeLine.speaker === "layla" ? 1.12 : 0.9;
@@ -209,6 +240,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
     autoPausedScenesRef.current.clear();
     setManualLineOverride(null);
     setRevealedChallenges({});
+    setPickedChoices({});
     setShownHints({});
     setElapsed(0);
     setPlaying(true);
@@ -233,11 +265,32 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
     spokenKeyRef.current = null;
   }
 
+  function handleInteractiveChoice(sceneId: string, choice: string, correctAnswer: string) {
+    setPickedChoices((prev) => ({ ...prev, [sceneId]: choice }));
+    if (choice.trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
+      if (!revealedChallenges[sceneId]) {
+        setXp((prev) => prev + 25);
+      }
+      setRevealedChallenges((prev) => ({ ...prev, [sceneId]: true }));
+      setManualLineOverride({ sceneId, lineIdx: Math.max(0, scene.dialogue.length - 1) });
+      launchEmojiBurst(["🎉", "🌟", "💯", "👏", "🚀"], true);
+    } else {
+      setShownHints((prev) => ({ ...prev, [sceneId]: true }));
+      launchEmojiBurst(["🤔", "💡"], false);
+    }
+  }
+
   function revealAndContinue(sceneId: string) {
     setRevealedChallenges((prev) => ({ ...prev, [sceneId]: true }));
     setManualLineOverride({ sceneId, lineIdx: Math.max(0, scene.dialogue.length - 1) });
     spokenKeyRef.current = null;
+    launchEmojiBurst(["✨", "👏"], true);
     setPlaying(true);
+  }
+
+  function handleReactionTap(symbol: string) {
+    setXp((prev) => prev + 5);
+    launchEmojiBurst([symbol, "✨", symbol], symbol === "👏" || symbol === "🔥");
   }
 
   function handleScrub(value: number) {
@@ -293,6 +346,14 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
           >
             {video.levelTag}
           </span>
+          {xp > 0 && (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-3 py-1 text-xs font-extrabold text-amber-700 dark:text-amber-300"
+              dir="ltr"
+            >
+              ⭐ +{xp} XP
+            </span>
+          )}
         </div>
         <span className="text-xs font-semibold text-muted-foreground">
           {format(t.learning.videoSceneOf, { current: sceneIndex + 1, total: video.scenes.length })}
@@ -311,13 +372,14 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
         </p>
       </div>
 
-      {/* Vibrant Animated 16:9 Educational Video Stage */}
+      {/* Vibrant Animated Classroom Video Stage */}
       <div
         ref={stageRef}
         className="mt-5 overflow-hidden rounded-2xl border border-indigo-900/80 bg-slate-950 text-white shadow-xl"
       >
-        <div className="relative flex min-h-[430px] flex-col justify-between overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950 p-5 md:p-7">
-          <CourseMediaBackdrop course={video.course} />
+        <div className="relative flex min-h-[470px] flex-col justify-between overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950 p-5 md:p-7">
+          <CourseMediaBackdrop course={video.course} sceneEmoji={scene.sceneEmoji} />
+          <FloatingEmojiBurst emojis={floatingEmojis} />
 
           {/* Top Bar: Chapter + Visual Progress Roadmap + Motion Graphics Tools */}
           <div className="relative z-10 flex flex-wrap items-center justify-between gap-2.5">
@@ -350,7 +412,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
             <MotionFocusBadges tools={scene.focusTools} ariaLabel={t.learning.videoFocusTools} />
           </div>
 
-          {/* Center Dynamic Visual Canvas (smoothly animated on every scene change) */}
+          {/* Center Dynamic Whiteboard / Visual Canvas */}
           <div
             key={scene.id}
             className="relative z-10 my-4 flex flex-1 animate-[scene-enter_0.4s_ease-out] flex-col justify-center"
@@ -376,7 +438,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                       {scene.visualPoints.map((pt, idx) => (
                         <div
                           key={idx}
-                          className="relative rounded-xl border-2 border-dashed border-cyan-400/45 bg-white/10 p-4 text-sm font-bold text-cyan-100 backdrop-blur-sm md:text-base"
+                          className="relative rounded-xl border-2 border-dashed border-cyan-400/45 bg-white/10 p-4 text-sm font-bold text-cyan-100 backdrop-blur-sm transition hover:scale-[1.02] md:text-base"
                         >
                           <ArrowRight
                             className="me-1.5 inline size-4 animate-[arrow-nudge_1.4s_ease-in-out_infinite] text-amber-300"
@@ -422,9 +484,9 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                   </div>
                 )}
 
-                {/* LAYOUT 3: INTERACTIVE PAUSE & PREDICT (#1 and #2) */}
+                {/* LAYOUT 3: INTERACTIVE CLICKABLE PAUSE & PREDICT (#1 and #2) */}
                 {scene.layout === "pause-predict" && scene.pausePredict && (
-                  <div className="mt-4 rounded-2xl border-2 border-amber-400/70 bg-slate-900/90 p-4 shadow-lg">
+                  <div className="mt-4 rounded-2xl border-2 border-amber-400/75 bg-slate-900/90 p-4 shadow-lg">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 px-3 py-1 text-xs font-extrabold text-amber-200">
                         <PauseCircle className="size-4" aria-hidden />
@@ -450,18 +512,51 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                       </p>
                     )}
 
-                    {shownHints[scene.id] && (
-                      <p className="mt-2.5 rounded-lg bg-white/10 px-3 py-2 text-xs text-amber-100">
+                    {/* Clickable Live Interactive Options Right Inside the Video! */}
+                    <div className="mt-3 grid gap-2 sm:grid-cols-3" dir="ltr">
+                      {scene.pausePredict.choices.map((choice, cIdx) => {
+                        const isPicked = pickedChoices[scene.id] === choice;
+                        const isCorrectChoice =
+                          choice.trim().toLowerCase() ===
+                          scene.pausePredict!.answer.trim().toLowerCase();
+                        const revealed = Boolean(revealedChallenges[scene.id]);
+                        return (
+                          <button
+                            key={choice}
+                            type="button"
+                            disabled={revealed}
+                            onClick={() =>
+                              handleInteractiveChoice(scene.id, choice, scene.pausePredict!.answer)
+                            }
+                            className={`rounded-xl border px-3 py-2.5 text-start text-xs font-bold transition md:text-sm ${
+                              revealed && isCorrectChoice
+                                ? "border-emerald-400 bg-emerald-500/25 text-emerald-100 ring-2 ring-emerald-400/50"
+                                : isPicked && !isCorrectChoice
+                                  ? "border-rose-400 bg-rose-500/20 text-rose-100"
+                                  : "border-white/20 bg-white/10 text-white hover:scale-[1.02] hover:border-amber-300 hover:bg-amber-400/15"
+                            }`}
+                          >
+                            <span className="me-1.5 text-amber-300">
+                              {String.fromCharCode(65 + cIdx)}.
+                            </span>
+                            {choice}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {shownHints[scene.id] && !revealedChallenges[scene.id] && (
+                      <p className="mt-2.5 rounded-lg bg-amber-500/15 px-3 py-2 text-xs text-amber-100">
                         <Lightbulb className="me-1 inline size-3.5 text-amber-300" aria-hidden />
                         {scene.pausePredict.hint[locale]}
                       </p>
                     )}
 
                     {revealedChallenges[scene.id] ? (
-                      <div className="mt-3 rounded-xl border border-emerald-400/55 bg-emerald-950/65 p-3">
+                      <div className="mt-3 rounded-xl border border-emerald-400/60 bg-emerald-950/70 p-3">
                         <p className="text-xs font-bold uppercase tracking-wide text-emerald-300">
                           <CheckCircle2 className="me-1 inline size-4" aria-hidden />
-                          {t.learning.videoAnswerRevealed}:{" "}
+                          🎉 {t.learning.videoAnswerRevealed}:{" "}
                           <span className="text-white" lang="en" dir="ltr">
                             {scene.pausePredict.answer}
                           </span>
@@ -507,8 +602,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                       {scene.highlight?.wrong && (
                         <div className="rounded-xl border-2 border-rose-400/50 bg-rose-950/55 p-3.5">
                           <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-rose-300">
-                            <XCircle className="size-4" aria-hidden />
-                            {t.learning.guideWrong}
+                            <XCircle className="size-4" aria-hidden />❌ {t.learning.guideWrong}
                           </p>
                           <p className="mt-1.5 text-sm font-semibold text-rose-100 line-through decoration-rose-400/80 md:text-base">
                             {scene.highlight.wrong}
@@ -522,7 +616,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                       {scene.highlight?.right && (
                         <div className="rounded-xl border-2 border-emerald-400/60 bg-emerald-950/60 p-3.5 shadow-md shadow-emerald-500/20">
                           <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-emerald-300">
-                            <CheckCircle2 className="size-4" aria-hidden />
+                            <CheckCircle2 className="size-4" aria-hidden />✅{" "}
                             {t.learning.guideRight}
                           </p>
                           <p className="mt-1.5 text-sm font-semibold text-emerald-100 md:text-base">
@@ -534,20 +628,28 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                   </div>
                 )}
 
-                {/* LAYOUT 5: STEP 3 LIVE WALKTHROUGH */}
+                {/* LAYOUT 5: STEP 3 LIVE WALKTHROUGH (Tap-to-Hear interactive card!) */}
                 {scene.layout === "walkthrough" && (
                   <div className="mt-4 space-y-2.5" lang="en" dir="ltr">
                     {scene.highlight?.right && (
-                      <div className="rounded-xl border-2 border-emerald-400/50 bg-emerald-950/45 p-3.5">
-                        <p className="text-base font-bold leading-relaxed text-emerald-100 md:text-lg">
-                          “{scene.highlight.right}”
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playSpeech(scene.highlight!.right!, 0.9);
+                          launchEmojiBurst(["🔊", "🗣️", "✨"], false);
+                        }}
+                        className="w-full rounded-xl border-2 border-emerald-400/55 bg-emerald-950/50 p-4 text-start transition hover:scale-[1.01] hover:border-emerald-300"
+                      >
+                        <p className="flex items-center justify-between gap-2 text-base font-bold leading-relaxed text-emerald-100 md:text-lg">
+                          <span>🗣️ “{scene.highlight.right}”</span>
+                          <Volume2 className="size-5 shrink-0 text-emerald-300" aria-hidden />
                         </p>
                         {scene.highlight.signalTag && (
                           <p className="mt-1.5 text-xs font-semibold text-cyan-200">
-                            ✦ {scene.highlight.signalTag}
+                            💡 {scene.highlight.signalTag}
                           </p>
                         )}
-                      </div>
+                      </button>
                     )}
                   </div>
                 )}
@@ -580,11 +682,11 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                 )}
               </div>
 
-              {/* High-Quality Skill Educational Visual Aid */}
-              <SkillVisualAid skill={scene.illustration} />
+              {/* High-Quality Skill Visual Aid with Concept Emoji */}
+              <SkillVisualAid skill={scene.illustration} sceneEmoji={scene.sceneEmoji} />
             </div>
 
-            {/* Animated Chronological / Sequential Timeline */}
+            {/* Animated Chronological / Sequential Timeline with Emojis */}
             {scene.timeline && scene.timeline.length > 0 && (
               <AnimatedChronologicalTimeline
                 nodes={scene.timeline}
@@ -593,22 +695,44 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
             )}
           </div>
 
-          {/* Expressive Animated Teacher Characters (Coach Layla & Coach Omar) Interacting Dynamically */}
-          <AnimatedTeacherDuo
+          {/* Animated Classroom Cast: Coach Layla, Coach Omar + Animated Learners Sara & Tariq */}
+          <AnimatedClassroomCast
             dialogue={scene.dialogue}
+            learnerReaction={scene.learnerReaction}
             activeLineIndex={activeLineIndex}
             playing={playing}
             muted={muted}
+            celebrating={celebrating || scene.layout === "summary"}
             locale={locale}
             laylaName={t.learning.teacherLayla}
             omarName={t.learning.teacherOmar}
+            saraName={t.learning.learnerSara}
+            tariqName={t.learning.learnerTariq}
             speakingLabel={t.learning.videoSpeakingNow}
             onSelectLine={selectDialogueLine}
           />
 
+          {/* Interactive Emoji Reaction Bar */}
+          <div className="relative z-10 mt-2.5 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/15 bg-black/45 px-3 py-2">
+            <span className="text-xs font-bold text-slate-200">{t.learning.videoReactPrompt}</span>
+            <div className="flex flex-wrap gap-1.5">
+              {REACTION_EMOJIS.map((r) => (
+                <button
+                  key={r.symbol}
+                  type="button"
+                  onClick={() => handleReactionTap(r.symbol)}
+                  className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-bold text-white transition hover:scale-105 hover:border-amber-300 hover:bg-amber-400/20"
+                >
+                  <span>{r.symbol}</span>
+                  <span>{locale === "ar" ? r.labelAr : r.labelEn}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Optional Bilingual Subtitle Strip */}
           {subtitles !== "off" && (
-            <div className="relative z-10 mt-2.5 rounded-lg border border-white/10 bg-black/55 px-3.5 py-2 text-center backdrop-blur-md">
+            <div className="relative z-10 mt-2 rounded-lg border border-white/10 bg-black/55 px-3.5 py-2 text-center backdrop-blur-md">
               {(subtitles === "both" || subtitles === "en") && (
                 <p className="text-xs leading-relaxed text-slate-200" lang="en" dir="ltr">
                   {scene.narrationEn}
@@ -817,12 +941,16 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
               <tbody className="divide-y divide-border">
                 {video.scenes.map((sc, idx) => {
                   const isCurrent = idx === sceneIndex;
+                  const studentLabel =
+                    sc.learnerReaction.student === "sara"
+                      ? t.learning.learnerSara
+                      : t.learning.learnerTariq;
                   return (
                     <tr
                       key={sc.id}
                       className={isCurrent ? "bg-primary/5" : "bg-card hover:bg-muted/30"}
                     >
-                      {/* LEFT COLUMN: Visuals, Motion Graphics & Timeline Actions */}
+                      {/* LEFT COLUMN: Visuals, Emojis, Motion Graphics & Timeline */}
                       <td className="px-4 py-4 align-top">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <button
@@ -853,13 +981,14 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                             className="mt-2 rounded-md bg-muted/70 px-2.5 py-1 font-mono text-[11px] font-semibold text-primary"
                             dir="ltr"
                           >
-                            Timeline:{" "}
-                            {sc.timeline.map((n) => `${n.marker} (${n.label})`).join(" → ")}
+                            {sc.timeline
+                              .map((n) => `${n.emoji} ${n.marker} (${n.label})`)
+                              .join(" → ")}
                           </p>
                         )}
                       </td>
 
-                      {/* RIGHT COLUMN: Interactive Teacher Dialogue & Spoken Narration */}
+                      {/* RIGHT COLUMN: Interactive Teacher & Learner Dialogue */}
                       <td className="px-4 py-4 align-top">
                         <div className="space-y-2">
                           {sc.dialogue.map((line, lIdx) => (
@@ -869,6 +998,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                                   line.speaker === "layla" ? "text-primary" : "text-success"
                                 }`}
                               >
+                                {line.emoji}{" "}
                                 {line.speaker === "layla"
                                   ? t.learning.teacherLayla
                                   : t.learning.teacherOmar}
@@ -888,6 +1018,14 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                               )}
                             </div>
                           ))}
+                          <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-xs">
+                            <span className="font-extrabold text-amber-700 dark:text-amber-300">
+                              {sc.learnerReaction.emoji} {studentLabel}:{" "}
+                            </span>
+                            <span className="text-foreground">
+                              {sc.learnerReaction.bubble[locale]}
+                            </span>
+                          </div>
                         </div>
                         {sc.pausePredict && (
                           <div className="mt-2.5 rounded-lg border border-amber-500/35 bg-amber-500/10 px-3 py-2 text-xs">

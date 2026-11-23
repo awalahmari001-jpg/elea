@@ -39,7 +39,7 @@ export type PlacementProgress = {
 /** The last finished test's questions + answers, for the answer review. */
 export type PlacementReview = { questionIds: string[]; answers: PlacementAnswers };
 
-export type AssessmentKind = "summative" | "post";
+export type AssessmentKind = "post";
 export type AwarenessBand = "mastery" | "proficient" | "developing" | "review";
 
 export interface AssessmentAttempt {

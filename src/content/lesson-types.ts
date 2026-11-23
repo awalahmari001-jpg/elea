@@ -64,25 +64,36 @@ export type VideoSceneLayout =
   "hook" | "diagram" | "pause-predict" | "comparison" | "walkthrough" | "summary";
 
 export type TeacherSpeaker = "layla" | "omar";
+export type LearnerCharacter = "sara" | "tariq";
 export type TeacherMood = "excited" | "curious" | "encouraging" | "celebrating";
 export type MotionFocusTool = "arrow" | "circle" | "box" | "highlight" | "pointer";
 
 export interface TeacherLine {
   speaker: TeacherSpeaker;
   mood: TeacherMood;
+  emoji: string;
   textEn: string;
   textAr: string;
+}
+
+export interface LearnerReaction {
+  student: LearnerCharacter;
+  emoji: string;
+  bubble: Bilingual;
 }
 
 export interface TimelineNode {
   marker: string;
   label: string;
+  emoji: string;
   active?: boolean;
 }
 
 export interface PausePredictPrompt {
   challengeNumber: 1 | 2;
   question: Bilingual;
+  /** Clickable interactive options right inside the video stage! */
+  choices: string[];
   hint: Bilingual;
   answer: string;
   explanation: Bilingual;
@@ -100,6 +111,8 @@ export interface VideoScene {
   startSeconds: number;
   durationSeconds: number;
   layout: VideoSceneLayout;
+  /** Expressive emoji anchoring the concept visually. */
+  sceneEmoji: string;
   chapterLabel: Bilingual;
   headline: Bilingual;
   /** Dual-coding storyboard left column: dynamic animations, diagrams, live sketching & visual signaling cues. */
@@ -111,6 +124,8 @@ export interface VideoScene {
   subtitleAr: string;
   /** Dynamic interaction between expressive animated teachers (Layla & Omar) speaking directly to the learner. */
   dialogue: TeacherLine[];
+  /** Live animated learner character (Sara or Tariq) reacting, asking, or celebrating on stage. */
+  learnerReaction: LearnerReaction;
   /** Animated chronological or sequential visual timeline (tenses, dates, eras, or steps). */
   timeline?: TimelineNode[];
   /** High-quality visual illustration & icon set matched to the lesson skill. */
@@ -119,7 +134,7 @@ export interface VideoScene {
   focusTools: MotionFocusTool[];
   /** Visual Progress Roadmap transition cue (e.g., "Step 1 of 3 complete"). */
   roadmapStep?: RoadmapMilestone;
-  /** Explicit Pause & Predict mini-challenge (at least 2 per video). */
+  /** Explicit interactive Pause & Predict mini-challenge (at least 2 per video). */
   pausePredict?: PausePredictPrompt;
   /** Final 15-second reflection question or takeaway task. */
   takeawayTask?: Bilingual;

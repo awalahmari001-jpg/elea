@@ -166,20 +166,34 @@ describe("requested curriculum", () => {
         .filter((n): n is 1 | 2 | 3 => n !== undefined);
       expect(roadmapSteps, `${lesson.id} roadmap steps`).toEqual([1, 2, 3]);
 
-      // 5. At least 2 explicit "Pause & Predict" challenges
+      // 5. At least 2 explicit interactive "Pause & Predict" challenges with clickable choices
       const pauseChallenges = video.scenes.filter((s) => Boolean(s.pausePredict));
       expect(pauseChallenges.length, `${lesson.id} >= 2 pause & predict`).toBeGreaterThanOrEqual(2);
       for (const sc of pauseChallenges) {
         expect(sc.pausePredict!.question.en.length, `${lesson.id} pp question`).toBeGreaterThan(10);
         expect(sc.pausePredict!.answer.length, `${lesson.id} pp answer`).toBeGreaterThan(0);
+        expect(sc.pausePredict!.choices.length, `${lesson.id} pp choices`).toBeGreaterThanOrEqual(
+          3,
+        );
+        expect(
+          sc.pausePredict!.choices.some(
+            (c) => c.trim().toLowerCase() === sc.pausePredict!.answer.trim().toLowerCase(),
+          ),
+          `${lesson.id} pp choices contain answer`,
+        ).toBe(true);
       }
 
-      // 6. Expressive teacher duo dialogue, chronological timeline, visual aids & motion graphics focus tools
+      // 6. Expressive teacher duo + animated learner characters, emojis, chronological timeline & motion focus tools
       for (const sc of video.scenes) {
+        expect(sc.sceneEmoji.length, `${lesson.id} ${sc.id} sceneEmoji`).toBeGreaterThan(0);
         expect(sc.dialogue.length, `${lesson.id} ${sc.id} dialogue >= 2`).toBeGreaterThanOrEqual(2);
         const speakers = new Set(sc.dialogue.map((d) => d.speaker));
         expect(speakers.has("layla"), `${lesson.id} ${sc.id} layla`).toBe(true);
         expect(speakers.has("omar"), `${lesson.id} ${sc.id} omar`).toBe(true);
+        expect(["sara", "tariq"].includes(sc.learnerReaction.student), `${lesson.id} learner`).toBe(
+          true,
+        );
+        expect(sc.learnerReaction.emoji.length, `${lesson.id} learner emoji`).toBeGreaterThan(0);
         expect(sc.focusTools.length, `${lesson.id} ${sc.id} focusTools`).toBeGreaterThanOrEqual(2);
         expect(sc.illustration, `${lesson.id} ${sc.id} illustration`).toBe(lesson.skill);
       }

@@ -6,7 +6,7 @@ import { DetailedRuleGuideView } from "@/components/learning/detailed-rule-guide
 import { QuestionCard } from "@/components/learning/question-card";
 import { CourseAssessmentPanel } from "@/components/learning/course-assessment-panel";
 import { findLesson, type LessonCourse } from "@/content/lessons";
-import { getCourseAssessments } from "@/content/course-assessments";
+import { getPostTestQuestions } from "@/content/course-assessments";
 import {
   evaluateFitSentence,
   evaluateRearrange,
@@ -70,7 +70,7 @@ describe("question-engine and interactive grammar/reading UI", () => {
     );
   });
 
-  it("renders the 4–5 min dual-coding RuleVideoPlayer with Coach Layla & Coach Omar, animated timeline, motion tools, Pause & Predict reveal, and storyboard", () => {
+  it("renders interactive RuleVideoPlayer with animated Teachers & Learners, Emoji Reactions, animated timeline, clickable Pause & Predict choices, and storyboard", () => {
     const lesson = findLesson("ielts-reading-academic")!;
     render(
       <I18nProvider locale="en" theme="light">
@@ -82,23 +82,37 @@ describe("question-engine and interactive grammar/reading UI", () => {
     expect(screen.getByText(/IELTS · Band 7 Focus/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Coach Layla/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Coach Omar/i).length).toBeGreaterThan(0);
+    // Animated Learner character renders on stage alongside the teachers
+    expect(screen.getAllByText(/Sara|Tariq/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Visuals & On-Screen Actions/i)).toBeInTheDocument();
     expect(screen.getByText(/Spoken Narration/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Step 1 of 3 complete/i).length).toBeGreaterThan(0);
+
+    // Tap an interactive Emoji Reaction button and verify live XP badge increments
+    fireEvent.click(screen.getByRole("button", { name: /Got it!/i }));
+    expect(screen.getByText(/\+5 XP/i)).toBeInTheDocument();
 
     // Jump to Step 1 to verify the animated chronological / sequential visual timeline renders
     fireEvent.click(screen.getAllByRole("button", { name: /Step 1 · Core Visual/i })[0]!);
     expect(screen.getByText(/Visual timeline & progression/i)).toBeInTheDocument();
 
-    // Jump to Pause & Predict #1 and reveal the answer
+    // Jump to Pause & Predict #1 and click the correct interactive choice right inside the video
     fireEvent.click(screen.getAllByRole("button", { name: /Pause & Predict #1/i })[0]!);
-    expect(screen.getByRole("button", { name: /Reveal answer & continue/i })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Reveal answer & continue/i }));
+    const pp1 = lesson.explainerVideo!.scenes.find(
+      (s) => s.layout === "pause-predict" && s.pausePredict?.challengeNumber === 1,
+    )!;
+    const answerBtn = screen
+      .getAllByRole("button")
+      .find((btn) => btn.textContent?.includes(pp1.pausePredict!.answer))!;
+    expect(answerBtn).toBeDefined();
+    fireEvent.click(answerBtn);
     expect(screen.getByText(/Revealed answer/i)).toBeInTheDocument();
+    // +5 XP from reaction + 25 XP from solving Pause & Predict = +30 XP
+    expect(screen.getByText(/\+30 XP/i)).toBeInTheDocument();
 
     // Jump to 15-Second Summary & Takeaway Task
     fireEvent.click(screen.getAllByRole("button", { name: /15s Summary & Task/i })[0]!);
-    expect(screen.getByText(/15-Second Recap & Your Quick Task/i)).toBeInTheDocument();
+    expect(screen.getByText(/15-Second Victory Recap & Task/i)).toBeInTheDocument();
   });
 
   it("renders DetailedRuleGuideView with formulas, mistakes comparison, and memory tip", () => {
@@ -151,7 +165,7 @@ describe("question-engine and interactive grammar/reading UI", () => {
     expect(screen.getByTestId("result").textContent).toBe("PASS");
   });
 
-  it("provides 10 distinct Summative MCQs and 10 non-overlapping Post-Test MCQs for every course", () => {
+  it("provides 10 distinct Post-Lesson Test MCQs for every course", () => {
     const allCourses: LessonCourse[] = [
       "a1",
       "a2",
@@ -164,20 +178,13 @@ describe("question-engine and interactive grammar/reading UI", () => {
       "adults",
     ];
     for (const course of allCourses) {
-      const set = getCourseAssessments(course);
-      expect(set.summative, `${course} summative length`).toHaveLength(10);
-      expect(set.post, `${course} post length`).toHaveLength(10);
+      const postQuestions = getPostTestQuestions(course);
+      expect(postQuestions, `${course} post length`).toHaveLength(10);
 
-      const sumPrompts = new Set(set.summative.map((q) => q.prompt.toLowerCase()));
-      const postPrompts = new Set(set.post.map((q) => q.prompt.toLowerCase()));
-      expect(sumPrompts.size, `${course} unique summative prompts`).toBe(10);
+      const postPrompts = new Set(postQuestions.map((q) => q.prompt.toLowerCase()));
       expect(postPrompts.size, `${course} unique post prompts`).toBe(10);
 
-      for (const p of postPrompts) {
-        expect(sumPrompts.has(p), `${course} no overlap between summative & post`).toBe(false);
-      }
-
-      for (const q of [...set.summative, ...set.post]) {
+      for (const q of postQuestions) {
         expect(q.options, `${course} ${q.id} options`).toHaveLength(4);
         expect(
           new Set(q.options.map((o) => o.toLowerCase())).size,
@@ -191,23 +198,26 @@ describe("question-engine and interactive grammar/reading UI", () => {
     }
   });
 
-  it("allows completing both the 10-MCQ Summative Test and 10-MCQ Post-Test in CourseAssessmentPanel", () => {
+  it("omits the Summative Test and allows completing the 10-MCQ Post-Lesson Test in CourseAssessmentPanel", () => {
     window.localStorage.clear();
-    const { summative } = getCourseAssessments("a1");
+    const postQuestions = getPostTestQuestions("a1");
     render(
       <I18nProvider locale="en" theme="light">
         <CourseAssessmentPanel course="a1" />
       </I18nProvider>,
     );
 
-    // Start Summative Test (10 MCQs)
-    fireEvent.click(screen.getByRole("button", { name: /Start Summative Test \(10 MCQs\)/i }));
+    // Summative Test must be completely omitted
+    expect(screen.queryByText(/Summative/i)).toBeNull();
+
+    // Start Post-Lesson Test (10 MCQs)
+    fireEvent.click(screen.getByRole("button", { name: /Start Post-Lesson Test \(10 MCQs\)/i }));
     const groups = screen.getAllByRole("group");
     expect(groups).toHaveLength(10);
 
     // Answer all 10 questions correctly
     groups.forEach((group, idx) => {
-      const q = summative[idx]!;
+      const q = postQuestions[idx]!;
       const buttons = within(group).getAllByRole("button");
       fireEvent.click(buttons[q.correct]!);
     });
@@ -216,9 +226,5 @@ describe("question-engine and interactive grammar/reading UI", () => {
     expect(screen.getAllByText(/10 \/ 10/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/\(100%\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Mastery awareness/i)).toBeInTheDocument();
-
-    // Switch directly to Post-Test (10 brand-new MCQs)
-    fireEvent.click(screen.getAllByRole("button", { name: /Take Post-Test now/i })[0]!);
-    expect(screen.getAllByRole("group")).toHaveLength(10);
   });
 });
