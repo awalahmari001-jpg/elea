@@ -20,10 +20,12 @@ import {
   stopSpeech,
   type VoiceRole,
 } from "@/hooks/use-speech";
+import { HighlightedText } from "./highlighted-text";
 
 export interface DetailedRuleGuideViewProps {
   guide: DetailedRuleGuide;
   skill: LessonSkill;
+  keywords?: string[];
 }
 
 function getSectionTitleKey(skill: LessonSkill) {
@@ -34,12 +36,13 @@ function getSectionTitleKey(skill: LessonSkill) {
   return "guideSpeakingTitle" as const;
 }
 
-export function DetailedRuleGuideView({ guide, skill }: DetailedRuleGuideViewProps) {
+export function DetailedRuleGuideView({ guide, skill, keywords }: DetailedRuleGuideViewProps) {
   const { locale, t } = useI18n();
   const sectionTitle = t.learning[getSectionTitleKey(skill)];
   const stopSeqRef = useRef<(() => void) | null>(null);
   const [playingDialogue, setPlayingDialogue] = useState(false);
   const [activeTurnIdx, setActiveTurnIdx] = useState<number | null>(null);
+  const kwProps = keywords ? { keywords } : {};
 
   useEffect(() => {
     return () => {
@@ -97,7 +100,11 @@ export function DetailedRuleGuideView({ guide, skill }: DetailedRuleGuideViewPro
       {/* Summary Overview */}
       <div className="mt-4 rounded-2xl border border-primary/20 bg-secondary/40 p-5">
         <p className="text-base font-medium leading-relaxed text-foreground">
-          {guide.summary[locale]}
+          {locale === "en" ? (
+            <HighlightedText text={guide.summary.en} {...kwProps} />
+          ) : (
+            guide.summary.ar
+          )}
         </p>
       </div>
 
@@ -120,8 +127,8 @@ export function DetailedRuleGuideView({ guide, skill }: DetailedRuleGuideViewPro
                 className="group flex flex-col items-start rounded-2xl border border-border bg-card p-4 text-start shadow-xs transition hover:border-primary/60 hover:shadow-md"
               >
                 <div className="flex w-full items-center justify-between gap-2" dir="ltr">
-                  <span className="rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-extrabold text-primary">
-                    {card.group}
+                  <span className="rounded-lg bg-red-500/10 px-2.5 py-1 text-xs font-extrabold text-red-700 dark:text-red-400">
+                    <HighlightedText text={card.group} {...kwProps} />
                   </span>
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground group-hover:text-primary">
                     <Volume2 className="size-3.5" aria-hidden />
@@ -129,21 +136,26 @@ export function DetailedRuleGuideView({ guide, skill }: DetailedRuleGuideViewPro
                   </span>
                 </div>
                 <p className="mt-2.5 text-base font-extrabold text-foreground" lang="en" dir="ltr">
-                  ➜ {card.takes}
+                  ➜ <HighlightedText text={card.takes} {...kwProps} />
                 </p>
                 <p
                   className="mt-1.5 text-sm font-medium leading-relaxed text-foreground"
                   lang="en"
                   dir="ltr"
                 >
-                  “{card.example}”
+                  “<HighlightedText text={card.example} {...kwProps} />”
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground" lang="ar" dir="rtl">
                   {card.arabic}
                 </p>
                 {card.note && (
                   <p className="mt-2 rounded-lg bg-muted/60 px-2.5 py-1.5 text-xs leading-relaxed text-muted-foreground">
-                    💡 {card.note[locale]}
+                    💡{" "}
+                    {locale === "en" ? (
+                      <HighlightedText text={card.note.en} {...kwProps} />
+                    ) : (
+                      card.note.ar
+                    )}
                   </p>
                 )}
               </button>
@@ -173,13 +185,21 @@ export function DetailedRuleGuideView({ guide, skill }: DetailedRuleGuideViewPro
                 {t.learning.guideEnglishRule}
               </p>
               <p className="mt-1.5 text-sm leading-relaxed text-foreground">
-                {guide.l1Bridge.englishRule[locale]}
+                {locale === "en" ? (
+                  <HighlightedText text={guide.l1Bridge.englishRule.en} {...kwProps} />
+                ) : (
+                  guide.l1Bridge.englishRule.ar
+                )}
               </p>
             </div>
           </div>
           <p className="mt-3 rounded-xl bg-secondary/60 px-4 py-2.5 text-sm font-semibold text-foreground">
             <span className="text-primary">{t.learning.guideKeyDifference} </span>
-            {guide.l1Bridge.keyDifference[locale]}
+            {locale === "en" ? (
+              <HighlightedText text={guide.l1Bridge.keyDifference.en} {...kwProps} />
+            ) : (
+              guide.l1Bridge.keyDifference.ar
+            )}
           </p>
         </div>
       )}
@@ -196,7 +216,9 @@ export function DetailedRuleGuideView({ guide, skill }: DetailedRuleGuideViewPro
               <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                 {idx + 1}
               </span>
-              <span>{item[locale]}</span>
+              <span>
+                {locale === "en" ? <HighlightedText text={item.en} {...kwProps} /> : item.ar}
+              </span>
             </li>
           ))}
         </ol>
@@ -221,7 +243,7 @@ export function DetailedRuleGuideView({ guide, skill }: DetailedRuleGuideViewPro
                   <td className="px-4 py-3 font-bold text-foreground">{row.label[locale]}</td>
                   <td className="px-4 py-3" lang="en" dir="ltr">
                     <code className="rounded-md bg-secondary px-2 py-1 font-mono text-xs font-semibold text-secondary-foreground">
-                      {row.pattern}
+                      <HighlightedText text={row.pattern} {...kwProps} />
                     </code>
                   </td>
                   <td className="px-4 py-3 font-medium text-foreground" lang="en" dir="ltr">
@@ -236,7 +258,9 @@ export function DetailedRuleGuideView({ guide, skill }: DetailedRuleGuideViewPro
                       >
                         <Volume2 className="size-4" aria-hidden />
                       </button>
-                      <span>{row.example}</span>
+                      <span>
+                        <HighlightedText text={row.example} {...kwProps} />
+                      </span>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground" lang="ar" dir="rtl">
@@ -307,7 +331,7 @@ export function DetailedRuleGuideView({ guide, skill }: DetailedRuleGuideViewPro
                       lang="en"
                       dir="ltr"
                     >
-                      {turn.textEn}
+                      <HighlightedText text={turn.textEn} {...kwProps} />
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground" lang="ar" dir="rtl">
                       {turn.textAr}
@@ -370,12 +394,16 @@ export function DetailedRuleGuideView({ guide, skill }: DetailedRuleGuideViewPro
                     {t.learning.guideRight}
                   </p>
                   <p className="mt-1 text-sm font-semibold text-foreground" lang="en" dir="ltr">
-                    {mistake.right}
+                    <HighlightedText text={mistake.right} {...kwProps} />
                   </p>
                 </div>
               </div>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                {mistake.why[locale]}
+                {locale === "en" ? (
+                  <HighlightedText text={mistake.why.en} {...kwProps} />
+                ) : (
+                  mistake.why.ar
+                )}
               </p>
             </article>
           ))}
@@ -388,7 +416,11 @@ export function DetailedRuleGuideView({ guide, skill }: DetailedRuleGuideViewPro
         <div>
           <h3 className="text-sm font-bold text-primary">{t.learning.guideMemoryTip}</h3>
           <p className="mt-1 text-sm font-medium leading-relaxed text-foreground">
-            {guide.memoryTip[locale]}
+            {locale === "en" ? (
+              <HighlightedText text={guide.memoryTip.en} {...kwProps} />
+            ) : (
+              guide.memoryTip.ar
+            )}
           </p>
         </div>
       </div>

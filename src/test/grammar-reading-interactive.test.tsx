@@ -5,6 +5,9 @@ import { RuleVideoPlayer } from "@/components/learning/rule-video-player";
 import { DetailedRuleGuideView } from "@/components/learning/detailed-rule-guide";
 import { QuestionCard } from "@/components/learning/question-card";
 import { CourseAssessmentPanel } from "@/components/learning/course-assessment-panel";
+import { HighlightedText } from "@/components/learning/highlighted-text";
+import { LessonObjectivesCard } from "@/components/learning/lesson-objectives-card";
+import { LessonPostEvaluation } from "@/components/learning/lesson-post-evaluation";
 import { findLesson, type LessonCourse } from "@/content/lessons";
 import { getPostTestQuestions } from "@/content/course-assessments";
 import {
@@ -137,7 +140,7 @@ describe("question-engine and interactive grammar/reading UI", () => {
 
   it("renders DetailedRuleGuideView with explicit rule breakdown cards, Arabic-to-English bridge, Male/Female conversation, formulas, mistakes, and memory tip", () => {
     const lesson = findLesson("a1-introductions")!;
-    render(
+    const { container } = render(
       <I18nProvider locale="en" theme="light">
         <DetailedRuleGuideView guide={lesson.detailedGuide!} skill={lesson.skill} />
       </I18nProvider>,
@@ -145,7 +148,11 @@ describe("question-engine and interactive grammar/reading UI", () => {
 
     expect(screen.getByText(/Detailed rule explanation/i)).toBeInTheDocument();
     expect(screen.getByText(/Crystal-clear rule breakdown/i)).toBeInTheDocument();
-    expect(screen.getByText(/takes "is"/i)).toBeInTheDocument();
+    expect(container.textContent).toContain('takes "is"');
+    const redIs = Array.from(container.querySelectorAll("strong")).find(
+      (el) => el.textContent === '"is"',
+    );
+    expect(redIs?.className).toContain("text-red-600");
     expect(screen.getByText(/Mother-tongue bridge: Arabic vs. English/i)).toBeInTheDocument();
     expect(screen.getByText(/Real-life male & female conversation/i)).toBeInTheDocument();
     expect(screen.getByText(/Structure & formula table/i)).toBeInTheDocument();
@@ -250,5 +257,64 @@ describe("question-engine and interactive grammar/reading UI", () => {
     expect(screen.getAllByText(/10 \/ 10/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/\(100%\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Mastery awareness/i)).toBeInTheDocument();
+  });
+
+  it("highlights pronouns and important grammar words in bold red via HighlightedText", () => {
+    const { container } = render(
+      <HighlightedText text='He / She / It takes "is" and I take "am".' />,
+    );
+    const strongs = Array.from(container.querySelectorAll("strong"));
+    const highlightedWords = strongs.map((el) => el.textContent);
+    expect(highlightedWords).toContain("He");
+    expect(highlightedWords).toContain("She");
+    expect(highlightedWords).toContain("It");
+    expect(highlightedWords).toContain('"is"');
+    expect(highlightedWords).toContain("I");
+    expect(highlightedWords).toContain('"am"');
+    for (const el of strongs) {
+      expect(el.className).toContain("font-extrabold");
+      expect(el.className).toContain("text-red-600");
+    }
+  });
+
+  it("renders LessonObjectivesCard prior to starting and completes the 10-MCQ Objective-Aligned LessonPostEvaluation with per-objective mastery breakdown", () => {
+    const lesson = findLesson("a1-introductions")!;
+    render(
+      <I18nProvider locale="en" theme="light">
+        <LessonObjectivesCard
+          objectives={lesson.objectives!}
+          keywords={lesson.highlightKeywords!}
+        />
+        <LessonPostEvaluation
+          objectives={lesson.objectives!}
+          questions={lesson.postEvaluation!}
+          keywords={lesson.highlightKeywords!}
+        />
+      </I18nProvider>,
+    );
+
+    // Pre-lesson Objectives & Mastery Missions card renders all 4 objectives
+    expect(screen.getByText(/What you will learn & master in this lesson/i)).toBeInTheDocument();
+    expect(screen.getAllByText("OBJ-1").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("OBJ-4").length).toBeGreaterThan(0);
+
+    // Launch Objective-Aligned Post-Evaluation Test (10 MCQs)
+    fireEvent.click(
+      screen.getByRole("button", { name: /Start Lesson Post-Evaluation \(10 MCQs\)/i }),
+    );
+    const groups = screen.getAllByRole("group");
+    expect(groups).toHaveLength(10);
+
+    groups.forEach((group, idx) => {
+      const q = lesson.postEvaluation![idx]!;
+      const buttons = within(group).getAllByRole("button");
+      fireEvent.click(buttons[q.correct]!);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Submit answers \(out of 10\)/i }));
+    expect(screen.getAllByText(/10 \/ 10/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/\(100%\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Mastery breakdown by lesson objective/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Mission mastered/i)).toHaveLength(4);
   });
 });

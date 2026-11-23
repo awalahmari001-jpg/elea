@@ -424,6 +424,21 @@ const en = {
     fitSentenceMissing: "Make sure your sentence includes: {missing}",
     fitSentenceShort: "Write a fuller sentence (at least {min} words).",
     yourSentence: "Your sentence",
+    objectivesEyebrow: "Before you start · Main objectives & mastery missions",
+    objectivesTitle: "What you will learn & master in this lesson",
+    objectivesSubtitle:
+      "Review these main objectives before beginning. Important words, pronouns, and grammar signals are highlighted in bold red — and your Post-Evaluation Test at the end is designed directly from these objectives.",
+    objectiveMissionLabel: "Mastery mission",
+    keyWordsLegend: "Important words & pronouns highlighted in bold red",
+    jumpToPostEval: "Jump to Post-Evaluation Test (10 MCQs)",
+    lessonPostEvalEyebrow: "Objective-aligned post-evaluation test",
+    lessonPostEvalTitle: "Lesson Post-Evaluation Test (10 MCQs)",
+    lessonPostEvalSubtitle:
+      "Every question below is built directly from the 4 main objectives given at the start of this lesson.",
+    startLessonPostEval: "Start Lesson Post-Evaluation (10 MCQs)",
+    objectiveMasteryTitle: "Mastery breakdown by lesson objective",
+    objectiveMastered: "Mission mastered ✓",
+    objectiveNeedsReview: "Review this objective",
     assessmentsEyebrow: "Knowledge awareness check",
     assessmentsTitle: "Post-Lesson Test",
     assessmentsSubtitle:
@@ -881,6 +896,21 @@ const ar: Messages = {
     fitSentenceMissing: "تأكد من تضمين الكلمات المستهدفة التالية في جملتك: {missing}",
     fitSentenceShort: "اكتب جملة مكتملة أكثر (على الأقل {min} كلمات).",
     yourSentence: "جملتك",
+    objectivesEyebrow: "قبل بدء الدرس · أهداف التعلم ومهام الإتقان",
+    objectivesTitle: "ما ستتعلمه والمهام التي ستتقنها في هذا الدرس",
+    objectivesSubtitle:
+      "تعرّف على الأهداف الرئيسية مسبقًا، ولاحظ الكلمات المهمة والضمائر المميّزة باللون الأحمر العريض — وبناءً على هذه الأهداف صُمّم اختبار التقييم البعدي في نهاية الدرس.",
+    objectiveMissionLabel: "مهمة الإتقان",
+    keyWordsLegend: "الكلمات المهمة والضمائر المميّزة باللون الأحمر العريض",
+    jumpToPostEval: "انتقل إلى اختبار التقييم البعدي (١٠ أسئلة)",
+    lessonPostEvalEyebrow: "اختبار التقييم البعدي المبني على أهداف الدرس",
+    lessonPostEvalTitle: "التقييم البعدي للدرس (١٠ أسئلة اختيار من متعدد)",
+    lessonPostEvalSubtitle:
+      "صُمّم هذا الاختبار مباشرةً لقياس إتقانك للأهداف الأربعة المحددة في بداية الدرس.",
+    startLessonPostEval: "ابدأ التقييم البعدي للدرس (١٠ أسئلة)",
+    objectiveMasteryTitle: "تقرير إتقان الأهداف الأربعة",
+    objectiveMastered: "تم إتقان المهمة ✓",
+    objectiveNeedsReview: "يحتاج مراجعة سريعة",
     assessmentsEyebrow: "قياس الوعي المعرفي بعد الدرس",
     assessmentsTitle: "الاختبار البعدي (Post-Lesson Test)",
     assessmentsSubtitle:

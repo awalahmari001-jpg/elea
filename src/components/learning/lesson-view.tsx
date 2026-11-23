@@ -17,6 +17,9 @@ import { Pronunciation } from "./pronunciation";
 import { RuleVideoPlayer } from "./rule-video-player";
 import { DetailedRuleGuideView } from "./detailed-rule-guide";
 import { QuestionCard } from "./question-card";
+import { LessonObjectivesCard } from "./lesson-objectives-card";
+import { LessonPostEvaluation } from "./lesson-post-evaluation";
+import { HighlightedText } from "./highlighted-text";
 import type { Lesson } from "@/content/lesson-types";
 import { format } from "@/lib/i18n/messages";
 import { wordCount } from "@/lib/speech";
@@ -106,6 +109,15 @@ export function LessonView({ lesson }: LessonViewProps) {
         <p className="mt-4 max-w-3xl text-lg text-muted-foreground">{lesson.goal[locale]}</p>
       </header>
 
+      {/* Main Learning Objectives & Mastery Missions — PRIOR to starting the lesson */}
+      {lesson.objectives && lesson.objectives.length > 0 && (
+        <LessonObjectivesCard
+          objectives={lesson.objectives}
+          {...(lesson.highlightKeywords ? { keywords: lesson.highlightKeywords } : {})}
+          hasPostEvaluation={Boolean(lesson.postEvaluation && lesson.postEvaluation.length > 0)}
+        />
+      )}
+
       {/* TBLL 4-Stage Task Plan */}
       {lesson.taskPlan && (
         <section className="py-8">
@@ -136,12 +148,21 @@ export function LessonView({ lesson }: LessonViewProps) {
         </section>
       )}
 
-      {/* AI Animated Explainer Video (<= 4 min max) */}
-      {lesson.explainerVideo && <RuleVideoPlayer video={lesson.explainerVideo} />}
+      {/* Interactive ESL Teacher Video */}
+      {lesson.explainerVideo && (
+        <RuleVideoPlayer
+          video={lesson.explainerVideo}
+          {...(lesson.highlightKeywords ? { keywords: lesson.highlightKeywords } : {})}
+        />
+      )}
 
-      {/* Detailed Grammar Rule / Reading Strategy Explanation */}
+      {/* Detailed Grammar Rule / Skill Explanation */}
       {lesson.detailedGuide && (
-        <DetailedRuleGuideView guide={lesson.detailedGuide} skill={lesson.skill} />
+        <DetailedRuleGuideView
+          guide={lesson.detailedGuide}
+          skill={lesson.skill}
+          {...(lesson.highlightKeywords ? { keywords: lesson.highlightKeywords } : {})}
+        />
       )}
 
       {/* Level-Based Listening & Acoustics Plan */}
@@ -234,7 +255,16 @@ export function LessonView({ lesson }: LessonViewProps) {
               <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-bold text-secondary-foreground">
                 {i + 1}
               </span>
-              <p className="leading-relaxed">{text[locale]}</p>
+              <p className="leading-relaxed">
+                {locale === "en" ? (
+                  <HighlightedText
+                    text={text.en}
+                    {...(lesson.highlightKeywords ? { keywords: lesson.highlightKeywords } : {})}
+                  />
+                ) : (
+                  text.ar
+                )}
+              </p>
             </li>
           ))}
         </ol>
@@ -287,7 +317,10 @@ export function LessonView({ lesson }: LessonViewProps) {
               >
                 {paragraphs.map((p, idx) => (
                   <p key={idx} className="whitespace-pre-wrap">
-                    {p}
+                    <HighlightedText
+                      text={p}
+                      {...(lesson.highlightKeywords ? { keywords: lesson.highlightKeywords } : {})}
+                    />
                   </p>
                 ))}
               </div>
@@ -302,7 +335,10 @@ export function LessonView({ lesson }: LessonViewProps) {
             >
               {paragraphs.map((p, idx) => (
                 <p key={idx} className="whitespace-pre-wrap">
-                  {p}
+                  <HighlightedText
+                    text={p}
+                    {...(lesson.highlightKeywords ? { keywords: lesson.highlightKeywords } : {})}
+                  />
                 </p>
               ))}
             </div>
@@ -537,6 +573,18 @@ export function LessonView({ lesson }: LessonViewProps) {
           </div>
         </section>
       )}
+
+      {/* Objective-Aligned Post-Lesson Evaluation Test (10 MCQs designed from Objectives 1–4) */}
+      {lesson.objectives &&
+        lesson.objectives.length > 0 &&
+        lesson.postEvaluation &&
+        lesson.postEvaluation.length > 0 && (
+          <LessonPostEvaluation
+            objectives={lesson.objectives}
+            questions={lesson.postEvaluation}
+            {...(lesson.highlightKeywords ? { keywords: lesson.highlightKeywords } : {})}
+          />
+        )}
 
       <div className="border-t border-border py-6">
         <Button

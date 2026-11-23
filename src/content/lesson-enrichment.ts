@@ -4,6 +4,11 @@ import { GRAMMAR_GUIDES_UPPER } from "./grammar-guides-upper";
 import { getReadingEnrichment } from "./reading-enrichment";
 import { buildExplainerVideo } from "./explainer-videos";
 import { buildOrEnhanceDetailedGuide } from "./esl-deep-guides";
+import {
+  buildLessonObjectives,
+  buildLessonPostEvaluation,
+  extractLessonKeywords,
+} from "./lesson-objectives";
 import type { LessonEnrichmentEntry } from "./enrichment-builders";
 
 const ALL_GRAMMAR_GUIDES: Record<string, LessonEnrichmentEntry> = {
@@ -30,11 +35,12 @@ function mergeFourFormatQuestions(
 
 /**
  * Enriches EVERY lesson across all courses (A1–C2, IELTS, Kids, Adults) and all 5 skills with:
- * 1. An in-depth ESL Teacher Guide (`detailedGuide`) featuring explicit rule breakdowns
- *    (e.g., He / She / It takes "is"), an Arabic ↔ English Mother-Tongue Bridge, and a Male/Female conversation.
- * 2. An authentic, classroom-style 4:30 interactive micro-lesson video & dual-coding storyboard (`explainerVideo`).
- * And additionally enriches every Grammar and Reading lesson with:
- * 3. At least 4 distinct interactive question formats (multiple-choice, pick-right-word, rearrange-words, fit-sentence).
+ * 1. Pre-lesson Learning Objectives & Mastery Missions (`objectives`) + bold-red key terms (`highlightKeywords`)
+ * 2. In-depth ESL Teacher Guide (`detailedGuide`) featuring explicit rule breakdowns
+ *    (e.g., He / She / It takes "is"), an Arabic ↔ English Mother-Tongue Bridge, and a Male/Female conversation
+ * 3. Authentic 4:30 interactive micro-lesson video & dual-coding storyboard (`explainerVideo`)
+ * 4. 10-MCQ Objective-Aligned Post-Lesson Evaluation Test (`postEvaluation`) designed directly from the given objectives
+ * And additionally enriches every Grammar and Reading lesson with 4 distinct interactive question formats.
  */
 export function enrichLesson(lesson: Lesson): Lesson {
   const entry: LessonEnrichmentEntry | undefined =
@@ -44,23 +50,21 @@ export function enrichLesson(lesson: Lesson): Lesson {
         ? getReadingEnrichment(lesson)
         : undefined;
 
-  const detailedGuide = buildOrEnhanceDetailedGuide(lesson, entry?.guide);
-  const explainerVideo = buildExplainerVideo(lesson, detailedGuide);
+  const questions = entry ? mergeFourFormatQuestions(lesson.questions, entry) : lesson.questions;
+  const baseLesson: Lesson = { ...lesson, questions };
 
-  if (!entry) {
-    return {
-      ...lesson,
-      detailedGuide,
-      explainerVideo,
-    };
-  }
-
-  const questions = mergeFourFormatQuestions(lesson.questions, entry);
+  const detailedGuide = buildOrEnhanceDetailedGuide(baseLesson, entry?.guide);
+  const explainerVideo = buildExplainerVideo(baseLesson, detailedGuide);
+  const highlightKeywords = extractLessonKeywords(baseLesson, detailedGuide);
+  const objectives = buildLessonObjectives(baseLesson, detailedGuide);
+  const postEvaluation = buildLessonPostEvaluation(baseLesson, detailedGuide, objectives);
 
   return {
-    ...lesson,
+    ...baseLesson,
     detailedGuide,
     explainerVideo,
-    questions,
+    highlightKeywords,
+    objectives,
+    postEvaluation,
   };
 }

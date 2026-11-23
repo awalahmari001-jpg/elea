@@ -220,6 +220,38 @@ describe("requested curriculum", () => {
       expect(genders.has("female"), `${lesson.id} dialogue has female voice`).toBe(true);
       expect(genders.has("male"), `${lesson.id} dialogue has male voice`).toBe(true);
 
+      // Every lesson includes 4 pre-lesson Objectives & Mastery Missions + tailored highlightKeywords
+      expect(lesson.objectives, `${lesson.id} objectives`).toHaveLength(4);
+      expect(
+        lesson.objectives!.map((o) => o.index),
+        `${lesson.id} objective indices`,
+      ).toEqual([1, 2, 3, 4]);
+      for (const obj of lesson.objectives!) {
+        expect(obj.title.en.length, `${lesson.id} ${obj.code} title.en`).toBeGreaterThan(10);
+        expect(obj.mission.en.length, `${lesson.id} ${obj.code} mission.en`).toBeGreaterThan(15);
+      }
+
+      // Every lesson includes a 10-MCQ Post-Evaluation Test designed directly from Objectives 1–4
+      expect(lesson.postEvaluation, `${lesson.id} postEvaluation length`).toHaveLength(10);
+      const evalPrompts = new Set(lesson.postEvaluation!.map((q) => q.prompt.toLowerCase()));
+      expect(evalPrompts.size, `${lesson.id} unique postEvaluation prompts`).toBe(10);
+      const coveredObjectives = new Set(lesson.postEvaluation!.map((q) => q.objectiveIndex));
+      for (const objIdx of [1, 2, 3, 4] as const) {
+        expect(
+          coveredObjectives.has(objIdx),
+          `${lesson.id} postEvaluation covers Objective ${objIdx}`,
+        ).toBe(true);
+      }
+      for (const q of lesson.postEvaluation!) {
+        expect(q.options, `${lesson.id} ${q.id} 4 options`).toHaveLength(4);
+        expect(
+          new Set(q.options.map((o) => o.toLowerCase())).size,
+          `${lesson.id} ${q.id} distinct options`,
+        ).toBe(4);
+        expect(q.correct, `${lesson.id} ${q.id} correct`).toBeGreaterThanOrEqual(0);
+        expect(q.correct, `${lesson.id} ${q.id} correct`).toBeLessThan(4);
+      }
+
       // 7. 15-second active summary + reflection/takeaway task
       const last = video.scenes[video.scenes.length - 1]!;
       expect(last.layout, `${lesson.id} summary layout`).toBe("summary");

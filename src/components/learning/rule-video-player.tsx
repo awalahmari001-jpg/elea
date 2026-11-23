@@ -41,6 +41,7 @@ import {
   MotionFocusBadges,
   SkillVisualAid,
 } from "./video-visuals";
+import { HighlightedText } from "./highlighted-text";
 
 type SubtitleMode = "both" | "en" | "ar" | "off";
 const SPEEDS = [0.85, 0.96, 1.12] as const;
@@ -80,10 +81,12 @@ function getCompletedStepsAt(scenes: VideoScene[], sceneIndex: number): number {
 
 export interface RuleVideoPlayerProps {
   video: ExplainerVideo;
+  keywords?: string[];
 }
 
-export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
+export function RuleVideoPlayer({ video, keywords }: RuleVideoPlayerProps) {
   const { locale, t } = useI18n();
+  const kwProps = keywords ? { keywords } : {};
   const stageRef = useRef<HTMLDivElement | null>(null);
   const autoPausedScenesRef = useRef<Set<string>>(new Set());
   const burstIdRef = useRef(0);
@@ -516,7 +519,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                             className="me-1.5 inline size-4 animate-[arrow-nudge_1.4s_ease-in-out_infinite] text-amber-300"
                             aria-hidden
                           />
-                          {pt}
+                          <HighlightedText text={pt} surface="dark" {...kwProps} />
                         </div>
                       ))}
                     </div>
@@ -547,8 +550,8 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                               lang="en"
                               dir="ltr"
                             >
-                              <span className="rounded-md bg-cyan-500/25 px-2 py-0.5 text-xs font-extrabold text-cyan-100">
-                                {card.group}
+                              <span className="rounded-md bg-red-500/20 px-2 py-0.5 text-xs font-extrabold text-red-200">
+                                <HighlightedText text={card.group} surface="dark" {...kwProps} />
                               </span>
                               <Volume2
                                 className="size-3.5 shrink-0 text-amber-300 opacity-80 group-hover:opacity-100"
@@ -560,14 +563,14 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                               lang="en"
                               dir="ltr"
                             >
-                              ➜ {card.takes}
+                              ➜ <HighlightedText text={card.takes} surface="dark" {...kwProps} />
                             </p>
                             <p
                               className="mt-1 text-xs font-medium text-slate-100"
                               lang="en"
                               dir="ltr"
                             >
-                              “{card.example}”
+                              “<HighlightedText text={card.example} surface="dark" {...kwProps} />”
                             </p>
                             <p className="mt-0.5 text-[11px] text-cyan-200/85" lang="ar" dir="rtl">
                               {card.arabic}
@@ -582,7 +585,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                             key={idx}
                             className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-xs font-medium text-slate-100"
                           >
-                            {pt}
+                            <HighlightedText text={pt} surface="dark" {...kwProps} />
                           </div>
                         ))}
                       </div>
@@ -610,7 +613,11 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                       lang="en"
                       dir="ltr"
                     >
-                      {scene.pausePredict.question.en}
+                      <HighlightedText
+                        text={scene.pausePredict.question.en}
+                        surface="dark"
+                        {...kwProps}
+                      />
                     </p>
                     {locale === "ar" && (
                       <p className="mt-1 text-sm text-sky-200" lang="ar" dir="rtl">
@@ -664,11 +671,23 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                           <CheckCircle2 className="me-1 inline size-4" aria-hidden />
                           🎉 {t.learning.videoAnswerRevealed}:{" "}
                           <span className="text-white" lang="en" dir="ltr">
-                            {scene.pausePredict.answer}
+                            <HighlightedText
+                              text={scene.pausePredict.answer}
+                              surface="dark"
+                              {...kwProps}
+                            />
                           </span>
                         </p>
                         <p className="mt-1 text-xs leading-relaxed text-emerald-100">
-                          {scene.pausePredict.explanation[locale]}
+                          {locale === "en" ? (
+                            <HighlightedText
+                              text={scene.pausePredict.explanation.en}
+                              surface="dark"
+                              {...kwProps}
+                            />
+                          ) : (
+                            scene.pausePredict.explanation.ar
+                          )}
                         </p>
                       </div>
                     ) : (
@@ -730,7 +749,11 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                             {t.learning.guideRight}
                           </p>
                           <p className="mt-1.5 text-sm font-semibold text-emerald-100 md:text-base">
-                            {scene.highlight.right}
+                            <HighlightedText
+                              text={scene.highlight.right}
+                              surface="dark"
+                              {...kwProps}
+                            />
                           </p>
                         </div>
                       )}
@@ -752,7 +775,15 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                           <span className="font-bold text-emerald-300">
                             {t.learning.guideEnglishRule}{" "}
                           </span>
-                          {scene.l1Bridge.englishRule[locale]}
+                          {locale === "en" ? (
+                            <HighlightedText
+                              text={scene.l1Bridge.englishRule.en}
+                              surface="dark"
+                              {...kwProps}
+                            />
+                          ) : (
+                            scene.l1Bridge.englishRule.ar
+                          )}
                         </p>
                       </div>
                     )}
@@ -842,7 +873,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                                   lang="en"
                                   dir="ltr"
                                 >
-                                  {turn.textEn}
+                                  <HighlightedText text={turn.textEn} surface="dark" {...kwProps} />
                                 </p>
                                 {locale === "ar" && (
                                   <p
@@ -871,7 +902,15 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                           className="w-full rounded-xl border-2 border-emerald-400/55 bg-emerald-950/50 p-4 text-start transition hover:scale-[1.01] hover:border-emerald-300"
                         >
                           <p className="flex items-center justify-between gap-2 text-base font-bold leading-relaxed text-emerald-100 md:text-lg">
-                            <span>🗣️ “{scene.highlight.right}”</span>
+                            <span>
+                              🗣️ “
+                              <HighlightedText
+                                text={scene.highlight.right}
+                                surface="dark"
+                                {...kwProps}
+                              />
+                              ”
+                            </span>
                             <Volume2 className="size-5 shrink-0 text-emerald-300" aria-hidden />
                           </p>
                         </button>
@@ -889,7 +928,7 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
                           key={idx}
                           className="rounded-lg border border-cyan-400/35 bg-white/10 px-3 py-2 text-xs font-semibold text-cyan-100"
                         >
-                          {pt}
+                          <HighlightedText text={pt} surface="dark" {...kwProps} />
                         </div>
                       ))}
                     </div>
@@ -961,7 +1000,11 @@ export function RuleVideoPlayer({ video }: RuleVideoPlayerProps) {
             <div className="relative z-10 mt-2 rounded-lg border border-white/10 bg-black/55 px-3.5 py-2 text-center backdrop-blur-md">
               {(subtitles === "both" || subtitles === "en") && (
                 <p className="text-xs leading-relaxed text-slate-200" lang="en" dir="ltr">
-                  {scene.dialogue[activeLineIndex]?.textEn ?? scene.narrationEn}
+                  <HighlightedText
+                    text={scene.dialogue[activeLineIndex]?.textEn ?? scene.narrationEn}
+                    surface="dark"
+                    {...kwProps}
+                  />
                 </p>
               )}
               {(subtitles === "both" || subtitles === "ar") && (

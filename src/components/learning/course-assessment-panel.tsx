@@ -19,6 +19,7 @@ import {
   type AwarenessBand,
 } from "@/lib/learner-storage";
 import { format, type Messages } from "@/lib/i18n/messages";
+import { HighlightedText } from "./highlighted-text";
 
 const FOCUS_LABELS: Record<AssessmentFocus, keyof Messages["learning"]> = {
   grammar: "focusGrammar",
@@ -269,7 +270,7 @@ export function CourseAssessmentPanel({ course }: CourseAssessmentPanelProps) {
                       lang="en"
                       dir="ltr"
                     >
-                      {idx + 1}. {q.prompt}
+                      {idx + 1}. <HighlightedText text={q.prompt} />
                     </legend>
                     <div className="mt-3 grid gap-2">
                       {q.options.map((opt, optIdx) => (
@@ -285,7 +286,9 @@ export function CourseAssessmentPanel({ course }: CourseAssessmentPanelProps) {
                           onClick={() => setAnswers((prev) => ({ ...prev, [idx]: optIdx }))}
                         >
                           <span className="font-bold">{String.fromCharCode(65 + optIdx)}.</span>
-                          {opt}
+                          <span>
+                            <HighlightedText text={opt} />
+                          </span>
                         </Button>
                       ))}
                     </div>
@@ -306,12 +309,16 @@ export function CourseAssessmentPanel({ course }: CourseAssessmentPanelProps) {
                           <span>
                             {t.learning.answer}:{" "}
                             <span lang="en" dir="ltr">
-                              {q.options[q.correct]}
+                              <HighlightedText text={q.options[q.correct] ?? ""} />
                             </span>
                           </span>
                         </p>
                         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                          {q.explanation[locale]}
+                          {locale === "en" ? (
+                            <HighlightedText text={q.explanation.en} />
+                          ) : (
+                            q.explanation.ar
+                          )}
                         </p>
                       </div>
                     )}

@@ -232,6 +232,23 @@ export interface ListeningPlan {
   paraphrasePairs: { spoken: string; equivalent: string; arabic: string }[];
 }
 
+export interface LessonObjective {
+  index: 1 | 2 | 3 | 4;
+  code: string;
+  title: Bilingual;
+  mission: Bilingual;
+}
+
+export interface PostEvaluationQuestion {
+  id: string;
+  objectiveIndex: 1 | 2 | 3 | 4;
+  objectiveLabel: Bilingual;
+  prompt: string;
+  options: [string, string, string, string];
+  correct: number;
+  explanation: Bilingual;
+}
+
 export interface Lesson {
   id: string;
   course: LessonCourse;
@@ -252,4 +269,10 @@ export interface Lesson {
   isReadingPassage?: boolean;
   detailedGuide?: DetailedRuleGuide;
   explainerVideo?: ExplainerVideo;
+  /** Tailored important words, pronouns, and grammar anchors highlighted in bold red. */
+  highlightKeywords?: string[];
+  /** Clear pre-lesson learning objectives and mastery missions displayed before starting the lesson. */
+  objectives?: LessonObjective[];
+  /** 10-MCQ Post-Lesson Evaluation Test designed directly from the lesson's given objectives. */
+  postEvaluation?: PostEvaluationQuestion[];
 }
