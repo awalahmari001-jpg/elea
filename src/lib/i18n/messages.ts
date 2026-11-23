@@ -118,6 +118,37 @@ const en = {
     body: "Answer 60 questions and we'll show your CEFR level — then choose your course from A1 to C2.",
     cta: "Test your level",
   },
+  advancedStudios: {
+    eyebrow: "Advanced Learning & Career Development",
+    title: "Six Interactive Studios Built for Real Mastery",
+    subtitle:
+      "Go beyond static lessons with Band 7+ lexical precision, 600 progressive translations, 18-sector Business English, live AI role-play workshops, and unified analytics.",
+    openCta: "Open Studio",
+    ieltsVocabBadge: "Band 7+ · 15 Topics",
+    ieltsVocabTitle: "IELTS Band 7+ Vocabulary Lab",
+    ieltsVocabDesc:
+      "Cambridge-referenced definitions, IPA, collocations, formal vs. everyday register contrasts, and 8 interactive practice modes.",
+    cefrBadge: "A1–C2 · 42 Indicators",
+    cefrTitle: "CEFR Vocabulary & Mastery Studio",
+    cefrDesc:
+      "Structured progression from beginner routines to C2 nuance with 7 measurable production and comprehension checks per level.",
+    selfLearningBadge: "600 Sentences · AI Grader",
+    selfLearningTitle: "Self-learning Pace",
+    selfLearningDesc:
+      "Translate 100 curated Arabic-to-English sentences per CEFR level with semantic feedback, alternative phrasings, and spaced-repetition review.",
+    businessBadge: "18 Sectors · 15-Stage Meetings",
+    businessTitle: "Business English Course",
+    businessDesc:
+      "Built for working professionals and job seekers: sector vocabulary, workplace idioms, playable Male/Female meeting dialogues, and A2–C2 STAR interviews.",
+    workshopsBadge: "14 Cases · 12 AI Roles",
+    workshopsTitle: "Interactive Business Workshops",
+    workshopsDesc:
+      "Live voice and text workplace simulations evaluated on two separate axes: Linguistic Performance and Business Decision-Making.",
+    progressBadge: "Recharts · JSON Backup",
+    progressTitle: "Unified Progress Dashboard",
+    progressDesc:
+      "Track readiness across all six pillars, inspect weak grammar diagnostics, view workshop dual-axis trends, and export portable JSON backups.",
+  },
   pathPage: {
     backHome: "Back to home",
     levelsTitle: "Levels in this path",
@@ -1055,6 +1086,37 @@ const ar: Messages = {
     title: "لست متأكدًا من مستواك؟",
     body: "أجب عن ٦٠ سؤالًا وسنعرض لك مستواك حسب الإطار الأوروبي — ثم اختر دورتك من A1 إلى C2.",
     cta: "اختبر مستواك",
+  },
+  advancedStudios: {
+    eyebrow: "التعلّم المتقدّم والتطوير المهني",
+    title: "ستة استوديوهات تفاعلية صُمّمت للإتقان الحقيقي",
+    subtitle:
+      "تجاوز الدروس التقليدية مع مختبر مفردات الآيلتس 7+، و٦٠٠ جملة للترجمة التدرّجية، وإنجليزية الأعمال لـ١٨ قطاعًا، وورش محاكاة الذكاء الاصطناعي، ولوحة التقدّم الموحّدة.",
+    openCta: "افتح الاستوديو",
+    ieltsVocabBadge: "الدرجة 7+ · ١٥ موضوعًا",
+    ieltsVocabTitle: "مختبر مفردات الآيلتس (7+)",
+    ieltsVocabDesc:
+      "تعريفات مرجعية من كامبريدج، ونطق IPA، وتلازمات لفظية، ومقارنة بين الأسلوب اليومي والأكاديمي، و٨ أنماط تدريب تفاعلية.",
+    cefrBadge: "A1–C2 · ٤٢ مؤشرًا",
+    cefrTitle: "استوديو إتقان مستويات CEFR",
+    cefrDesc:
+      "تدرّج لغوي منظم من أساسيات المبتدئين إلى دقة C2 مع ٧ مؤشرات إتقان قابلة للقياس في الفهم والإنتاج لكل مستوى.",
+    selfLearningBadge: "٦٠٠ جملة · تقييم ذكي",
+    selfLearningTitle: "التعلّم الذاتي بالسرعة المناسبة",
+    selfLearningDesc:
+      "ترجم ١٠٠ جملة عربية-إنجليزية متدرجة لكل مستوى CEFR مع تقييم دلالي يقبل الصياغات البديلة ومراجعة متباعدة.",
+    businessBadge: "١٨ قطاعًا · ١٥ مرحلة اجتماعات",
+    businessTitle: "دورة الإنجليزية للأعمال",
+    businessDesc:
+      "مخصّصة للموظفين والباحثين عن عمل: مصطلحات القطاعات، وتعابير العمل الحديثة، وحوارات اجتماعات صوتية، ومقابلات STAR من A2 إلى C2.",
+    workshopsBadge: "١٤ سيناريو · ١٢ دورًا ذكيًا",
+    workshopsTitle: "ورش الأعمال التفاعلية",
+    workshopsDesc:
+      "محاكاة حية بالصوت والنص لمواقف عمل واقعية مع تقييم ثنائي المحور يفصل الأداء اللغوي عن قوة القرار المهني.",
+    progressBadge: "رسوم بيانية · نسخ JSON",
+    progressTitle: "لوحة التقدّم الموحّدة",
+    progressDesc:
+      "تابع جاهزيتك عبر جميع الركائز الست، وراجع نقاط الضعف النحوية، ومنحنى ورش العمل، وصدّر نسخة احتياطية JSON.",
   },
   pathPage: {
     backHome: "العودة إلى الرئيسية",

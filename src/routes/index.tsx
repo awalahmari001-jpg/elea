@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { AdvancedStudios } from "@/components/home/advanced-studios";
 import { Features } from "@/components/home/features";
 import { Hero } from "@/components/home/hero";
 import { PathSelector } from "@/components/home/path-selector";
@@ -16,6 +17,7 @@ function HomePage() {
     <>
       <Hero />
       <PathSelector />
+      <AdvancedStudios />
       <Features />
       <PlacementBand />
     </>

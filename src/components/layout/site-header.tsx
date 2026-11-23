@@ -34,16 +34,19 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md">
-      <div className="container-page flex h-18 items-center justify-between gap-4 py-3">
+      <div className="container-page flex h-18 items-center justify-between gap-2 py-3">
         <BrandLogo />
 
-        <nav aria-label={t.nav.paths} className="hidden items-center gap-0.5 xl:flex">
+        <nav
+          aria-label={t.nav.paths}
+          className="hidden items-center gap-0.5 overflow-x-auto xl:flex"
+        >
           {NAV_LINKS.map((link) => (
             <Link
               key={link.to}
               to={link.to}
               activeOptions={{ exact: true }}
-              className="inline-flex items-center gap-1 rounded-full px-2 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground 2xl:px-2.5"
+              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground 2xl:px-2.5 2xl:text-xs"
               activeProps={{ className: "bg-secondary text-secondary-foreground" }}
             >
               {link.icon === "book" && <BookMarked className="size-3.5 text-primary" aria-hidden />}
