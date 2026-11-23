@@ -291,6 +291,90 @@ export function BusinessCourseHub() {
       </header>
 
       <div className="container-page mt-8 space-y-6">
+        {/* 12-Module Structured Business English Journey Strip */}
+        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="mb-3">
+            <h2 className="text-base font-bold text-foreground">{t.pathways.bizModulesTitle}</h2>
+            <p className="text-xs text-muted-foreground">{t.pathways.bizModulesSubtitle}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {(
+              [
+                {
+                  label: { en: "1. Business Vocabulary", ar: "١. مفردات الأعمال" },
+                  tab: "vocab" as const,
+                },
+                {
+                  label: { en: "2. Professional Comm", ar: "٢. التواصل المهني" },
+                  tab: "comm" as const,
+                },
+                {
+                  label: { en: "3. Meetings & Discussions", ar: "٣. الاجتماعات" },
+                  tab: "meetings" as const,
+                },
+                {
+                  label: { en: "4. Business Writing", ar: "٤. الكتابة المهنية" },
+                  tab: "comm" as const,
+                },
+                {
+                  label: { en: "5. Presentations", ar: "٥. العروض التقديمية" },
+                  tab: "comm" as const,
+                },
+                {
+                  label: { en: "6. Negotiation Skills", ar: "٦. مهارات التفاوض" },
+                  tab: "expressions" as const,
+                },
+                {
+                  label: { en: "7. Sales & Marketing", ar: "٧. المبيعات والتسويق" },
+                  tab: "vocab" as const,
+                  sector: "marketing" as BusinessSectorId,
+                },
+                {
+                  label: { en: "8. Human Resources", ar: "٨. الموارد البشرية" },
+                  tab: "vocab" as const,
+                  sector: "hr" as BusinessSectorId,
+                },
+                {
+                  label: { en: "9. Management & Leadership", ar: "٩. الإدارة والقيادة" },
+                  tab: "vocab" as const,
+                  sector: "management" as BusinessSectorId,
+                },
+                {
+                  label: { en: "10. Job Interviews", ar: "١٠. مقابلات العمل" },
+                  tab: "job-prep" as const,
+                },
+                {
+                  label: { en: "11. Workplace Comm", ar: "١١. تواصل بيئة العمل" },
+                  tab: "expressions" as const,
+                },
+              ] as {
+                label: { en: string; ar: string };
+                tab: BusinessTab;
+                sector?: BusinessSectorId;
+              }[]
+            ).map((mod) => (
+              <button
+                key={mod.label.en}
+                type="button"
+                onClick={() => {
+                  setActiveTab(mod.tab);
+                  if (mod.sector) setSelectedSector(mod.sector);
+                }}
+                className="rounded-xl border border-border/80 bg-muted/35 px-3 py-2 text-start text-xs font-semibold text-foreground transition-colors hover:border-primary/50 hover:bg-primary/10"
+              >
+                {mod.label[locale]}
+              </button>
+            ))}
+            <Link
+              to="/workshops"
+              className="flex items-center justify-between rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-bold text-primary transition-colors hover:bg-primary/15"
+            >
+              <span>{locale === "ar" ? "١٢. ورش الأعمال" : "12. Business Workshops"}</span>
+              <Presentation className="size-3.5 shrink-0" aria-hidden />
+            </Link>
+          </div>
+        </section>
+
         {/* TAB 1: 18-SECTOR BUSINESS VOCABULARY */}
         {activeTab === "vocab" && (
           <section className="space-y-5">

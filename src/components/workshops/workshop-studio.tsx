@@ -49,6 +49,10 @@ export function WorkshopStudio({ initialScenarioId }: { initialScenarioId?: stri
 
   const [view, setView] = useState<StudioView>("setup");
   const [categoryFilter, setCategoryFilter] = useState<"all" | "core" | "industry">("all");
+  const [skillFilter, setSkillFilter] = useState<
+    "all" | "negotiation" | "leadership" | "client" | "hr" | "crisis"
+  >("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "new" | "done">("all");
   const [selectedScenarioId, setSelectedScenarioId] = useState<string>(initialScenario.id);
   const [selectedRoleId, setSelectedRoleId] = useState<WorkshopRoleId>(initialScenario.defaultRole);
   const [level, setLevel] = useState<WorkshopCefrLevel>("B2");
@@ -78,10 +82,48 @@ export function WorkshopStudio({ initialScenarioId }: { initialScenarioId?: stri
   const role = getWorkshopRole(selectedRoleId);
   const profile = CEFR_WORKSHOP_PROFILES[level];
 
+  const completedScenarioIds = useMemo(() => new Set(history.map((h) => h.scenarioId)), [history]);
+
+  const scenarioSkillTag = (
+    id: string,
+  ): "negotiation" | "leadership" | "client" | "hr" | "crisis" => {
+    if (id.includes("negotiation") || id.includes("salary")) return "negotiation";
+    if (id.includes("interview") || id.includes("performance") || id.includes("hr")) return "hr";
+    if (
+      id.includes("client") ||
+      id.includes("sales") ||
+      id.includes("pitch") ||
+      id.includes("marketing")
+    )
+      return "client";
+    if (
+      id.includes("crisis") ||
+      id.includes("disruption") ||
+      id.includes("supply") ||
+      id.includes("healthcare")
+    )
+      return "crisis";
+    return "leadership";
+  };
+
+  const recommendedFromHistory = useMemo(() => {
+    const latest = history[0];
+    if (!latest) return null;
+    const recId =
+      latest.evaluation.recommendedWorkshopIds.find((id) => !completedScenarioIds.has(id)) ??
+      latest.evaluation.recommendedWorkshopIds[0];
+    return recId ? (getWorkshopScenario(recId) ?? null) : null;
+  }, [history, completedScenarioIds]);
+
   const visibleScenarios = useMemo(() => {
-    if (categoryFilter === "all") return WORKSHOP_SCENARIOS;
-    return WORKSHOP_SCENARIOS.filter((s) => s.category === categoryFilter);
-  }, [categoryFilter]);
+    return WORKSHOP_SCENARIOS.filter((s) => {
+      if (categoryFilter !== "all" && s.category !== categoryFilter) return false;
+      if (skillFilter !== "all" && scenarioSkillTag(s.id) !== skillFilter) return false;
+      if (statusFilter === "done" && !completedScenarioIds.has(s.id)) return false;
+      if (statusFilter === "new" && completedScenarioIds.has(s.id)) return false;
+      return true;
+    });
+  }, [categoryFilter, skillFilter, statusFilter, completedScenarioIds]);
 
   const learnerTurnsCount = turns.filter((turn) => turn.speaker === "learner").length;
 
@@ -298,31 +340,112 @@ export function WorkshopStudio({ initialScenarioId }: { initialScenarioId?: stri
         {/* VIEW 1: SCENARIO BROWSER & ROLE/DIFFICULTY SETUP */}
         {view === "setup" && (
           <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr]">
-            {/* Left: 14 Scenarios */}
+            {/* Left: 14 Scenarios with Multi-Facet Filters */}
             <section className="space-y-4">
-              <div className="flex flex-wrap gap-2" role="group">
-                {(
-                  [
-                    { id: "all", label: t.workshops.filterAll },
-                    { id: "core", label: t.workshops.filterCore },
-                    { id: "industry", label: t.workshops.filterIndustry },
-                  ] as const
-                ).map((f) => (
+              {recommendedFromHistory && (
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/30 bg-primary/8 p-4">
+                  <div className="space-y-0.5">
+                    <p className="flex items-center gap-1.5 text-xs font-bold text-primary">
+                      <Sparkles className="size-3.5" aria-hidden />
+                      {t.pathways.wsAiRecTitle}
+                    </p>
+                    <p className="text-sm font-bold text-foreground">
+                      {recommendedFromHistory.title[locale]}
+                    </p>
+                  </div>
                   <Button
-                    key={f.id}
+                    type="button"
                     size="sm"
-                    variant={categoryFilter === f.id ? "default" : "outline"}
-                    className="rounded-full text-xs"
-                    onClick={() => setCategoryFilter(f.id)}
+                    onClick={() => launchWorkshop(recommendedFromHistory.id)}
                   >
-                    {f.label}
+                    {t.pathways.wsAiRecLaunchBtn}
                   </Button>
-                ))}
+                </div>
+              )}
+
+              <div className="space-y-2.5 rounded-2xl border border-border/80 bg-card p-3.5">
+                <div className="flex flex-wrap gap-1.5" role="group">
+                  {(
+                    [
+                      { id: "all", label: t.workshops.filterAll },
+                      { id: "core", label: t.workshops.filterCore },
+                      { id: "industry", label: t.workshops.filterIndustry },
+                    ] as const
+                  ).map((f) => (
+                    <Button
+                      key={f.id}
+                      size="sm"
+                      variant={categoryFilter === f.id ? "default" : "outline"}
+                      className="h-7 rounded-full text-xs"
+                      onClick={() => setCategoryFilter(f.id)}
+                    >
+                      {f.label}
+                    </Button>
+                  ))}
+                </div>
+
+                <div
+                  className="flex flex-wrap items-center gap-1.5"
+                  role="group"
+                  aria-label={t.pathways.wsFilterSkillLabel}
+                >
+                  <span className="text-[11px] font-semibold text-muted-foreground">
+                    {t.pathways.wsFilterSkillLabel}:
+                  </span>
+                  {(
+                    [
+                      { id: "all", label: t.pathways.wsSkillAll },
+                      { id: "negotiation", label: t.pathways.wsSkillNegotiation },
+                      { id: "leadership", label: t.pathways.wsSkillLeadership },
+                      { id: "client", label: t.pathways.wsSkillClient },
+                      { id: "hr", label: t.pathways.wsSkillHr },
+                      { id: "crisis", label: t.pathways.wsSkillCrisis },
+                    ] as const
+                  ).map((sf) => (
+                    <Button
+                      key={sf.id}
+                      size="sm"
+                      variant={skillFilter === sf.id ? "secondary" : "ghost"}
+                      className="h-6 rounded-full px-2.5 text-[11px]"
+                      onClick={() => setSkillFilter(sf.id)}
+                    >
+                      {sf.label}
+                    </Button>
+                  ))}
+                </div>
+
+                <div
+                  className="flex flex-wrap items-center gap-1.5"
+                  role="group"
+                  aria-label={t.pathways.wsFilterStatusLabel}
+                >
+                  <span className="text-[11px] font-semibold text-muted-foreground">
+                    {t.pathways.wsFilterStatusLabel}:
+                  </span>
+                  {(
+                    [
+                      { id: "all", label: t.pathways.wsStatusAll },
+                      { id: "new", label: t.pathways.wsStatusNew },
+                      { id: "done", label: t.pathways.wsStatusDone },
+                    ] as const
+                  ).map((st) => (
+                    <Button
+                      key={st.id}
+                      size="sm"
+                      variant={statusFilter === st.id ? "secondary" : "ghost"}
+                      className="h-6 rounded-full px-2.5 text-[11px]"
+                      onClick={() => setStatusFilter(st.id)}
+                    >
+                      {st.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 {visibleScenarios.map((sc) => {
                   const selected = sc.id === scenario.id;
+                  const isDone = completedScenarioIds.has(sc.id);
                   return (
                     <button
                       key={sc.id}
@@ -334,12 +457,19 @@ export function WorkshopStudio({ initialScenarioId }: { initialScenarioId?: stri
                           : "border-border bg-card hover:border-primary/50"
                       }`}
                     >
-                      <Badge
-                        variant={sc.category === "core" ? "secondary" : "outline"}
-                        className="text-[11px]"
-                      >
-                        {sc.category === "core" ? "Core" : "Industry"}
-                      </Badge>
+                      <div className="flex w-full items-center justify-between gap-2">
+                        <Badge
+                          variant={sc.category === "core" ? "secondary" : "outline"}
+                          className="text-[11px]"
+                        >
+                          {sc.category === "core" ? "Core" : "Industry"}
+                        </Badge>
+                        {isDone && (
+                          <Badge variant="default" className="bg-emerald-600 text-[10px]">
+                            {t.pathways.wsCompletedPill}
+                          </Badge>
+                        )}
+                      </div>
                       <h2 className="mt-2 text-sm font-bold text-foreground">{sc.title[locale]}</h2>
                       <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                         {sc.summary[locale]}

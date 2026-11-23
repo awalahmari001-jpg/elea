@@ -935,6 +935,72 @@ export function SelfLearningStudio({ initialLevel = "A1" }: { initialLevel?: Cef
                 </ul>
               )}
             </section>
+
+            {/* Personal Error History & Recurring Mistakes */}
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
+                <AlertCircle className="size-4 text-destructive" aria-hidden />
+                {t.pathways.slErrorHistoryTitle}
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t.pathways.slErrorHistorySubtitle}
+              </p>
+              {(() => {
+                const errors = Object.values(progress.records)
+                  .filter((r) => r.status === "incorrect" || r.status === "partially_correct")
+                  .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+                  .slice(0, 5);
+                if (errors.length === 0) {
+                  return (
+                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                      {t.pathways.slErrorHistoryEmpty}
+                    </p>
+                  );
+                }
+                return (
+                  <ul className="mt-3 space-y-2.5">
+                    {errors.map((err) => {
+                      const item = ALL_SELF_LEARNING_SENTENCES.find((s) => s.id === err.id);
+                      return (
+                        <li
+                          key={err.id}
+                          className="space-y-1.5 rounded-xl border border-destructive/25 bg-destructive/5 p-3 text-xs"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-mono font-bold text-destructive" dir="ltr">
+                              {err.level} · {err.grammarFocus}
+                            </span>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="h-6 px-2 text-[11px]"
+                              onClick={() => jumpToSentence(err.id)}
+                            >
+                              {t.pathways.slPracticeNowBtn}
+                            </Button>
+                          </div>
+                          <p className="text-muted-foreground" dir="ltr">
+                            <span className="font-semibold text-foreground">
+                              {t.pathways.slYourAnswerLabel}:
+                            </span>{" "}
+                            {err.lastResponse}
+                          </p>
+                          {item && (
+                            <p className="text-emerald-700 dark:text-emerald-300" dir="ltr">
+                              <span className="font-semibold">
+                                {t.pathways.slTargetAnswerLabel}:
+                              </span>{" "}
+                              {item.modelEnglish}
+                            </p>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                );
+              })()}
+            </section>
           </aside>
         </div>
       </div>

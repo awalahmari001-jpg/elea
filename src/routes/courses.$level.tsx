@@ -22,6 +22,7 @@ import { format, messages } from "@/lib/i18n/messages";
 import { normalizeLocale } from "@/lib/i18n/config";
 import { LessonList } from "@/components/learning/lesson-list";
 import { CourseAssessmentPanel } from "@/components/learning/course-assessment-panel";
+import { CefrModulePathway } from "@/components/courses/cefr-module-pathway";
 import { courseLessons, type LessonSkill } from "@/content/lessons";
 import { lockedLessonIds } from "@/lib/lesson-access";
 
@@ -156,7 +157,10 @@ function CoursePage() {
           </div>
         </div>
       </section>
-      <section className="border-t border-border py-12">
+      {course.kind === "level" && course.level && (
+        <CefrModulePathway level={course.level} onSelectSkillFilter={(s) => setSkill(s)} />
+      )}
+      <section id="course-lessons" className="border-t border-border py-12">
         <div className="container-page">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <h2 className="text-3xl font-bold">
