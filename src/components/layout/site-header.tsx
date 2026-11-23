@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BookMarked, Briefcase, ClipboardCheck, Menu } from "lucide-react";
+import { BookMarked, Briefcase, ClipboardCheck, Menu, Presentation } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +24,7 @@ const NAV_LINKS = [
   { to: "/cefr-mastery", key: "cefrMastery", icon: "none" },
   { to: "/self-learning", key: "selfLearning", icon: "book" },
   { to: "/business", key: "business", icon: "briefcase" },
+  { to: "/workshops", key: "workshops", icon: "workshops" },
   { to: "/courses", key: "courses", icon: "none" },
 ] as const;
 
@@ -41,12 +42,15 @@ export function SiteHeader() {
               key={link.to}
               to={link.to}
               activeOptions={{ exact: true }}
-              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground 2xl:px-3 2xl:text-sm"
+              className="inline-flex items-center gap-1 rounded-full px-2.5 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground 2xl:px-3"
               activeProps={{ className: "bg-secondary text-secondary-foreground" }}
             >
               {link.icon === "book" && <BookMarked className="size-3.5 text-primary" aria-hidden />}
               {link.icon === "briefcase" && (
                 <Briefcase className="size-3.5 text-primary" aria-hidden />
+              )}
+              {link.icon === "workshops" && (
+                <Presentation className="size-3.5 text-primary" aria-hidden />
               )}
               {t.nav[link.key]}
             </Link>
@@ -103,6 +107,9 @@ export function SiteHeader() {
                       )}
                       {link.icon === "briefcase" && (
                         <Briefcase className="size-5 text-primary" aria-hidden />
+                      )}
+                      {link.icon === "workshops" && (
+                        <Presentation className="size-5 text-primary" aria-hidden />
                       )}
                       {t.nav[link.key]}
                     </Link>

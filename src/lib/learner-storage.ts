@@ -1,13 +1,15 @@
 import { ALL_COURSES, type CefrLevel } from "@/content/courses";
 import type { SelfLearningTopicId, TranslationVerdict } from "@/content/self-learning/types";
 import type { CefrMasteryIndicatorId } from "@/content/vocab/vocab-types";
+import type { WorkshopSessionRecord } from "@/content/workshops/workshop-types";
 import { isJoinableCourse, type JoinableCourse } from "./lesson-access";
 import type { PlacementAnswers, PlacementResult } from "./placement";
 import { computeNextReview } from "./translation-fallback";
 
 /**
  * Saves the learner's test progress, result, courses, vocabulary mastery, CEFR mastery,
- * and Self-learning Pace history in this browser. When accounts are added, these move to the learner's account.
+ * Self-learning Pace history, Business course, and Interactive Business Workshops in this browser.
+ * When accounts are added, these move to the learner's account.
  */
 const KEYS = {
   progress: "ele.placement.progress",
@@ -19,6 +21,7 @@ const KEYS = {
   cefrMastery: "ele.cefr.mastery",
   selfLearning: "ele.self.learning",
   business: "ele.business.course",
+  workshops: "ele.workshops.history",
 } as const;
 
 function read<T>(key: string): T | null {
@@ -295,6 +298,16 @@ export const learnerStorage = {
       updatedAt: new Date().toISOString(),
     };
     write(KEYS.business, next);
+    return next;
+  },
+  getWorkshops: (): WorkshopSessionRecord[] => {
+    const saved = read<WorkshopSessionRecord[]>(KEYS.workshops);
+    return Array.isArray(saved) ? saved : [];
+  },
+  saveWorkshopSession: (session: WorkshopSessionRecord): WorkshopSessionRecord[] => {
+    const prev = learnerStorage.getWorkshops().filter((s) => s.id !== session.id);
+    const next = [session, ...prev].slice(0, 30);
+    write(KEYS.workshops, next);
     return next;
   },
 };

@@ -1,5 +1,15 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { ReactNode } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouter: () => ({ invalidate: vi.fn() }),
+  Link: ({ children, to, ...rest }: { children?: ReactNode; to?: string }) => (
+    <a href={to ?? "#"} {...rest}>
+      {children}
+    </a>
+  ),
+}));
 
 import { I18nProvider } from "@/components/i18n-provider";
 import { BusinessCourseHub } from "@/components/business/business-course-hub";

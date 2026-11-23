@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   Briefcase,
   Check,
@@ -9,6 +10,7 @@ import {
   Mic,
   MicOff,
   Play,
+  Presentation,
   Search,
   Sparkles,
   Square,
@@ -206,6 +208,18 @@ export function BusinessCourseHub() {
                 <Briefcase className="size-4" aria-hidden />
               )}
               {progress.joined ? t.business.joinedBadge : t.business.joinCta}
+            </Button>
+
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-inverse-foreground/30 bg-transparent text-inverse-foreground hover:bg-inverse-foreground/10"
+            >
+              <Link to="/workshops">
+                <Presentation className="size-4" aria-hidden />
+                {t.business.launchWorkshopsCta}
+              </Link>
             </Button>
 
             <div
