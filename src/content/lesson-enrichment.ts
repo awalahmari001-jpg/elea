@@ -53,7 +53,10 @@ export function enrichLesson(lesson: Lesson): Lesson {
   const questions = entry ? mergeFourFormatQuestions(lesson.questions, entry) : lesson.questions;
   const baseLesson: Lesson = { ...lesson, questions };
 
-  const detailedGuide = buildOrEnhanceDetailedGuide(baseLesson, entry?.guide);
+  const detailedGuide = buildOrEnhanceDetailedGuide(
+    baseLesson,
+    entry?.guide ?? baseLesson.detailedGuide,
+  );
   const explainerVideo = buildExplainerVideo(baseLesson, detailedGuide);
   const highlightKeywords = extractLessonKeywords(baseLesson, detailedGuide);
   const objectives = buildLessonObjectives(baseLesson, detailedGuide);

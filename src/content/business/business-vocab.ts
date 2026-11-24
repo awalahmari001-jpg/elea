@@ -1,4 +1,15 @@
 import type { BusinessSectorId, BusinessVocabEntry } from "./business-types";
+import { expandBusinessSectorWords, type CompactBusinessRow } from "./business-vocab-expander";
+import { BIZ_HR_WORDS, BIZ_MANAGEMENT_WORDS, BIZ_RECRUITMENT_WORDS } from "./business-bank-1";
+import { BIZ_FINANCE_WORDS, BIZ_MARKETING_WORDS, BIZ_SALES_WORDS } from "./business-bank-2";
+import { BIZ_BANKING_WORDS, BIZ_PROJECT_WORDS, BIZ_STARTUP_WORDS } from "./business-bank-3";
+import { BIZ_IT_WORDS, BIZ_OPERATIONS_WORDS, BIZ_PROCUREMENT_WORDS } from "./business-bank-4";
+import { BIZ_REAL_ESTATE_WORDS, BIZ_STRATEGY_WORDS, BIZ_TRADE_WORDS } from "./business-bank-5";
+import {
+  BIZ_CORP_COMM_WORDS,
+  BIZ_HEALTHCARE_WORDS,
+  BIZ_HOSPITALITY_WORDS,
+} from "./business-bank-6";
 
 type CompactBusinessVocab = readonly [
   sector: BusinessSectorId,
@@ -699,7 +710,7 @@ const ROWS: readonly CompactBusinessVocab[] = [
   ],
 ];
 
-export const BUSINESS_VOCABULARY: BusinessVocabEntry[] = ROWS.map((row, idx) => ({
+const BASE_BUSINESS_VOCABULARY: BusinessVocabEntry[] = ROWS.map((row, idx) => ({
   id: `biz-v-${String(idx + 1).padStart(2, "0")}`,
   sector: row[0],
   term: row[1],
@@ -711,3 +722,40 @@ export const BUSINESS_VOCABULARY: BusinessVocabEntry[] = ROWS.map((row, idx) => 
   example: row[7],
   workplaceApplication: { en: row[8], ar: row[9] },
 }));
+
+const SECTOR_BANKS: readonly (readonly [BusinessSectorId, readonly CompactBusinessRow[]])[] = [
+  ["management-leadership", BIZ_MANAGEMENT_WORDS],
+  ["human-resources", BIZ_HR_WORDS],
+  ["recruitment-talent", BIZ_RECRUITMENT_WORDS],
+  ["marketing-advertising", BIZ_MARKETING_WORDS],
+  ["sales-customer", BIZ_SALES_WORDS],
+  ["finance-accounting", BIZ_FINANCE_WORDS],
+  ["banking-investment", BIZ_BANKING_WORDS],
+  ["entrepreneurship-startups", BIZ_STARTUP_WORDS],
+  ["project-management", BIZ_PROJECT_WORDS],
+  ["operations-logistics", BIZ_OPERATIONS_WORDS],
+  ["procurement-supply-chain", BIZ_PROCUREMENT_WORDS],
+  ["information-technology", BIZ_IT_WORDS],
+  ["business-strategy", BIZ_STRATEGY_WORDS],
+  ["international-trade", BIZ_TRADE_WORDS],
+  ["real-estate", BIZ_REAL_ESTATE_WORDS],
+  ["hospitality-tourism", BIZ_HOSPITALITY_WORDS],
+  ["healthcare-admin", BIZ_HEALTHCARE_WORDS],
+  ["corporate-communication", BIZ_CORP_COMM_WORDS],
+];
+
+const EXPANDED_BUSINESS_VOCABULARY: BusinessVocabEntry[] = SECTOR_BANKS.flatMap(
+  ([sector, rows]) => {
+    const existingForSector = new Set(
+      BASE_BUSINESS_VOCABULARY.filter((e) => e.sector === sector).map((e) =>
+        e.term.trim().toLowerCase(),
+      ),
+    );
+    return expandBusinessSectorWords(sector, rows, existingForSector);
+  },
+);
+
+export const BUSINESS_VOCABULARY: BusinessVocabEntry[] = [
+  ...BASE_BUSINESS_VOCABULARY,
+  ...EXPANDED_BUSINESS_VOCABULARY,
+];

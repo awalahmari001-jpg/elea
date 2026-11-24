@@ -186,6 +186,7 @@ export function IeltsVocabStudio() {
   const [selectedCategory, setSelectedCategory] = useState<IeltsVocabCategory | "all">("all");
   const [selectedTopic, setSelectedTopic] = useState<IeltsTopicCategory | "all">("all");
   const [expandedId, setExpandedId] = useState<string>(IELTS_VOCABULARY[0]?.id ?? "");
+  const [visibleCount, setVisibleCount] = useState(24);
 
   const [progress, setProgress] = useState<IeltsVocabProgress>({
     masteredIds: [],
@@ -197,6 +198,10 @@ export function IeltsVocabStudio() {
   useEffect(() => {
     setProgress(learnerStorage.getIeltsVocab());
   }, []);
+
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [search, selectedCategory, selectedTopic]);
 
   const filteredEntries = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -214,6 +219,11 @@ export function IeltsVocabStudio() {
       );
     });
   }, [search, selectedCategory, selectedTopic]);
+
+  const visibleEntries = useMemo(
+    () => filteredEntries.slice(0, visibleCount),
+    [filteredEntries, visibleCount],
+  );
 
   const activeCategoryMeta = useMemo(
     () => IELTS_CATEGORIES.find((c) => c.id === selectedCategory) ?? null,
@@ -424,7 +434,7 @@ export function IeltsVocabStudio() {
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredEntries.map((entry) => {
+                {visibleEntries.map((entry) => {
                   const isExpanded = expandedId === entry.id;
                   const isMastered = progress.masteredIds.includes(entry.id);
                   const topicLabel =
@@ -739,6 +749,22 @@ export function IeltsVocabStudio() {
                     </article>
                   );
                 })}
+                {visibleEntries.length < filteredEntries.length && (
+                  <div className="flex flex-col items-center gap-2 pt-2">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      {locale === "ar"
+                        ? `عرض ${visibleEntries.length} من ${filteredEntries.length} مفردة أكاديمية`
+                        : `Showing ${visibleEntries.length} of ${filteredEntries.length} IELTS Band 7+ entries`}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setVisibleCount((n) => n + 24)}
+                    >
+                      {locale === "ar" ? `تحميل المزيد (+24)` : `Load more words (+24)`}
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>

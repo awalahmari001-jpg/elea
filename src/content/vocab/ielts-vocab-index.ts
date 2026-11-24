@@ -7,8 +7,60 @@ import type {
 } from "./vocab-types";
 import { IELTS_VOCAB_PART1 } from "./ielts-vocab-part1";
 import { IELTS_VOCAB_PART2 } from "./ielts-vocab-part2";
+import { expandIeltsTopicWords } from "./ielts-vocab-expander";
+import {
+  IELTS_EDUCATION_WORDS,
+  IELTS_ENVIRONMENT_WORDS,
+  IELTS_TECH_AI_WORDS,
+} from "./ielts-bank-education-tech-env";
+import {
+  IELTS_BUSINESS_EMP_WORDS,
+  IELTS_GLOBALISATION_WORDS,
+  IELTS_HEALTH_WORDS,
+} from "./ielts-bank-health-biz-glob";
+import {
+  IELTS_CRIME_WORDS,
+  IELTS_GOVERNMENT_WORDS,
+  IELTS_SOCIETY_WORDS,
+} from "./ielts-bank-society-crime-gov";
+import {
+  IELTS_CULTURE_WORDS,
+  IELTS_MEDIA_WORDS,
+  IELTS_SCIENCE_WORDS,
+} from "./ielts-bank-culture-media-sci";
+import {
+  IELTS_FAMILY_WORDS,
+  IELTS_TOURISM_WORDS,
+  IELTS_TRANSPORT_WORDS,
+} from "./ielts-bank-transport-family-tour";
 
-export const IELTS_VOCABULARY: IeltsVocabEntry[] = [...IELTS_VOCAB_PART1, ...IELTS_VOCAB_PART2];
+const existingIeltsWords = new Set<string>(
+  [...IELTS_VOCAB_PART1, ...IELTS_VOCAB_PART2].map((e) => e.word.trim().toLowerCase()),
+);
+
+const expandedTopics: IeltsVocabEntry[] = [
+  ...expandIeltsTopicWords("education", IELTS_EDUCATION_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("technology-ai", IELTS_TECH_AI_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("environment-climate", IELTS_ENVIRONMENT_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("health-lifestyle", IELTS_HEALTH_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("business-employment", IELTS_BUSINESS_EMP_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("globalisation", IELTS_GLOBALISATION_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("society-issues", IELTS_SOCIETY_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("crime-punishment", IELTS_CRIME_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("government-services", IELTS_GOVERNMENT_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("culture-traditions", IELTS_CULTURE_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("media-advertising", IELTS_MEDIA_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("science-innovation", IELTS_SCIENCE_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("transport-urbanisation", IELTS_TRANSPORT_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("family-relationships", IELTS_FAMILY_WORDS, existingIeltsWords),
+  ...expandIeltsTopicWords("tourism-travel", IELTS_TOURISM_WORDS, existingIeltsWords),
+];
+
+export const IELTS_VOCABULARY: IeltsVocabEntry[] = [
+  ...IELTS_VOCAB_PART1,
+  ...IELTS_VOCAB_PART2,
+  ...expandedTopics,
+];
 
 export const IELTS_CATEGORIES: {
   id: IeltsVocabCategory;

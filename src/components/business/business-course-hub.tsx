@@ -64,6 +64,7 @@ export function BusinessCourseHub() {
   const [vocabSearch, setVocabSearch] = useState("");
   const [selectedSector, setSelectedSector] = useState<BusinessSectorId | "all">("all");
   const [selectedExprCat, setSelectedExprCat] = useState<BusinessExpressionCategory | "all">("all");
+  const [visibleVocabCount, setVisibleVocabCount] = useState(24);
 
   // Meetings & Interview state
   const [selectedStageIdx, setSelectedStageIdx] = useState(0);
@@ -86,6 +87,10 @@ export function BusinessCourseHub() {
   useEffect(() => {
     setProgress(learnerStorage.getBusiness());
   }, []);
+
+  useEffect(() => {
+    setVisibleVocabCount(24);
+  }, [vocabSearch, selectedSector]);
 
   function updateProgress(patch: Partial<Omit<BusinessCourseProgress, "updatedAt">>) {
     const next = learnerStorage.saveBusiness({
@@ -125,6 +130,11 @@ export function BusinessCourseHub() {
       );
     });
   }, [vocabSearch, selectedSector]);
+
+  const visibleVocab = useMemo(
+    () => filteredVocab.slice(0, visibleVocabCount),
+    [filteredVocab, visibleVocabCount],
+  );
 
   const filteredExpressions = useMemo(() => {
     if (selectedExprCat === "all") return BUSINESS_EXPRESSIONS;
@@ -421,7 +431,7 @@ export function BusinessCourseHub() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              {filteredVocab.map((item) => {
+              {visibleVocab.map((item) => {
                 const mastered = progress.masteredVocabIds.includes(item.id);
                 const sectorName =
                   BUSINESS_SECTORS.find((s) => s.id === item.sector)?.label[locale] ?? item.sector;
@@ -505,6 +515,22 @@ export function BusinessCourseHub() {
                 );
               })}
             </div>
+            {visibleVocab.length < filteredVocab.length && (
+              <div className="flex flex-col items-center gap-2 pt-2">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {locale === "ar"
+                    ? `عرض ${visibleVocab.length} من ${filteredVocab.length} مصطلح مهني`
+                    : `Showing ${visibleVocab.length} of ${filteredVocab.length} business terms`}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setVisibleVocabCount((n) => n + 24)}
+                >
+                  {locale === "ar" ? `تحميل المزيد (+24)` : `Load more terms (+24)`}
+                </Button>
+              </div>
+            )}
           </section>
         )}
 

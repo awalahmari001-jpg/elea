@@ -668,7 +668,8 @@ export function computeDashboardOverview(
     const mastered = levelLessons.filter(
       (l) => journey.lessons[l.id]?.status === "mastered",
     ).length;
-    const completionPct = total > 0 ? clampPct((completed / total) * 100) : 0;
+    const completionPct =
+      completed > 0 && total > 0 ? Math.max(1, clampPct((completed / total) * 100)) : 0;
 
     const cefrIndicatorsPassed = snapshot.cefrMastery[level]?.passedIndicators.length ?? 0;
     const postAssessment = snapshot.assessments[slug]?.post;
@@ -677,7 +678,8 @@ export function computeDashboardOverview(
       : 0;
 
     // Mastery combines verified CEFR indicators + mastered lessons + post-assessment
-    const lessonMasteryPct = total > 0 ? Math.round((mastered / total) * 100) : 0;
+    const lessonMasteryPct =
+      mastered > 0 && total > 0 ? Math.max(1, Math.round((mastered / total) * 100)) : 0;
     const indicatorPct = Math.round((cefrIndicatorsPassed / 7) * 100);
     const masteryPct = clampPct(
       Math.max(
@@ -719,8 +721,8 @@ export function computeDashboardOverview(
     return st === "completed" || st === "mastered";
   });
   const courseCompletionPct =
-    activeCourseLessons.length > 0
-      ? clampPct((completedInActiveCourse.length / activeCourseLessons.length) * 100)
+    completedInActiveCourse.length > 0 && activeCourseLessons.length > 0
+      ? Math.max(1, clampPct((completedInActiveCourse.length / activeCourseLessons.length) * 100))
       : 0;
 
   const sortedCompleted = [...lessonRecords]

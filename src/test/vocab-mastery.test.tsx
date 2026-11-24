@@ -39,16 +39,24 @@ describe("Phase 1 · IELTS Band 7+ Vocabulary Dataset Integrity", () => {
   it("covers all 10 required lexical categories and all 15 required IELTS topic categories", () => {
     expect(IELTS_CATEGORIES).toHaveLength(10);
     expect(IELTS_TOPICS).toHaveLength(15);
-    expect(IELTS_VOCABULARY.length).toBeGreaterThanOrEqual(50);
+    expect(IELTS_VOCABULARY.length).toBeGreaterThanOrEqual(1500);
 
     const coveredCategories = new Set(IELTS_VOCABULARY.map((v) => v.category));
     for (const cat of IELTS_CATEGORIES) {
       expect(coveredCategories.has(cat.id), `Missing IELTS category: ${cat.id}`).toBe(true);
     }
 
-    const coveredTopics = new Set(IELTS_VOCABULARY.map((v) => v.topic));
+    const byTopic = new Map<string, Set<string>>();
+    for (const entry of IELTS_VOCABULARY) {
+      const words = byTopic.get(entry.topic) ?? new Set<string>();
+      words.add(entry.word.trim().toLowerCase());
+      byTopic.set(entry.topic, words);
+    }
     for (const topic of IELTS_TOPICS) {
-      expect(coveredTopics.has(topic.id), `Missing IELTS topic: ${topic.id}`).toBe(true);
+      expect(
+        byTopic.get(topic.id)?.size ?? 0,
+        `IELTS topic "${topic.id}" must have at least 100 unique words`,
+      ).toBeGreaterThanOrEqual(100);
     }
   });
 

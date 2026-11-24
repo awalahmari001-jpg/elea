@@ -39,25 +39,30 @@ beforeEach(() => {
 });
 
 describe("Phase 3 · Business English Course Dataset Integrity", () => {
-  it("covers all 18 required business sectors with IPA, collocations, Arabic, and workplace applications", () => {
+  it("covers all 18 required business sectors with at least 100 unique terms per sector (IPA, collocations, Arabic, and workplace applications)", () => {
     expect(BUSINESS_SECTORS).toHaveLength(18);
-    expect(BUSINESS_VOCABULARY).toHaveLength(54);
+    expect(BUSINESS_VOCABULARY.length).toBeGreaterThanOrEqual(1800);
 
-    const bySector = new Map<string, number>();
+    const bySector = new Map<string, Set<string>>();
     const ids = new Set<string>();
     for (const entry of BUSINESS_VOCABULARY) {
-      expect(ids.has(entry.id)).toBe(false);
+      expect(ids.has(entry.id), `Duplicate id ${entry.id}`).toBe(false);
       ids.add(entry.id);
-      bySector.set(entry.sector, (bySector.get(entry.sector) ?? 0) + 1);
-      expect(entry.ipa.startsWith("/")).toBe(true);
-      expect(entry.arabic.trim().length).toBeGreaterThan(2);
-      expect(entry.collocations.length).toBeGreaterThanOrEqual(2);
-      expect(entry.workplaceApplication.en.length).toBeGreaterThan(10);
-      expect(entry.workplaceApplication.ar.length).toBeGreaterThan(5);
+      const terms = bySector.get(entry.sector) ?? new Set<string>();
+      terms.add(entry.term.trim().toLowerCase());
+      bySector.set(entry.sector, terms);
+      expect(entry.ipa.startsWith("/"), `${entry.id} ipa`).toBe(true);
+      expect(entry.arabic.trim().length, `${entry.id} arabic`).toBeGreaterThan(2);
+      expect(entry.collocations.length, `${entry.id} collocations`).toBeGreaterThanOrEqual(2);
+      expect(entry.workplaceApplication.en.length, `${entry.id} app.en`).toBeGreaterThan(10);
+      expect(entry.workplaceApplication.ar.length, `${entry.id} app.ar`).toBeGreaterThan(5);
     }
 
     for (const sector of BUSINESS_SECTORS) {
-      expect(bySector.get(sector.id), `Missing terms for ${sector.id}`).toBeGreaterThanOrEqual(3);
+      expect(
+        bySector.get(sector.id)?.size ?? 0,
+        `Business sector "${sector.id}" must have at least 100 unique terms`,
+      ).toBeGreaterThanOrEqual(100);
     }
   });
 
