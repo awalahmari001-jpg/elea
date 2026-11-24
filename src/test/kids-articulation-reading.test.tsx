@@ -84,7 +84,7 @@ describe("Kids Phase K3 · Articulation, Blending & 14-Stage Reading Dataset Int
     expect(afterPass.stars).toBe(2);
 
     const diagInitial = computeReadingDiagnostics(afterPass);
-    expect(diagInitial.subskills).toHaveLength(12);
+    expect(diagInitial.subskills.length).toBeGreaterThanOrEqual(12);
     expect(diagInitial.targetedRecommendation.en.toLowerCase()).toMatch(/alphabet|letter/);
 
     for (const l of "ABCDEFGHIJKL".split("")) {

@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import {
   Award,
+  BookMarked,
   BookOpen,
   Check,
   Gamepad2,
   GraduationCap,
+  Lock,
   Mic,
   Palette,
   Pencil,
+  ShieldCheck,
   Sparkles,
   Star,
+  Trophy,
   Tv,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -31,7 +35,10 @@ import {
 import { lockedLessonIds } from "@/lib/lesson-access";
 import { AlphabetStudio } from "./alphabet-studio";
 import { ArticulationStudio } from "./articulation-studio";
+import { KidsAssessmentRewardsStudio } from "./kids-assessment-rewards-studio";
+import { ParentTeacherView } from "./parent-teacher-view";
 import { ReadingBlendingStudio } from "./reading-blending-studio";
+import { StoriesCommStudio } from "./stories-comm-studio";
 import { VideosGamesStudio } from "./videos-games-studio";
 import { VocabGrammarStudio } from "./vocab-grammar-studio";
 import { VowelsConsonantsStudio } from "./vowels-consonants-studio";
@@ -44,6 +51,9 @@ type KidsHubTab =
   | "vocab-grammar"
   | "videos"
   | "games"
+  | "stories-comm"
+  | "quiz-rewards"
+  | "parent"
   | "guided";
 
 export function KidsWorldHub() {
@@ -75,9 +85,15 @@ export function KidsWorldHub() {
         <div className="container-page space-y-8">
           <div className="grid items-center gap-6 lg:grid-cols-[1.25fr_0.95fr]">
             <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card px-3.5 py-1.5 text-xs font-extrabold text-primary shadow-xs">
-                <span aria-hidden>🦉</span>
-                <span>{kw.badge}</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card px-3.5 py-1.5 text-xs font-extrabold text-primary shadow-xs">
+                  <span aria-hidden>🦉</span>
+                  <span>{kw.badge}</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1.5 text-xs font-extrabold text-emerald-700 dark:text-emerald-300">
+                  <ShieldCheck className="size-3.5" aria-hidden />
+                  <span>{kw.childSafePill}</span>
+                </div>
               </div>
               <h1 className="display-heading text-4xl font-black tracking-tight text-foreground md:text-5xl">
                 {kw.heroTitle}
@@ -233,7 +249,10 @@ export function KidsWorldHub() {
                   { id: "vocab-grammar", label: kw.tabVocabGrammar, Icon: Palette },
                   { id: "videos", label: kw.tabAnimatedVideos, Icon: Tv },
                   { id: "games", label: kw.tabLearningGames, Icon: Gamepad2 },
-                  { id: "guided", label: kw.tabGuidedLessons, Icon: BookOpen },
+                  { id: "stories-comm", label: kw.tabStoriesComm, Icon: BookMarked },
+                  { id: "quiz-rewards", label: kw.tabStarQuizRewards, Icon: Trophy },
+                  { id: "parent", label: kw.tabParentCorner, Icon: Lock },
+                  { id: "guided", label: kw.tabGuidedLessonsFull, Icon: BookOpen },
                 ] as const
               ).map(({ id, label, Icon }) => (
                 <Button
@@ -336,6 +355,38 @@ export function KidsWorldHub() {
             initialSubMode="games"
             onWatchVideo={(videoId) => setProgress(kidsStorage.recordVideoWatched(videoId))}
             onGameWin={(gameId) => setProgress(kidsStorage.recordGameWin(gameId, 1))}
+          />
+        )}
+
+        {activeTab === "stories-comm" && (
+          <StoriesCommStudio
+            progress={progress}
+            onStoryComplete={(storyId) => setProgress(kidsStorage.recordStoryRead(storyId))}
+            onSpeakingPractice={(convId) =>
+              setProgress(kidsStorage.recordSpeakingPracticed(convId))
+            }
+            onWritingComplete={(missionId) =>
+              setProgress(kidsStorage.recordWritingCompleted(missionId))
+            }
+          />
+        )}
+
+        {activeTab === "quiz-rewards" && (
+          <KidsAssessmentRewardsStudio
+            progress={progress}
+            onCompleteAssessment={(id, pct) =>
+              setProgress(kidsStorage.recordFriendlyAssessment(id, pct))
+            }
+          />
+        )}
+
+        {activeTab === "parent" && (
+          <ParentTeacherView
+            progress={progress}
+            onResetProgress={() => {
+              kidsStorage.clear();
+              setProgress(emptyKidsProgress());
+            }}
           />
         )}
 
