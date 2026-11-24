@@ -122,6 +122,14 @@ export function SiteFooter() {
             </li>
             <li>
               <Link
+                to="/certificates"
+                className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
+              >
+                {t.nav.certificates}
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/profile"
                 className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
               >

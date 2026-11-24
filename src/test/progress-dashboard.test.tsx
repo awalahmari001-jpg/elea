@@ -250,7 +250,7 @@ describe("Phase 5 · Unified Progress Dashboard UI", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: /Your English Progress Dashboard/i }),
     ).toBeTruthy();
-    expect(screen.getByText("CEFR B2")).toBeTruthy();
+    expect(screen.getAllByText("CEFR B2").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(`4 / ${TOTAL_IELTS_VOCAB_ITEMS}`)).toBeTruthy();
     expect(screen.getByText(`3 / ${TOTAL_CEFR_INDICATORS}`)).toBeTruthy();
     expect(screen.getByText(`1 / ${TOTAL_SELF_LEARNING_SENTENCES}`)).toBeTruthy();

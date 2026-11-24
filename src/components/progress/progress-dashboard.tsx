@@ -41,6 +41,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { format } from "@/lib/i18n/messages";
 import {
   computeUnifiedProgress,
   exportLearnerBackupJson,
@@ -53,6 +54,11 @@ import {
   type LearnerBackupSnapshot,
 } from "@/lib/learner-storage";
 import { learningRecord } from "@/lib/learning-record";
+import {
+  clearCertificates,
+  computeSkillsAndAchievements,
+  type SkillsAchievementsReport,
+} from "@/lib/skills-achievements";
 
 function emptySnapshot(): LearnerBackupSnapshot {
   return {
@@ -86,8 +92,10 @@ function emptySnapshot(): LearnerBackupSnapshot {
 export function ProgressDashboard() {
   const { t, locale, dir } = useI18n();
   const pt = t.progress;
+  const sc = t.skillsCerts;
 
   const [snapshot, setSnapshot] = useState<LearnerBackupSnapshot>(() => emptySnapshot());
+  const [skillsReport, setSkillsReport] = useState<SkillsAchievementsReport | null>(null);
   const [mounted, setMounted] = useState(false);
 
   const [displayName, setDisplayName] = useState("");
@@ -106,6 +114,7 @@ export function ProgressDashboard() {
     setSnapshot(next);
     setDisplayName(next.profile.displayName);
     setTargetGoal(next.profile.targetGoal);
+    setSkillsReport(computeSkillsAndAchievements());
   };
 
   useEffect(() => {
@@ -157,6 +166,7 @@ export function ProgressDashboard() {
   const handleConfirmReset = () => {
     learnerStorage.clearAll();
     learningRecord.clearJourney();
+    clearCertificates();
     refreshFromStorage();
     setConfirmingReset(false);
     setBackupNotice({ tone: "ok", text: pt.resetSuccess });
@@ -769,13 +779,86 @@ export function ProgressDashboard() {
         </div>
       </section>
 
-      {/* Visual Analytics Tabs (Recharts + Structured Diagnostics) */}
+      {/* Five Distinct Progress Measurements (Part 14.3: Never collapse into one percentage) */}
+      {skillsReport && (
+        <section className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="display-heading text-xl font-bold">{sc.fiveDimTitle}</h2>
+              <p className="text-xs text-muted-foreground">{sc.fiveDimSubtitle}</p>
+            </div>
+            <Button asChild size="sm" variant="accent">
+              <Link to="/certificates">
+                <Award className="me-1.5 size-4" aria-hidden />
+                {sc.openCertificatesCta} ({skillsReport.certificates.length})
+              </Link>
+            </Button>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              {
+                label: sc.dimCompletion,
+                pct: skillsReport.fiveDimensions.activityCompletionPct,
+                tone: "text-primary",
+              },
+              {
+                label: sc.dimAssessment,
+                pct: skillsReport.fiveDimensions.assessmentPerformancePct,
+                tone: "text-amber-600 dark:text-amber-400",
+              },
+              {
+                label: sc.dimMastery,
+                pct: skillsReport.fiveDimensions.learningMasteryPct,
+                tone: "text-emerald-600 dark:text-emerald-400",
+              },
+              {
+                label: sc.dimCourse,
+                pct: skillsReport.fiveDimensions.courseCompletionPct,
+                tone: "text-foreground",
+              },
+            ].map((dim) => (
+              <div
+                key={dim.label}
+                className="rounded-2xl border border-border bg-card p-4 shadow-xs"
+              >
+                <div className="text-xs text-muted-foreground">{dim.label}</div>
+                <div className={`mt-1 text-2xl font-extrabold ${dim.tone}`} dir="ltr">
+                  {dim.pct}%
+                </div>
+                <Progress value={dim.pct} className="mt-2 h-1.5" />
+              </div>
+            ))}
+            <div className="rounded-2xl border border-primary/35 bg-primary/5 p-4 shadow-xs">
+              <div className="text-xs text-muted-foreground">{sc.dimProficiency}</div>
+              <div className="mt-1 text-2xl font-extrabold text-primary" dir="ltr">
+                CEFR {skillsReport.fiveDimensions.proficiencyLevel}
+              </div>
+              <div className="mt-1 text-[11px] font-medium text-muted-foreground">
+                {format(sc.verifiedLevelsLabel, {
+                  count: skillsReport.fiveDimensions.verifiedLevelsCount,
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Visual Analytics Tabs (Recharts + 7-Skill Dashboard + Comparisons & Achievements) */}
       <section className="space-y-4">
         <Tabs defaultValue="workshops-trend" className="space-y-4">
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1.5 bg-muted/60 p-1.5">
             <TabsTrigger value="workshops-trend" className="gap-1.5">
               <TrendingUp className="size-4" aria-hidden />
               {pt.tabWorkshopTrends}
+            </TabsTrigger>
+            <TabsTrigger value="seven-skills" className="gap-1.5">
+              <Sparkles className="size-4" aria-hidden />
+              {sc.tabSevenSkills}
+            </TabsTrigger>
+            <TabsTrigger value="comparisons-achievements" className="gap-1.5">
+              <Award className="size-4" aria-hidden />
+              {sc.tabComparisonsAchievements}
             </TabsTrigger>
             <TabsTrigger value="cefr-coverage" className="gap-1.5">
               <BarChart3 className="size-4" aria-hidden />
@@ -1049,6 +1132,254 @@ export function ProgressDashboard() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Tab 4: 7-Skill Language Dashboard */}
+          <TabsContent value="seven-skills">
+            {skillsReport && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{sc.sevenSkillsTitle}</CardTitle>
+                  <CardDescription>{sc.sevenSkillsSubtitle}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {canRenderResponsiveCharts && (
+                    <div className="h-[260px] w-full" dir="ltr">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={skillsReport.skills.map((sk) => ({
+                            name: sk.label[locale],
+                            scorePct: sk.scorePct,
+                          }))}
+                          margin={{ top: 8, right: 16, left: 0, bottom: 8 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" opacity={0.35} />
+                          <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                          <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
+                          <Tooltip />
+                          <Bar
+                            dataKey="scorePct"
+                            name={sc.dimMastery}
+                            fill="#2563eb"
+                            radius={[6, 6, 0, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
+
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {skillsReport.skills.map((sk) => (
+                      <div
+                        key={sk.id}
+                        className="flex flex-col justify-between rounded-2xl border border-border/80 bg-muted/25 p-4 text-xs"
+                      >
+                        <div className="space-y-2.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <h3 className="text-sm font-bold text-foreground">
+                              {sk.label[locale]}
+                            </h3>
+                            <Badge variant="default" dir="ltr">
+                              {sc.estProficiencyLabel}: {sk.estimatedCefr}
+                            </Badge>
+                          </div>
+
+                          <div>
+                            <div className="mb-1 flex justify-between text-[11px] text-muted-foreground">
+                              <span>
+                                {sc.activitiesDoneLabel}: {sk.activitiesCompleted}
+                              </span>
+                              <span className="font-bold text-foreground" dir="ltr">
+                                {sk.scorePct}%
+                                {sk.assessmentScorePct !== null &&
+                                  ` · ${sc.assessmentLabel}: ${sk.assessmentScorePct}%`}
+                              </span>
+                            </div>
+                            <Progress value={sk.scorePct} className="h-2" />
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="font-semibold text-muted-foreground">
+                              {sc.weakAreasLabel}
+                            </div>
+                            {sk.weakAreas.length === 0 ? (
+                              <p className="text-emerald-700 dark:text-emerald-300">
+                                {sc.noWeakAreaSkill}
+                              </p>
+                            ) : (
+                              <ul className="space-y-1">
+                                {sk.weakAreas.map((w, idx) => (
+                                  <li key={idx} className="text-muted-foreground">
+                                    • {w[locale]}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        </div>
+
+                        <Button
+                          asChild
+                          size="sm"
+                          variant="outline"
+                          className="mt-4 w-full justify-between"
+                        >
+                          <Link to={sk.recommendedAction.to}>
+                            <span>{sk.recommendedAction.label[locale]}</span>
+                            <ArrowRight className="size-3.5 rtl:rotate-180" aria-hidden />
+                          </Link>
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Tab 5: Period Comparisons & Measurable Achievements */}
+          <TabsContent value="comparisons-achievements">
+            {skillsReport && (
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{sc.comparisonsTitle}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-xs">
+                    <div className="rounded-2xl border border-border bg-muted/30 p-4">
+                      <div className="font-semibold text-muted-foreground">{sc.weekVsLastWeek}</div>
+                      <div className="mt-1.5 text-xl font-extrabold text-foreground" dir="ltr">
+                        {skillsReport.comparisons.weekOverWeek.currentActivities}{" "}
+                        <span className="text-xs font-normal text-muted-foreground">
+                          vs {skillsReport.comparisons.weekOverWeek.previousActivities}{" "}
+                          {sc.activitiesUnit}
+                        </span>
+                      </div>
+                      <div
+                        className={`mt-1 font-bold ${
+                          skillsReport.comparisons.weekOverWeek.activityDelta >= 0
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-destructive"
+                        }`}
+                        dir="ltr"
+                      >
+                        {skillsReport.comparisons.weekOverWeek.activityDelta >= 0 ? "+" : ""}
+                        {skillsReport.comparisons.weekOverWeek.activityDelta} (
+                        {skillsReport.comparisons.weekOverWeek.currentMinutes} {pt.minutesUnit})
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-border bg-muted/30 p-4">
+                      <div className="font-semibold text-muted-foreground">
+                        {sc.monthVsLastMonth}
+                      </div>
+                      <div className="mt-1.5 text-xl font-extrabold text-foreground" dir="ltr">
+                        {skillsReport.comparisons.monthOverMonth.currentActivities}{" "}
+                        <span className="text-xs font-normal text-muted-foreground">
+                          vs {skillsReport.comparisons.monthOverMonth.previousActivities}{" "}
+                          {sc.activitiesUnit}
+                        </span>
+                      </div>
+                      <div
+                        className={`mt-1 font-bold ${
+                          skillsReport.comparisons.monthOverMonth.activityDelta >= 0
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-destructive"
+                        }`}
+                        dir="ltr"
+                      >
+                        {skillsReport.comparisons.monthOverMonth.activityDelta >= 0 ? "+" : ""}
+                        {skillsReport.comparisons.monthOverMonth.activityDelta} (
+                        {skillsReport.comparisons.monthOverMonth.currentMinutes} {pt.minutesUnit})
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-border bg-muted/30 p-4">
+                      <div className="font-semibold text-muted-foreground">
+                        {sc.placementVsCurrent}
+                      </div>
+                      <div className="mt-1.5 text-xl font-extrabold text-primary" dir="ltr">
+                        {skillsReport.comparisons.initialVsCurrent.initialLevel ?? "—"} →{" "}
+                        {skillsReport.comparisons.initialVsCurrent.currentLevel}
+                      </div>
+                      <div className="mt-1 text-muted-foreground" dir="ltr">
+                        {skillsReport.comparisons.initialVsCurrent.initialPct !== null
+                          ? `${skillsReport.comparisons.initialVsCurrent.initialPct}% → ${skillsReport.comparisons.initialVsCurrent.currentPct}%`
+                          : `${skillsReport.comparisons.initialVsCurrent.currentPct}%`}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-border bg-muted/30 p-4">
+                      <div className="font-semibold text-muted-foreground">
+                        {sc.currentVsTarget}
+                      </div>
+                      <div className="mt-1.5 text-xl font-extrabold text-foreground" dir="ltr">
+                        {skillsReport.comparisons.currentVsTarget.currentMasteryPct}% /{" "}
+                        {skillsReport.comparisons.currentVsTarget.targetMasteryPct}%
+                      </div>
+                      <div className="mt-1 text-muted-foreground" dir="ltr">
+                        {skillsReport.comparisons.currentVsTarget.currentLevel} →{" "}
+                        {skillsReport.comparisons.currentVsTarget.targetLevel}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <CardTitle>
+                          {sc.achievementsTitle} ({skillsReport.unlockedAchievementsCount}/
+                          {skillsReport.achievements.length})
+                        </CardTitle>
+                        <CardDescription>{sc.achievementsSubtitle}</CardDescription>
+                      </div>
+                      <Button asChild size="sm" variant="outline">
+                        <Link to="/certificates">
+                          <Award className="me-1.5 size-4" aria-hidden />
+                          {sc.openCertificatesCta}
+                        </Link>
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+                    {skillsReport.achievements.map((ach) => (
+                      <div
+                        key={ach.id}
+                        className={`rounded-2xl border p-4 text-xs ${
+                          ach.unlocked
+                            ? "border-emerald-500/45 bg-emerald-500/8"
+                            : "border-border bg-muted/25"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold text-foreground">{ach.title[locale]}</span>
+                          <Badge
+                            variant={ach.unlocked ? "default" : "secondary"}
+                            className={ach.unlocked ? "bg-emerald-600 text-[10px]" : "text-[10px]"}
+                          >
+                            {ach.unlocked ? sc.unlockedBadge : sc.lockedBadge}
+                          </Badge>
+                        </div>
+                        <p className="mt-1.5 leading-relaxed text-muted-foreground">
+                          {ach.description[locale]}
+                        </p>
+                        <div className="mt-3">
+                          <div className="mb-1 flex justify-between text-[11px] font-mono">
+                            <span>
+                              {ach.progressCurrent}/{ach.progressTarget}
+                            </span>
+                            <span>{ach.progressPct}%</span>
+                          </div>
+                          <Progress value={ach.progressPct} className="h-1.5" />
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </section>

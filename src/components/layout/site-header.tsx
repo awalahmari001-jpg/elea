@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import {
+  Award,
   BarChart3,
   BookMarked,
   BookOpen,
@@ -196,6 +197,12 @@ export function SiteHeader() {
                   {t.nav.speakingStudio}
                 </Link>
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/certificates" className="flex items-center gap-2 font-medium">
+                  <Award className="size-4 text-primary" aria-hidden />
+                  {t.nav.certificates}
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link to="/profile" className="flex items-center gap-2 font-medium">
@@ -345,6 +352,16 @@ export function SiteHeader() {
                     >
                       <Mic className="size-4 text-primary" aria-hidden />
                       {t.nav.speakingStudio}
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link
+                      to="/certificates"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-muted"
+                      activeProps={{ className: activeClass }}
+                    >
+                      <Award className="size-4 text-primary" aria-hidden />
+                      {t.nav.certificates}
                     </Link>
                   </SheetClose>
                   <SheetClose asChild>

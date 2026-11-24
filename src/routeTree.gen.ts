@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdultsRouteImport } from './routes/adults'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as CefrMasteryRouteImport } from './routes/cefr-mastery'
+import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IeltsRouteImport } from './routes/ielts'
 import { Route as IeltsVocabularyRouteImport } from './routes/ielts-vocabulary'
@@ -45,6 +46,11 @@ const BusinessRoute = BusinessRouteImport.update({
 const CefrMasteryRoute = CefrMasteryRouteImport.update({
   id: '/cefr-mastery',
   path: '/cefr-mastery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CertificatesRoute = CertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/adults': typeof AdultsRoute
   '/business': typeof BusinessRoute
   '/cefr-mastery': typeof CefrMasteryRoute
+  '/certificates': typeof CertificatesRoute
   '/dashboard': typeof DashboardRoute
   '/ielts': typeof IeltsRoute
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/adults': typeof AdultsRoute
   '/business': typeof BusinessRoute
   '/cefr-mastery': typeof CefrMasteryRoute
+  '/certificates': typeof CertificatesRoute
   '/dashboard': typeof DashboardRoute
   '/ielts': typeof IeltsRoute
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/adults': typeof AdultsRoute
   '/business': typeof BusinessRoute
   '/cefr-mastery': typeof CefrMasteryRoute
+  '/certificates': typeof CertificatesRoute
   '/dashboard': typeof DashboardRoute
   '/ielts': typeof IeltsRoute
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/adults'
     | '/business'
     | '/cefr-mastery'
+    | '/certificates'
     | '/dashboard'
     | '/ielts'
     | '/ielts-vocabulary'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/adults'
     | '/business'
     | '/cefr-mastery'
+    | '/certificates'
     | '/dashboard'
     | '/ielts'
     | '/ielts-vocabulary'
@@ -216,6 +227,7 @@ export interface FileRouteTypes {
     | '/adults'
     | '/business'
     | '/cefr-mastery'
+    | '/certificates'
     | '/dashboard'
     | '/ielts'
     | '/ielts-vocabulary'
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   AdultsRoute: typeof AdultsRoute
   BusinessRoute: typeof BusinessRoute
   CefrMasteryRoute: typeof CefrMasteryRoute
+  CertificatesRoute: typeof CertificatesRoute
   DashboardRoute: typeof DashboardRoute
   IeltsRoute: typeof IeltsRoute
   IeltsVocabularyRoute: typeof IeltsVocabularyRoute
@@ -279,6 +292,13 @@ declare module '@tanstack/react-router' {
       path: '/cefr-mastery'
       fullPath: '/cefr-mastery'
       preLoaderRoute: typeof CefrMasteryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/certificates': {
+      id: '/certificates'
+      path: '/certificates'
+      fullPath: '/certificates'
+      preLoaderRoute: typeof CertificatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -380,6 +400,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdultsRoute: AdultsRoute,
   BusinessRoute: BusinessRoute,
   CefrMasteryRoute: CefrMasteryRoute,
+  CertificatesRoute: CertificatesRoute,
   DashboardRoute: DashboardRoute,
   IeltsRoute: IeltsRoute,
   IeltsVocabularyRoute: IeltsVocabularyRoute,

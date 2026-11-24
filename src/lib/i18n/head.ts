@@ -15,7 +15,8 @@ type MetaKey =
   | "workshops"
   | "progress"
   | "dashboard"
-  | "profile";
+  | "profile"
+  | "certificates";
 
 /** Builds the page title + social-share tags in the visitor's language. */
 export function pageMeta(locale: Locale | undefined, key: MetaKey) {
