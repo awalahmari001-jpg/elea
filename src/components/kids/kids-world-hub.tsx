@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Award, BookOpen, Check, Pencil, Sparkles, Star } from "lucide-react";
+import { Award, BookOpen, Check, GraduationCap, Mic, Pencil, Sparkles, Star } from "lucide-react";
 import { toast } from "sonner";
 
 import { useI18n } from "@/components/i18n-provider";
@@ -18,9 +18,11 @@ import {
 } from "@/lib/kids-storage";
 import { lockedLessonIds } from "@/lib/lesson-access";
 import { AlphabetStudio } from "./alphabet-studio";
+import { ArticulationStudio } from "./articulation-studio";
+import { ReadingBlendingStudio } from "./reading-blending-studio";
 import { VowelsConsonantsStudio } from "./vowels-consonants-studio";
 
-type KidsHubTab = "alphabet" | "vowels" | "guided";
+type KidsHubTab = "alphabet" | "vowels" | "articulation" | "reading" | "guided";
 
 export function KidsWorldHub() {
   const { t, locale, dir } = useI18n();
@@ -114,12 +116,12 @@ export function KidsWorldHub() {
               </div>
 
               {/* Simple Visual Counters */}
-              <div className="grid grid-cols-3 gap-2.5 text-center text-xs">
-                <div className="rounded-2xl bg-amber-500/10 p-3">
+              <div className="grid grid-cols-2 gap-2.5 text-center text-xs sm:grid-cols-4">
+                <div className="rounded-2xl bg-amber-500/10 p-2.5">
                   <div className="text-[11px] font-semibold text-muted-foreground">
                     {kw.lettersLabel}
                   </div>
-                  <div className="mt-1 text-lg font-black text-foreground" dir="ltr">
+                  <div className="mt-1 text-base font-black text-foreground" dir="ltr">
                     {progress.masteredLetters.length}/26
                   </div>
                   <Progress
@@ -127,11 +129,11 @@ export function KidsWorldHub() {
                     className="mt-1.5 h-1.5"
                   />
                 </div>
-                <div className="rounded-2xl bg-sky-500/10 p-3">
+                <div className="rounded-2xl bg-sky-500/10 p-2.5">
                   <div className="text-[11px] font-semibold text-muted-foreground">
                     {kw.tracedLabel}
                   </div>
-                  <div className="mt-1 text-lg font-black text-foreground" dir="ltr">
+                  <div className="mt-1 text-base font-black text-foreground" dir="ltr">
                     {progress.tracedLetters.length}/26
                   </div>
                   <Progress
@@ -139,15 +141,27 @@ export function KidsWorldHub() {
                     className="mt-1.5 h-1.5"
                   />
                 </div>
-                <div className="rounded-2xl bg-emerald-500/10 p-3">
+                <div className="rounded-2xl bg-emerald-500/10 p-2.5">
                   <div className="text-[11px] font-semibold text-muted-foreground">
                     {kw.vowelsLabel}
                   </div>
-                  <div className="mt-1 text-lg font-black text-foreground" dir="ltr">
+                  <div className="mt-1 text-base font-black text-foreground" dir="ltr">
                     {progress.vowelChecksPassed.length}/5
                   </div>
                   <Progress
                     value={Math.round((progress.vowelChecksPassed.length / 5) * 100)}
+                    className="mt-1.5 h-1.5"
+                  />
+                </div>
+                <div className="rounded-2xl bg-violet-500/10 p-2.5">
+                  <div className="text-[11px] font-semibold text-muted-foreground">
+                    {kw.readingStagesLabel}
+                  </div>
+                  <div className="mt-1 text-base font-black text-foreground" dir="ltr">
+                    {progress.readingStagesMastered.length}/14
+                  </div>
+                  <Progress
+                    value={Math.round((progress.readingStagesMastered.length / 14) * 100)}
                     className="mt-1.5 h-1.5"
                   />
                 </div>
@@ -192,6 +206,8 @@ export function KidsWorldHub() {
                 [
                   { id: "alphabet", label: kw.tabAlphabet, Icon: Pencil },
                   { id: "vowels", label: kw.tabVowelsConsonants, Icon: Sparkles },
+                  { id: "articulation", label: kw.tabArticulation, Icon: Mic },
+                  { id: "reading", label: kw.tabReadingLadder, Icon: GraduationCap },
                   { id: "guided", label: kw.tabGuidedLessons, Icon: BookOpen },
                 ] as const
               ).map(({ id, label, Icon }) => (
@@ -242,6 +258,26 @@ export function KidsWorldHub() {
             onPassVowel={(vowel) => setProgress(kidsStorage.recordVowelPassed(vowel))}
             onConsonantSortWin={() => setProgress(kidsStorage.recordConsonantSortWin())}
             onGameWin={(gameId) => setProgress(kidsStorage.recordGameWin(gameId, 1))}
+          />
+        )}
+
+        {activeTab === "articulation" && (
+          <ArticulationStudio
+            progress={progress}
+            onPracticeSound={(soundId) =>
+              setProgress(kidsStorage.recordArticulationPracticed(soundId))
+            }
+            onGameWin={(gameId) => setProgress(kidsStorage.recordGameWin(gameId, 1))}
+          />
+        )}
+
+        {activeTab === "reading" && (
+          <ReadingBlendingStudio
+            progress={progress}
+            onGameWin={(gameId) => setProgress(kidsStorage.recordGameWin(gameId, 1))}
+            onStageCheck={(stageNumber, passed) =>
+              setProgress(kidsStorage.recordReadingStageMastered(stageNumber, passed))
+            }
           />
         )}
 

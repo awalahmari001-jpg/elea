@@ -198,12 +198,176 @@ export const kidsStorage = {
     return next;
   },
 
+  recordArticulationPracticed: (soundId: string): KidsProgressState => {
+    const prev = readKids();
+    const isNew = !prev.articulationPracticed.includes(soundId);
+    const next = writeKids({
+      ...prev,
+      articulationPracticed: isNew
+        ? [...prev.articulationPracticed, soundId]
+        : prev.articulationPracticed,
+      stars: prev.stars + (isNew ? 1 : 0),
+      points: prev.points + (isNew ? 10 : 2),
+      updatedAt: new Date().toISOString(),
+    });
+    if (isNew) {
+      learningRecord.logActivity({ kind: "speaking", count: 1, minutes: 3, passed: true });
+    }
+    return next;
+  },
+
+  /**
+   * Mastery-gated reading ladder progression: a stage is ONLY mastered when the child
+   * passes its interactive mastery check (>= thresholdPct, default 75%).
+   */
+  recordReadingStageMastered: (stageNumber: number, passedCheck: boolean): KidsProgressState => {
+    const prev = readKids();
+    if (!passedCheck) return prev;
+    const isNew = !prev.readingStagesMastered.includes(stageNumber);
+    const next = writeKids({
+      ...prev,
+      readingStagesMastered: isNew
+        ? [...prev.readingStagesMastered, stageNumber].sort((a, b) => a - b)
+        : prev.readingStagesMastered,
+      stars: prev.stars + (isNew ? 2 : 0),
+      points: prev.points + (isNew ? 20 : 5),
+      updatedAt: new Date().toISOString(),
+    });
+    if (isNew) {
+      learningRecord.logActivity({ kind: "reading", count: 1, minutes: 4, passed: true });
+    }
+    return next;
+  },
+
   clear: (): void => {
     if (typeof window !== "undefined") {
       window.localStorage.removeItem(KIDS_STORAGE_KEY);
     }
   },
 };
+
+export interface ReadingDiagnosticReport {
+  stagesMasteredCount: number;
+  totalStages: number;
+  subskills: {
+    id: string;
+    label: Bilingual;
+    pct: number;
+  }[];
+  targetedRecommendation: Bilingual;
+}
+
+export function computeReadingDiagnostics(state: KidsProgressState): ReadingDiagnosticReport {
+  const hasStage = (n: number) => state.readingStagesMastered.includes(n);
+  const letterPct = Math.min(100, Math.round((state.masteredLetters.length / 26) * 100));
+  const vowelPct = Math.min(100, Math.round((state.vowelChecksPassed.length / 5) * 100));
+  const consonantPct = Math.min(100, Math.round((state.consonantSortsCompleted / 3) * 100));
+  const artPct = Math.min(100, Math.round((state.articulationPracticed.length / 12) * 100));
+
+  const subskills = [
+    {
+      id: "letters",
+      label: { en: "Letter Recognition", ar: "تمييز الحروف" },
+      pct: hasStage(1) ? 100 : letterPct,
+    },
+    {
+      id: "letter-sounds",
+      label: { en: "Letter-Sound Knowledge", ar: "أصوات الحروف" },
+      pct: hasStage(2) ? 100 : letterPct,
+    },
+    {
+      id: "vowels",
+      label: { en: "Vowel Recognition", ar: "تمييز الحروف المتحركة" },
+      pct: hasStage(3) ? 100 : vowelPct,
+    },
+    {
+      id: "consonants",
+      label: { en: "Consonant Recognition", ar: "تمييز الحروف الساكنة" },
+      pct: hasStage(3) ? 100 : consonantPct,
+    },
+    {
+      id: "phonemes",
+      label: { en: "Phoneme & Articulation", ar: "الفونيمات ومخارج الحروف" },
+      pct: hasStage(5) ? 100 : artPct,
+    },
+    {
+      id: "blending",
+      label: { en: "Sound Blending", ar: "دمج الأصوات" },
+      pct: hasStage(6) ? 100 : state.gamesCompleted.includes("kids-blend") ? 65 : 0,
+    },
+    {
+      id: "segmentation",
+      label: { en: "Sound Segmentation", ar: "تقطيع الأصوات" },
+      pct: hasStage(4) ? 100 : state.gamesCompleted.includes("kids-segment") ? 65 : 0,
+    },
+    {
+      id: "cvc",
+      label: { en: "CVC 3-Letter Reading", ar: "قراءة كلمات CVC" },
+      pct: hasStage(7) ? 100 : state.gamesCompleted.includes("kids-cvc") ? 70 : 0,
+    },
+    {
+      id: "cvcc-ccvc",
+      label: { en: "CVCC & CCVC Blends", ar: "قراءة CVCC وCCVC" },
+      pct: hasStage(8) ? 100 : state.gamesCompleted.includes("kids-4letter") ? 70 : 0,
+    },
+    {
+      id: "digraphs",
+      label: { en: "Digraph Recognition (sh/ch/th)", ar: "الثنائيات الساكنة" },
+      pct: hasStage(9) ? 100 : 0,
+    },
+    {
+      id: "sentences",
+      label: { en: "Sentence Reading", ar: "قراءة الجمل" },
+      pct:
+        hasStage(10) || hasStage(11)
+          ? 100
+          : state.gamesCompleted.includes("kids-sentences")
+            ? 65
+            : 0,
+    },
+    {
+      id: "comprehension",
+      label: { en: "Reading Comprehension", ar: "الفهم القرائي" },
+      pct: hasStage(13) ? 100 : state.gamesCompleted.includes("kids-passage") ? 75 : 0,
+    },
+  ];
+
+  // Adaptive weakness-driven recommendation (Module 10 requirement!)
+  let targetedRecommendation: Bilingual;
+  if (letterPct < 40) {
+    targetedRecommendation = {
+      en: "Start by exploring more letters in Alphabet & Tracing (A–Z) and hearing each letter's NAME vs. SOUND.",
+      ar: "ابدأ باستكشاف المزيد من الحروف في استوديو الحروف وسماع اسم الحرف مقابل صوته.",
+    };
+  } else if (!hasStage(6)) {
+    targetedRecommendation = {
+      en: "Great letter knowledge! Focus next on Sound Blending boxes (/k/ + /æ/ + /t/ = cat) before longer words.",
+      ar: "معرفة ممتازة بالحروف! ركّز الآن على دمج الأصوات (/k/ + /æ/ + /t/ = cat) قبل الكلمات الأطول.",
+    };
+  } else if (!hasStage(8)) {
+    targetedRecommendation = {
+      en: "Awesome CVC progress! Practise CVCC & CCVC consonant blends (like frog, stop, hand) next.",
+      ar: "تقدّم رائع في كلمات CVC! تدرّب الآن على كلمات CVCC وCCVC مثل frog وstop وhand.",
+    };
+  } else if (!hasStage(12)) {
+    targetedRecommendation = {
+      en: "Ready for Sentence Reading! Practise building 4–6 word sentences and reading My Little Cat.",
+      ar: "مستعد لقراءة الجمل! تدرّب على بناء جمل من ٤–٦ كلمات وقراءة قصة قطتي الصغيرة.",
+    };
+  } else {
+    targetedRecommendation = {
+      en: "Super Reader! Keep reading short illustrated stories and practising Minimal Pairs for crisp pronunciation.",
+      ar: "قارئ بطل! واصل قراءة القصص المصوّرة والتدرّب على الأزواج الصوتية المتقاربة.",
+    };
+  }
+
+  return {
+    stagesMasteredCount: state.readingStagesMastered.length,
+    totalStages: 14,
+    subskills,
+    targetedRecommendation,
+  };
+}
 
 export function computeKidsBadges(state: KidsProgressState): KidsBadgeItem[] {
   return [
@@ -229,11 +393,21 @@ export function computeKidsBadges(state: KidsProgressState): KidsBadgeItem[] {
       earned: state.vowelChecksPassed.length >= 5,
     },
     {
-      id: "consonant-detective",
-      emoji: "🔍",
-      title: { en: "Sound Detective", ar: "محقّق الأصوات" },
-      requirement: { en: "Complete 2 Vowel/Consonant sorts", ar: "أكمل جولتين من تصنيف الحروف" },
-      earned: state.consonantSortsCompleted >= 2,
+      id: "sound-maker",
+      emoji: "🗣️",
+      title: { en: "Sound Maker", ar: "صانع الأصوات" },
+      requirement: {
+        en: "Practise 4 articulation sounds",
+        ar: "تدرّب على ٤ أصوات في مخارج الحروف",
+      },
+      earned: state.articulationPracticed.length >= 4,
+    },
+    {
+      id: "super-reader",
+      emoji: "📖",
+      title: { en: "Rising Reader", ar: "قارئ صاعد" },
+      requirement: { en: "Pass 3 Reading Ladder stages", ar: "اجتز ٣ مراحل في سُلّم القراءة" },
+      earned: state.readingStagesMastered.length >= 3,
     },
     {
       id: "star-collector",

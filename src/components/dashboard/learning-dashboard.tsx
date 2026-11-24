@@ -4,9 +4,12 @@ import {
   ArrowRight,
   Award,
   BarChart3,
+  Bell,
   BookOpen,
+  CalendarDays,
   CheckCircle2,
   Clock,
+  Compass,
   Flame,
   GraduationCap,
   Layers,
@@ -35,6 +38,11 @@ import {
   type WeeklyGoalItem,
   type WeeklyGoalsConfig,
 } from "@/lib/learning-record";
+import {
+  computeActiveReminders,
+  generatePersonalRoadmap,
+  personalPlanStorage,
+} from "@/lib/personal-plan";
 
 export function LearningDashboard() {
   const { t, locale, dir } = useI18n();
@@ -690,6 +698,94 @@ export function LearningDashboard() {
           ))}
         </div>
       </section>
+
+      {/* G. Personal Learning Roadmap & Active Smart Reminders Preview */}
+      {(() => {
+        const plan = personalPlanStorage.getPlan();
+        const roadmap = generatePersonalRoadmap(plan, overview.studyingLevel);
+        const nextSteps = roadmap.filter((s) => !s.completed).slice(0, 3);
+        const reminders = computeActiveReminders().slice(0, 2);
+        return (
+          <section className="grid gap-6 lg:grid-cols-12">
+            <Card className="border-2 border-foreground/15 lg:col-span-7">
+              <CardHeader className="flex flex-row items-center justify-between gap-2 pb-3">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-base font-extrabold">
+                    <Compass className="size-4 text-primary" aria-hidden />
+                    {t.calendarPage.roadmapTitle} ({overview.studyingLevel} → {plan.targetLevel})
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    {t.calendarPage.roadmapDesc}
+                  </CardDescription>
+                </div>
+                <Button asChild size="sm" variant="outline" className="rounded-full text-xs">
+                  <Link to="/calendar">
+                    <CalendarDays className="me-1.5 size-3.5" aria-hidden />
+                    {t.nav.calendar}
+                  </Link>
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-2.5">
+                {nextSteps.map((step) => (
+                  <Link
+                    key={step.id}
+                    to={step.to}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/20 px-3.5 py-2.5 text-xs transition-colors hover:border-primary/50"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span
+                        className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-black text-primary"
+                        dir="ltr"
+                      >
+                        {step.order}
+                      </span>
+                      <span className="font-bold text-foreground">{step.title[locale]}</span>
+                    </div>
+                    <ArrowRight
+                      className="size-3.5 shrink-0 text-primary rtl:rotate-180"
+                      aria-hidden
+                    />
+                  </Link>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-foreground/15 lg:col-span-5">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base font-extrabold">
+                  <Bell className="size-4 text-primary" aria-hidden />
+                  {t.calendarPage.activeRemindersTitle}
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  {t.calendarPage.remindersDesc}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2.5">
+                {reminders.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">
+                    {t.calendarPage.remindersControlNote}
+                  </p>
+                ) : (
+                  reminders.map((rem) => (
+                    <div
+                      key={rem.id}
+                      className="flex items-start justify-between gap-2 rounded-xl border border-border bg-card p-3 text-xs"
+                    >
+                      <div className="space-y-0.5">
+                        <div className="font-bold text-foreground">{rem.title[locale]}</div>
+                        <p className="text-[11px] text-muted-foreground">{rem.detail[locale]}</p>
+                      </div>
+                      <Button asChild size="sm" variant="ghost" className="shrink-0 text-xs">
+                        <Link to={rem.to}>{rem.ctaLabel[locale]}</Link>
+                      </Button>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </section>
+        );
+      })()}
     </div>
   );
 }

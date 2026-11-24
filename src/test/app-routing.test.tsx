@@ -29,6 +29,7 @@ afterEach(() => {
 const ALL_PLATFORM_ROUTES = [
   "/",
   "/dashboard",
+  "/calendar",
   "/profile",
   "/certificates",
   "/kids",
@@ -47,6 +48,7 @@ const ALL_PLATFORM_ROUTES = [
 const ALL_META_KEYS = [
   "home",
   "dashboard",
+  "calendar",
   "profile",
   "certificates",
   "kids",

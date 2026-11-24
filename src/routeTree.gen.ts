@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdultsRouteImport } from './routes/adults'
 import { Route as BusinessRouteImport } from './routes/business'
+import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as CefrMasteryRouteImport } from './routes/cefr-mastery'
 import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -41,6 +42,11 @@ const AdultsRoute = AdultsRouteImport.update({
 const BusinessRoute = BusinessRouteImport.update({
   id: '/business',
   path: '/business',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CefrMasteryRoute = CefrMasteryRouteImport.update({
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/adults': typeof AdultsRoute
   '/business': typeof BusinessRoute
+  '/calendar': typeof CalendarRoute
   '/cefr-mastery': typeof CefrMasteryRoute
   '/certificates': typeof CertificatesRoute
   '/dashboard': typeof DashboardRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/adults': typeof AdultsRoute
   '/business': typeof BusinessRoute
+  '/calendar': typeof CalendarRoute
   '/cefr-mastery': typeof CefrMasteryRoute
   '/certificates': typeof CertificatesRoute
   '/dashboard': typeof DashboardRoute
@@ -164,6 +172,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/adults': typeof AdultsRoute
   '/business': typeof BusinessRoute
+  '/calendar': typeof CalendarRoute
   '/cefr-mastery': typeof CefrMasteryRoute
   '/certificates': typeof CertificatesRoute
   '/dashboard': typeof DashboardRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/'
     | '/adults'
     | '/business'
+    | '/calendar'
     | '/cefr-mastery'
     | '/certificates'
     | '/dashboard'
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/'
     | '/adults'
     | '/business'
+    | '/calendar'
     | '/cefr-mastery'
     | '/certificates'
     | '/dashboard'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/'
     | '/adults'
     | '/business'
+    | '/calendar'
     | '/cefr-mastery'
     | '/certificates'
     | '/dashboard'
@@ -247,6 +259,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdultsRoute: typeof AdultsRoute
   BusinessRoute: typeof BusinessRoute
+  CalendarRoute: typeof CalendarRoute
   CefrMasteryRoute: typeof CefrMasteryRoute
   CertificatesRoute: typeof CertificatesRoute
   DashboardRoute: typeof DashboardRoute
@@ -285,6 +298,13 @@ declare module '@tanstack/react-router' {
       path: '/business'
       fullPath: '/business'
       preLoaderRoute: typeof BusinessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cefr-mastery': {
@@ -399,6 +419,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdultsRoute: AdultsRoute,
   BusinessRoute: BusinessRoute,
+  CalendarRoute: CalendarRoute,
   CefrMasteryRoute: CefrMasteryRoute,
   CertificatesRoute: CertificatesRoute,
   DashboardRoute: DashboardRoute,

@@ -5,6 +5,7 @@ import {
   BookMarked,
   BookOpen,
   Briefcase,
+  CalendarDays,
   ChevronDown,
   ClipboardCheck,
   GraduationCap,
@@ -18,6 +19,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { AiAssistantDrawer } from "@/components/assistant/ai-assistant-drawer";
 import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -190,7 +192,13 @@ export function SiteHeader() {
                 <ChevronDown className="size-3 opacity-70" aria-hidden />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-60">
+              <DropdownMenuItem asChild>
+                <Link to="/calendar" className="flex items-center gap-2 font-medium">
+                  <CalendarDays className="size-4 text-primary" aria-hidden />
+                  {t.nav.calendar}
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/speaking" className="flex items-center gap-2 font-medium">
                   <Mic className="size-4 text-primary" aria-hidden />
@@ -215,6 +223,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <AiAssistantDrawer variant="header" />
           <LanguageSwitcher className="hidden sm:inline-flex" />
           <ThemeToggle />
           <Button
@@ -344,6 +353,16 @@ export function SiteHeader() {
                   <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                     {t.nav.mobileGroupResources}
                   </p>
+                  <SheetClose asChild>
+                    <Link
+                      to="/calendar"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-muted"
+                      activeProps={{ className: activeClass }}
+                    >
+                      <CalendarDays className="size-4 text-primary" aria-hidden />
+                      {t.nav.calendar}
+                    </Link>
+                  </SheetClose>
                   <SheetClose asChild>
                     <Link
                       to="/speaking"
