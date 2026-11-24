@@ -15,6 +15,7 @@ import {
   type SpeechOrganId,
 } from "@/content/kids/articulation-reading-data";
 import { playSpeech, useSpeech } from "@/hooks/use-speech";
+import { playPhonemeSound } from "@/lib/kids-phonics-audio";
 import type { KidsProgressState } from "@/lib/kids-storage";
 
 export interface ArticulationStudioProps {
@@ -294,7 +295,7 @@ export function ArticulationStudio({
                     setSelectedSoundId(s.id);
                     setSelectedOrgan(s.activeOrgans[0] ?? "lips");
                     setSpokenHeard("");
-                    playSpeech(s.demoSpeech, 0.82, "female");
+                    playPhonemeSound(s.ipa, s.examples[0]?.word);
                   }}
                   className={`flex items-center gap-1.5 rounded-2xl border-2 px-4 py-2 font-mono text-lg font-black transition-all ${
                     active
@@ -321,7 +322,7 @@ export function ArticulationStudio({
                   size="sm"
                   variant="default"
                   className="rounded-full"
-                  onClick={() => playSpeech(sound.demoSpeech, 0.8, "female")}
+                  onClick={() => playPhonemeSound(sound.ipa, sound.examples[0]?.word)}
                 >
                   <Volume2 className="me-1.5 size-4" aria-hidden />
                   {isAr ? "استمع للصوت" : "Hear Sound"}

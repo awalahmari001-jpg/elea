@@ -11,6 +11,7 @@ import {
   type AlphabetEntry,
 } from "@/content/kids/alphabet-phonics-data";
 import { playSpeech } from "@/hooks/use-speech";
+import { LETTER_PHONICS_AUDIO, playLetterName, playLetterSound } from "@/lib/kids-phonics-audio";
 import type { KidsProgressState } from "@/lib/kids-storage";
 import { LetterTracingPad } from "./letter-tracing-pad";
 
@@ -126,7 +127,7 @@ export function AlphabetStudio({
               type="button"
               onClick={() => {
                 setSelectedLetter(item.letter);
-                playSpeech(item.letter, 0.85, "female");
+                playLetterSound(item.letter, item.examples[0].word);
               }}
               dir="ltr"
               className={`relative flex flex-col items-center justify-center rounded-2xl border-2 py-2.5 font-extrabold transition-all hover:-translate-y-0.5 ${
@@ -218,7 +219,7 @@ export function AlphabetStudio({
                     size="sm"
                     variant="outline"
                     className="rounded-full"
-                    onClick={() => playSpeech(`The letter ${entry.letter}`, 0.85, "female")}
+                    onClick={() => playLetterName(entry.letter)}
                   >
                     <Volume2 className="me-1 size-4" aria-hidden />
                     {kw.hearNameBtn}
@@ -237,7 +238,10 @@ export function AlphabetStudio({
                       className="mt-0.5 font-mono text-base font-extrabold text-primary"
                       dir="ltr"
                     >
-                      {entry.mainSoundIpa}
+                      {entry.mainSoundIpa}{" "}
+                      <span className="text-xs font-sans font-semibold text-muted-foreground">
+                        · {LETTER_PHONICS_AUDIO[entry.letter]?.phoneticHint}
+                      </span>
                     </div>
                   </div>
                   <Button
@@ -245,7 +249,7 @@ export function AlphabetStudio({
                     size="sm"
                     variant="default"
                     className="rounded-full"
-                    onClick={() => playSpeech(entry.soundDemoSpeech, 0.82, "female")}
+                    onClick={() => playLetterSound(entry.letter, entry.examples[0].word)}
                   >
                     <Volume2 className="me-1 size-4" aria-hidden />
                     {kw.hearSoundBtn}
@@ -342,11 +346,7 @@ export function AlphabetStudio({
                 variant="accent"
                 className="rounded-full font-bold"
                 onClick={() =>
-                  playSpeech(
-                    `${currentRound.target.letter}. ${currentRound.target.soundDemoSpeech}`,
-                    0.82,
-                    "female",
-                  )
+                  playLetterSound(currentRound.target.letter, currentRound.target.examples[0].word)
                 }
               >
                 <Volume2 className="me-2 size-5" aria-hidden />

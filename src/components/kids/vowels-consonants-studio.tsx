@@ -12,6 +12,7 @@ import {
   POSITIVE_PRAISE,
 } from "@/content/kids/alphabet-phonics-data";
 import { playSpeech } from "@/hooks/use-speech";
+import { playLetterSound, playVowelSound } from "@/lib/kids-phonics-audio";
 import type { KidsProgressState } from "@/lib/kids-storage";
 
 type VcGameMode = "sort" | "missing-vowel" | "beg-end";
@@ -94,7 +95,14 @@ export function VowelsConsonantsStudio({
                   {/* Short Sound */}
                   <button
                     type="button"
-                    onClick={() => playSpeech(`${v.shortWord}. ${v.shortSentence}`, 0.85, "female")}
+                    onClick={() =>
+                      playVowelSound(
+                        v.vowel as "A" | "E" | "I" | "O" | "U",
+                        "short",
+                        v.shortWord,
+                        v.shortSentence,
+                      )
+                    }
                     className="w-full rounded-2xl border border-border/80 bg-card p-3 text-start transition-colors hover:border-primary"
                   >
                     <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground">
@@ -114,7 +122,14 @@ export function VowelsConsonantsStudio({
                   {/* Long Sound */}
                   <button
                     type="button"
-                    onClick={() => playSpeech(`${v.longWord}. ${v.longSentence}`, 0.85, "female")}
+                    onClick={() =>
+                      playVowelSound(
+                        v.vowel as "A" | "E" | "I" | "O" | "U",
+                        "long",
+                        v.longWord,
+                        v.longSentence,
+                      )
+                    }
                     className="w-full rounded-2xl border border-border/80 bg-card p-3 text-start transition-colors hover:border-primary"
                   >
                     <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground">
@@ -166,7 +181,7 @@ export function VowelsConsonantsStudio({
             <button
               key={c.letter}
               type="button"
-              onClick={() => playSpeech(c.soundDemoSpeech, 0.85, "female")}
+              onClick={() => playLetterSound(c.letter, c.examples[0].word)}
               className="flex flex-col items-center rounded-2xl border border-border bg-card p-3 text-center transition-all hover:-translate-y-0.5 hover:border-primary/60"
             >
               <span className="text-2xl font-black text-foreground" dir="ltr">

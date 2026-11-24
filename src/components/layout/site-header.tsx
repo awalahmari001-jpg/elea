@@ -194,6 +194,12 @@ export function SiteHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-60">
               <DropdownMenuItem asChild>
+                <Link to="/resources" className="flex items-center gap-2 font-medium">
+                  <BookMarked className="size-4 text-primary" aria-hidden />
+                  {t.nav.resourcesLibrary}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link to="/calendar" className="flex items-center gap-2 font-medium">
                   <CalendarDays className="size-4 text-primary" aria-hidden />
                   {t.nav.calendar}
@@ -353,6 +359,16 @@ export function SiteHeader() {
                   <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                     {t.nav.mobileGroupResources}
                   </p>
+                  <SheetClose asChild>
+                    <Link
+                      to="/resources"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-muted"
+                      activeProps={{ className: activeClass }}
+                    >
+                      <BookMarked className="size-4 text-primary" aria-hidden />
+                      {t.nav.resourcesLibrary}
+                    </Link>
+                  </SheetClose>
                   <SheetClose asChild>
                     <Link
                       to="/calendar"

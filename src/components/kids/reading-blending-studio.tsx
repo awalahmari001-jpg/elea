@@ -15,6 +15,7 @@ import {
   type DecodableWord,
 } from "@/content/kids/articulation-reading-data";
 import { playSpeech } from "@/hooks/use-speech";
+import { playBlendedWord, playPhonemeSound } from "@/lib/kids-phonics-audio";
 import { computeReadingDiagnostics, type KidsProgressState } from "@/lib/kids-storage";
 
 type DecodingTab = "cvc" | "cvcc" | "ccvc" | "digraph";
@@ -76,7 +77,7 @@ export function ReadingBlendingStudio({
 
   const handleBlendWord = () => {
     setBlended(true);
-    playSpeech(`${currentWord.word}. ${currentWord.sentence}`, 0.82, "female");
+    playBlendedWord(currentWord.phonemes, currentWord.word);
     onGameWin(decodingTab === "cvc" ? "kids-cvc" : "kids-4letter");
     onGameWin("kids-blend");
   };
@@ -196,7 +197,7 @@ export function ReadingBlendingStudio({
                 key={`${currentWord.id}-${idx}`}
                 type="button"
                 onClick={() => {
-                  playSpeech(tile, 0.78, "female");
+                  playPhonemeSound(currentWord.phonemes[idx] ?? tile);
                   onGameWin("kids-segment");
                 }}
                 className={`flex flex-col items-center justify-center rounded-2xl border-2 px-5 py-3 transition-all hover:scale-105 ${

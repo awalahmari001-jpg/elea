@@ -55,6 +55,9 @@ const en = {
     calendarTitle: `Personal Learning Plan, Calendar & Smart Reminders — ${SITE.name}`,
     calendarDescription:
       "Build your personal CEFR roadmap, realistic weekly study schedule, interactive learning calendar, and configurable smart reminders.",
+    resourcesTitle: `Learning Resources Library & Bilingual Glossary — ${SITE.name}`,
+    resourcesDescription:
+      "Searchable English-Arabic glossary with IPA and audio, A1–C2 grammar quick-reference cards, and printable study checklists.",
   },
   nav: {
     skipToContent: "Skip to content",
@@ -64,6 +67,7 @@ const en = {
     pathwaysMenu: "Pathways",
     ieltsMenu: "IELTS Prep",
     resourcesMenu: "Resources",
+    resourcesLibrary: "Resources & Glossary",
     calendar: "Study Plan & Calendar",
     profile: "Profile & Settings",
     certificates: "Certificates & Verification",
@@ -1208,7 +1212,10 @@ const en = {
     tabVowelsConsonants: "2. Vowels & Consonants",
     tabArticulation: "3. Let's Make Sounds!",
     tabReadingLadder: "4. Blending & 14-Stage Reading",
-    tabGuidedLessons: "5. Guided Kids Lessons",
+    tabVocabGrammar: "5. Vocabulary & Grammar",
+    tabAnimatedVideos: "6. Animated Video Lessons",
+    tabLearningGames: "7. Learning Games",
+    tabGuidedLessons: "8. Guided Kids Lessons",
     alphabetTitle: "Meet All 26 English Letters!",
     alphabetSubtitle:
       "Tap any letter to hear its NAME and its SOUND — they are different! Then trace it and play a quick game.",
@@ -1339,6 +1346,33 @@ const en = {
     inputPlaceholder: "Ask about grammar, vocabulary, writing, or your progress...",
     sendBtn: "Send question",
   },
+  resourcesPage: {
+    eyebrow: "Learning Resources & Reference Hub",
+    title: "Learning Resources, Bilingual Glossary & Study Guides",
+    subtitle:
+      "Search essential English–Arabic terms with IPA and pronunciation audio, scan A1–C2 grammar quick cards, and print actionable study checklists.",
+    printGuidesBtn: "Print Study Guides",
+    glossaryTitle: "Searchable Bilingual Glossary",
+    glossarySubtitle:
+      "Filter by track or CEFR band and tap the speaker icon to hear natural pronunciation.",
+    searchPlaceholder: "Search English or Arabic terms, meanings...",
+    catAll: "All Topics",
+    catCefr: "CEFR Core",
+    catIelts: "IELTS 7+",
+    catBusiness: "Business",
+    catGrammar: "Grammar Terms",
+    allLevels: "All Levels",
+    noGlossaryResults:
+      "No matching glossary terms found. Try clearing a filter or searching another word.",
+    grammarRefTitle: "A1–C2 Grammar Quick-Reference Cards",
+    grammarRefSubtitle:
+      "Clear formulas plus common mistakes Arabic speakers make — and how to fix them.",
+    practiseRuleBtn: "Practise This Rule",
+    guidesTitle: "Printable Study Guides & Checklists",
+    guidesSubtitle:
+      "Structured roadmaps for CEFR learners, IELTS candidates, professionals, and Kids parents.",
+    openTrackBtn: "Open Learning Track",
+  },
   footer: {
     about:
       "An English academy for Arabic speakers — kids, adults and IELTS students, from A1 to C2.",
@@ -1397,6 +1431,9 @@ const ar: Messages = {
     calendarTitle: `خطة التعلّم الشخصية والتقويم والتذكيرات الذكية — ${SITE.name}`,
     calendarDescription:
       "أنشئ خريطة طريق CEFR الخاصة بك وجدولك الأسبوعي الواقعي وتقويمك الدراسي والتذكيرات الذكية القابلة للتخصيص.",
+    resourcesTitle: `مكتبة المصادر التعليمية والقاموس الثنائي — ${SITE.name}`,
+    resourcesDescription:
+      "قاموس ثنائي اللغة إنجليزي-عربي قابل للبحث مع IPA والنطق، وبطاقات قواعد A1–C2، وأدلة دراسة قابلة للطباعة.",
   },
   nav: {
     skipToContent: "انتقل إلى المحتوى",
@@ -1406,6 +1443,7 @@ const ar: Messages = {
     pathwaysMenu: "المسارات",
     ieltsMenu: "التحضير للآيلتس",
     resourcesMenu: "المصادر",
+    resourcesLibrary: "المصادر والقاموس",
     calendar: "خطة الدراسة والتقويم",
     profile: "الملف والإعدادات",
     certificates: "الشهادات والتحقّق",
@@ -2527,7 +2565,10 @@ const ar: Messages = {
     tabVowelsConsonants: "٢. المتحركة والساكنة",
     tabArticulation: "٣. مخارج الحروف والنطق",
     tabReadingLadder: "٤. الدمج وسُلّم القراءة (١٤ مرحلة)",
-    tabGuidedLessons: "٥. دروس الأطفال الموجّهة",
+    tabVocabGrammar: "٥. المفردات والقواعد المرئية",
+    tabAnimatedVideos: "٦. دروس الفيديو المتحرك",
+    tabLearningGames: "٧. صالة ألعاب التعلّم",
+    tabGuidedLessons: "٨. دروس الأطفال الموجّهة",
     alphabetTitle: "تعرّف على جميع الحروف الإنجليزية الـ٢٦!",
     alphabetSubtitle:
       "اضغط على أي حرف لتسمع اسمه وصوته — فهما مختلفان! ثم تتبّع الحرف والعب لعبة سريعة.",
@@ -2650,6 +2691,29 @@ const ar: Messages = {
     thinking: "جارٍ مراجعة تقدمك وإعداد إجابة مخصّصة...",
     inputPlaceholder: "اسأل عن القواعد أو المفردات أو الكتابة أو تقدمك...",
     sendBtn: "إرسال السؤال",
+  },
+  resourcesPage: {
+    eyebrow: "مكتبة المصادر والمراجع التعليمية",
+    title: "مكتبة المصادر التعليمية والقاموس الثنائي وأدلة الدراسة",
+    subtitle:
+      "ابحث في المصطلحات الإنجليزية-العربية مع النطق الصوتي وIPA، وراجع بطاقات القواعد السريعة من A1 إلى C2، واطبع قوائم الدراسة العملية.",
+    printGuidesBtn: "طباعة أدلة الدراسة",
+    glossaryTitle: "القاموس الثنائي القابل للبحث",
+    glossarySubtitle: "صفِّ حسب المسار أو مستوى CEFR واضغط على أيقونة الصوت لسماع النطق الطبيعي.",
+    searchPlaceholder: "ابحث عن مصطلح إنجليزي أو عربي أو معنى...",
+    catAll: "جميع المواضيع",
+    catCefr: "أساسيات CEFR",
+    catIelts: "آيلتس 7+",
+    catBusiness: "الأعمال",
+    catGrammar: "مصطلحات القواعد",
+    allLevels: "جميع المستويات",
+    noGlossaryResults: "لا توجد نتائج مطابقة. جرّب مسح أحد المرشحات أو البحث عن كلمة أخرى.",
+    grammarRefTitle: "بطاقات مرجعية سريعة لقواعد A1–C2",
+    grammarRefSubtitle: "صيغ واضحة مع أبرز الأخطاء الشائعة لدى الناطقين بالعربية وكيفية تصحيحها.",
+    practiseRuleBtn: "تدرّب على هذه القاعدة",
+    guidesTitle: "أدلة وقوائم دراسة قابلة للطباعة",
+    guidesSubtitle: "خرائط منظمة لطلاب CEFR ومتقدّمي الآيلتس والمهنيين وأولياء أمور الأطفال.",
+    openTrackBtn: "افتح المسار التعليمي",
   },
   footer: {
     about:

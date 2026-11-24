@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
-import { Award, BookOpen, Check, GraduationCap, Mic, Pencil, Sparkles, Star } from "lucide-react";
+import {
+  Award,
+  BookOpen,
+  Check,
+  Gamepad2,
+  GraduationCap,
+  Mic,
+  Palette,
+  Pencil,
+  Sparkles,
+  Star,
+  Tv,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { useI18n } from "@/components/i18n-provider";
@@ -20,9 +32,19 @@ import { lockedLessonIds } from "@/lib/lesson-access";
 import { AlphabetStudio } from "./alphabet-studio";
 import { ArticulationStudio } from "./articulation-studio";
 import { ReadingBlendingStudio } from "./reading-blending-studio";
+import { VideosGamesStudio } from "./videos-games-studio";
+import { VocabGrammarStudio } from "./vocab-grammar-studio";
 import { VowelsConsonantsStudio } from "./vowels-consonants-studio";
 
-type KidsHubTab = "alphabet" | "vowels" | "articulation" | "reading" | "guided";
+type KidsHubTab =
+  | "alphabet"
+  | "vowels"
+  | "articulation"
+  | "reading"
+  | "vocab-grammar"
+  | "videos"
+  | "games"
+  | "guided";
 
 export function KidsWorldHub() {
   const { t, locale, dir } = useI18n();
@@ -200,7 +222,7 @@ export function KidsWorldHub() {
           </div>
 
           {/* Age Group Focus Highlights + Main Kids Studio Tabs */}
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-3">
             <div className="flex flex-wrap gap-2" role="tablist" aria-label={kw.badge}>
               {(
                 [
@@ -208,6 +230,9 @@ export function KidsWorldHub() {
                   { id: "vowels", label: kw.tabVowelsConsonants, Icon: Sparkles },
                   { id: "articulation", label: kw.tabArticulation, Icon: Mic },
                   { id: "reading", label: kw.tabReadingLadder, Icon: GraduationCap },
+                  { id: "vocab-grammar", label: kw.tabVocabGrammar, Icon: Palette },
+                  { id: "videos", label: kw.tabAnimatedVideos, Icon: Tv },
+                  { id: "games", label: kw.tabLearningGames, Icon: Gamepad2 },
                   { id: "guided", label: kw.tabGuidedLessons, Icon: BookOpen },
                 ] as const
               ).map(({ id, label, Icon }) => (
@@ -216,9 +241,9 @@ export function KidsWorldHub() {
                   type="button"
                   role="tab"
                   aria-selected={activeTab === id}
-                  size="lg"
+                  size="default"
                   variant={activeTab === id ? "default" : "outline"}
-                  className="rounded-full font-extrabold"
+                  className="rounded-full text-xs font-extrabold sm:text-sm"
                   onClick={() => setActiveTab(id)}
                 >
                   <Icon className="me-1.5 size-4" aria-hidden />
@@ -278,6 +303,39 @@ export function KidsWorldHub() {
             onStageCheck={(stageNumber, passed) =>
               setProgress(kidsStorage.recordReadingStageMastered(stageNumber, passed))
             }
+          />
+        )}
+
+        {activeTab === "vocab-grammar" && (
+          <VocabGrammarStudio
+            progress={progress}
+            onCompleteVocabTheme={(themeId) =>
+              setProgress(kidsStorage.recordVocabThemeCompleted(themeId))
+            }
+            onCompleteGrammarUnit={(unitId) =>
+              setProgress(kidsStorage.recordGrammarUnitCompleted(unitId))
+            }
+            onGameWin={(gameId) => setProgress(kidsStorage.recordGameWin(gameId, 1))}
+          />
+        )}
+
+        {activeTab === "videos" && (
+          <VideosGamesStudio
+            key="videos"
+            progress={progress}
+            initialSubMode="videos"
+            onWatchVideo={(videoId) => setProgress(kidsStorage.recordVideoWatched(videoId))}
+            onGameWin={(gameId) => setProgress(kidsStorage.recordGameWin(gameId, 1))}
+          />
+        )}
+
+        {activeTab === "games" && (
+          <VideosGamesStudio
+            key="games"
+            progress={progress}
+            initialSubMode="games"
+            onWatchVideo={(videoId) => setProgress(kidsStorage.recordVideoWatched(videoId))}
+            onGameWin={(gameId) => setProgress(kidsStorage.recordGameWin(gameId, 1))}
           />
         )}
 

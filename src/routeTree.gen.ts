@@ -22,6 +22,7 @@ import { Route as KidsRouteImport } from './routes/kids'
 import { Route as LevelTestRouteImport } from './routes/level-test'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProgressRouteImport } from './routes/progress'
+import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as SelfLearningRouteImport } from './routes/self-learning'
 import { Route as SpeakingRouteImport } from './routes/speaking'
 import { Route as WorkshopsRouteImport } from './routes/workshops'
@@ -94,6 +95,11 @@ const ProgressRoute = ProgressRouteImport.update({
   path: '/progress',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SelfLearningRoute = SelfLearningRouteImport.update({
   id: '/self-learning',
   path: '/self-learning',
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/level-test': typeof LevelTestRoute
   '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
+  '/resources': typeof ResourcesRoute
   '/self-learning': typeof SelfLearningRoute
   '/speaking': typeof SpeakingRoute
   '/workshops': typeof WorkshopsRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/level-test': typeof LevelTestRoute
   '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
+  '/resources': typeof ResourcesRoute
   '/self-learning': typeof SelfLearningRoute
   '/speaking': typeof SpeakingRoute
   '/workshops': typeof WorkshopsRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/level-test': typeof LevelTestRoute
   '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
+  '/resources': typeof ResourcesRoute
   '/self-learning': typeof SelfLearningRoute
   '/speaking': typeof SpeakingRoute
   '/workshops': typeof WorkshopsRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/level-test'
     | '/profile'
     | '/progress'
+    | '/resources'
     | '/self-learning'
     | '/speaking'
     | '/workshops'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/level-test'
     | '/profile'
     | '/progress'
+    | '/resources'
     | '/self-learning'
     | '/speaking'
     | '/workshops'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/level-test'
     | '/profile'
     | '/progress'
+    | '/resources'
     | '/self-learning'
     | '/speaking'
     | '/workshops'
@@ -269,6 +281,7 @@ export interface RootRouteChildren {
   LevelTestRoute: typeof LevelTestRoute
   ProfileRoute: typeof ProfileRoute
   ProgressRoute: typeof ProgressRoute
+  ResourcesRoute: typeof ResourcesRoute
   SelfLearningRoute: typeof SelfLearningRoute
   SpeakingRoute: typeof SpeakingRoute
   WorkshopsRoute: typeof WorkshopsRoute
@@ -370,6 +383,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProgressRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/self-learning': {
       id: '/self-learning'
       path: '/self-learning'
@@ -429,6 +449,7 @@ const rootRouteChildren: RootRouteChildren = {
   LevelTestRoute: LevelTestRoute,
   ProfileRoute: ProfileRoute,
   ProgressRoute: ProgressRoute,
+  ResourcesRoute: ResourcesRoute,
   SelfLearningRoute: SelfLearningRoute,
   SpeakingRoute: SpeakingRoute,
   WorkshopsRoute: WorkshopsRoute,

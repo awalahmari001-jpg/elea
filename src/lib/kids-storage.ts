@@ -239,6 +239,58 @@ export const kidsStorage = {
     return next;
   },
 
+  recordVocabThemeCompleted: (themeId: string): KidsProgressState => {
+    const prev = readKids();
+    const isNew = !prev.vocabThemesCompleted.includes(themeId);
+    const next = writeKids({
+      ...prev,
+      vocabThemesCompleted: isNew
+        ? [...prev.vocabThemesCompleted, themeId]
+        : prev.vocabThemesCompleted,
+      stars: prev.stars + (isNew ? 1 : 0),
+      points: prev.points + (isNew ? 12 : 2),
+      updatedAt: new Date().toISOString(),
+    });
+    if (isNew) {
+      learningRecord.logActivity({ kind: "vocab", count: 4, minutes: 3, passed: true });
+    }
+    return next;
+  },
+
+  recordGrammarUnitCompleted: (unitId: string): KidsProgressState => {
+    const prev = readKids();
+    const isNew = !prev.grammarUnitsCompleted.includes(unitId);
+    const next = writeKids({
+      ...prev,
+      grammarUnitsCompleted: isNew
+        ? [...prev.grammarUnitsCompleted, unitId]
+        : prev.grammarUnitsCompleted,
+      stars: prev.stars + (isNew ? 1 : 0),
+      points: prev.points + (isNew ? 15 : 3),
+      updatedAt: new Date().toISOString(),
+    });
+    if (isNew) {
+      learningRecord.logActivity({ kind: "grammar", count: 1, minutes: 3, passed: true });
+    }
+    return next;
+  },
+
+  recordVideoWatched: (videoId: string): KidsProgressState => {
+    const prev = readKids();
+    const isNew = !prev.videosWatched.includes(videoId);
+    const next = writeKids({
+      ...prev,
+      videosWatched: isNew ? [...prev.videosWatched, videoId] : prev.videosWatched,
+      stars: prev.stars + (isNew ? 2 : 0),
+      points: prev.points + (isNew ? 18 : 2),
+      updatedAt: new Date().toISOString(),
+    });
+    if (isNew) {
+      learningRecord.logActivity({ kind: "listening", count: 1, minutes: 3, passed: true });
+    }
+    return next;
+  },
+
   clear: (): void => {
     if (typeof window !== "undefined") {
       window.localStorage.removeItem(KIDS_STORAGE_KEY);

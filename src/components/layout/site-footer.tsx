@@ -122,6 +122,14 @@ export function SiteFooter() {
             </li>
             <li>
               <Link
+                to="/resources"
+                className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
+              >
+                {t.nav.resourcesLibrary}
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/calendar"
                 className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
               >
