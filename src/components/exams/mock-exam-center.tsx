@@ -8,6 +8,7 @@ import {
   GraduationCap,
   Headphones,
   Lightbulb,
+  Loader2,
   Mic,
   MicOff,
   Pause,
@@ -15,6 +16,7 @@ import {
   Play,
   RotateCcw,
   ShieldCheck,
+  Sparkles,
   Square,
   Timer,
   Volume2,
@@ -50,6 +52,11 @@ import {
   type ObjectiveAnswerMap,
   type TextResponseMap,
 } from "@/lib/mock-exam-scoring";
+import { examinerLiveFollowUp } from "@/lib/speaking-ai.functions";
+import {
+  generateExaminerFollowUpFallback,
+  type LiveExaminerFollowUpResult,
+} from "@/lib/speaking-fallback";
 
 const EXAMS: Record<ExamSystem, FullMockExam> = {
   "ielts-academic": IELTS_ACADEMIC_MOCK,
@@ -299,12 +306,14 @@ function ObjectiveQuestionCard({
 }
 
 function SpeakingTaskRecorder({
+  examTitle,
   task,
   value,
   onChange,
   showModel,
   locale,
 }: {
+  examTitle: string;
   task: SpeakingTask;
   value: string;
   onChange: (val: string) => void;
@@ -315,6 +324,29 @@ function SpeakingTaskRecorder({
   const [phase, setPhase] = useState<"idle" | "prep" | "speak" | "done">("idle");
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [showHints, setShowHints] = useState(false);
+  const [followUp, setFollowUp] = useState<LiveExaminerFollowUpResult | null>(null);
+  const [askingFollowUp, setAskingFollowUp] = useState(false);
+
+  const requestLiveFollowUp = async () => {
+    const cleaned = value.trim();
+    if (!cleaned || askingFollowUp) return;
+    setAskingFollowUp(true);
+    const payload = {
+      examTitle,
+      partLabel: task.partLabel.en,
+      originalPrompt: task.cueCard?.topic ?? task.prompts[0] ?? task.title.en,
+      learnerAnswer: cleaned,
+    };
+    let res: LiveExaminerFollowUpResult;
+    try {
+      res = await examinerLiveFollowUp({ data: payload });
+    } catch {
+      res = generateExaminerFollowUpFallback(payload);
+    }
+    setFollowUp(res);
+    setAskingFollowUp(false);
+    playSpeech(res.examinerFollowUp, 0.94, "female");
+  };
 
   const onTranscript = useCallback(
     (spoken: string) => {
@@ -540,6 +572,48 @@ function SpeakingTaskRecorder({
             placeholder={t.mockExams.speakingResponsePlaceholder}
             aria-label={task.title[locale]}
           />
+
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={!value.trim() || askingFollowUp}
+              onClick={() => void requestLiveFollowUp()}
+            >
+              {askingFollowUp ? (
+                <Loader2 className="size-3.5 animate-spin" aria-hidden />
+              ) : (
+                <Sparkles className="size-3.5 text-primary" aria-hidden />
+              )}
+              {t.mockExams.liveExaminerFollowUpBtn}
+            </Button>
+          </div>
+
+          {followUp && (
+            <div className="rounded-xl border-s-4 border-primary bg-primary/5 p-4 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-bold uppercase tracking-wide text-primary">
+                  {t.mockExams.liveExaminerFollowUpTitle}
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => playSpeech(followUp.examinerFollowUp, 0.94, "female")}
+                >
+                  <Volume2 className="size-3.5" aria-hidden />
+                  {t.mockExams.playAudioBtn}
+                </Button>
+              </div>
+              <p className="text-sm font-semibold leading-relaxed text-foreground" dir="ltr">
+                {followUp.examinerFollowUp}
+              </p>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {followUp.quickFeedback[locale]}
+              </p>
+            </div>
+          )}
         </div>
 
         {showModel && (
@@ -1354,6 +1428,7 @@ export function MockExamCenter() {
                 {exam.speaking.tasks.map((task) => (
                   <SpeakingTaskRecorder
                     key={task.id}
+                    examTitle={exam.title.en}
                     task={task}
                     value={speakingResponses[task.id] ?? ""}
                     onChange={(val) =>

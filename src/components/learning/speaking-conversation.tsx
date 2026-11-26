@@ -1,8 +1,11 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Check,
   Lightbulb,
+  Loader2,
   Mic,
+  PhoneCall,
+  Radio,
   RotateCcw,
   Send,
   Sparkles,
@@ -14,34 +17,178 @@ import {
 import { useI18n } from "@/components/i18n-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import type { Bilingual } from "@/content/lesson-types";
 import { getTurnFluencyCoach, type SpeakingSituation } from "@/content/speaking-situations";
-import { playSpeech, useSpeech } from "@/hooks/use-speech";
+import { playSpeech, speakAsRole, stopSpeech, useSpeech } from "@/hooks/use-speech";
 import { format } from "@/lib/i18n/messages";
 import { learningRecord } from "@/lib/learning-record";
+import { speakingLiveTurn } from "@/lib/speaking-ai.functions";
+import { generateLiveSpeakingFallback } from "@/lib/speaking-fallback";
 
 export interface SpeakingConversationProps {
   situation: SpeakingSituation;
   onComplete?: (situationId: string) => void;
 }
 
+interface LiveBubble {
+  id: string;
+  speaker: "partner" | "learner";
+  text: string;
+  praise?: Bilingual;
+  naturalUpgrade?: string;
+  upgradeTip?: Bilingual;
+}
+
 export function SpeakingConversation({ situation, onComplete }: SpeakingConversationProps) {
   const { t, locale } = useI18n();
-  const [responses, setResponses] = useState<string[]>([]);
+  const initialPrompt = situation.turns[0]?.prompt ?? "Hello! Welcome—how can I help you today?";
+  const initialCoach = useMemo(() => getTurnFluencyCoach(situation, 0), [situation]);
+
+  const [messages, setMessages] = useState<LiveBubble[]>([
+    { id: `${situation.id}-open`, speaker: "partner", text: initialPrompt },
+  ]);
   const [draft, setDraft] = useState("");
-  const [showModel, setShowModel] = useState(false);
+  const [isReplying, setIsReplying] = useState(false);
   const [showHints, setShowHints] = useState(true);
+  const [showModel, setShowModel] = useState(false);
   const [autoSpeak, setAutoSpeak] = useState(true);
+  const [handsFree, setHandsFree] = useState(false);
   const [voiceError, setVoiceError] = useState(false);
+  const [goalReached, setGoalReached] = useState(false);
+  const [sessionFinished, setSessionFinished] = useState(false);
+  const [liveSource, setLiveSource] = useState<"ai" | "adaptive-engine" | null>(null);
 
-  const speech = useSpeech((text) =>
-    setDraft((prev) => [prev.trim(), text].filter(Boolean).join(" ")),
+  // Dynamic live hints & starters updated after every single partner response
+  const [activeHint, setActiveHint] = useState<Bilingual>(initialCoach.hint);
+  const [activeStarters, setActiveStarters] = useState<string[]>(initialCoach.starters);
+
+  const messagesRef = useRef<LiveBubble[]>(messages);
+  messagesRef.current = messages;
+  const handsFreeRef = useRef(handsFree);
+  handsFreeRef.current = handsFree;
+  const autoSpeakRef = useRef(autoSpeak);
+  autoSpeakRef.current = autoSpeak;
+  const isReplyingRef = useRef(isReplying);
+  isReplyingRef.current = isReplying;
+
+  // Reset conversation whenever situation switches
+  useEffect(() => {
+    stopSpeech();
+    const opening = situation.turns[0]?.prompt ?? "Hello! Welcome—how can I help you today?";
+    const coach0 = getTurnFluencyCoach(situation, 0);
+    setMessages([{ id: `${situation.id}-open`, speaker: "partner", text: opening }]);
+    setDraft("");
+    setIsReplying(false);
+    setGoalReached(false);
+    setSessionFinished(false);
+    setShowModel(false);
+    setLiveSource(null);
+    setActiveHint(coach0.hint);
+    setActiveStarters(coach0.starters);
+  }, [situation]);
+
+  const sendLiveUtteranceRef = useRef<(spokenText: string) => void>(() => {});
+
+  const speech = useSpeech((text) => {
+    if (handsFreeRef.current && !isReplyingRef.current) {
+      sendLiveUtteranceRef.current(text);
+    } else {
+      setDraft((prev) => [prev.trim(), text].filter(Boolean).join(" "));
+    }
+  });
+
+  const speechStartRef = useRef(speech.start);
+  speechStartRef.current = speech.start;
+  const speechSupportedRef = useRef(speech.supported);
+  speechSupportedRef.current = speech.supported;
+
+  const speakPartnerLine = useCallback((line: string) => {
+    if (!autoSpeakRef.current) return;
+    const spoke = speakAsRole(line, "male-teacher", {
+      rate: 0.94,
+      onEnd: () => {
+        // In Hands-Free Live Voice Mode, automatically open the mic when partner finishes speaking
+        if (handsFreeRef.current && speechSupportedRef.current && !isReplyingRef.current) {
+          window.setTimeout(() => {
+            if (handsFreeRef.current && !isReplyingRef.current) {
+              speechStartRef.current();
+            }
+          }, 350);
+        }
+      },
+    });
+    if (!spoke) setVoiceError(true);
+  }, []);
+
+  const sendLiveUtterance = useCallback(
+    async (rawText: string) => {
+      const cleaned = rawText.trim();
+      if (!cleaned || isReplyingRef.current) return;
+
+      stopSpeech();
+      setVoiceError(false);
+      setShowModel(false);
+      setDraft("");
+      setIsReplying(true);
+
+      const learnerBubbleId = `learner-${Date.now()}`;
+      const optimisticHistory: LiveBubble[] = [
+        ...messagesRef.current,
+        { id: learnerBubbleId, speaker: "learner", text: cleaned },
+      ];
+      setMessages(optimisticHistory);
+
+      const payload = {
+        situationId: situation.id,
+        turns: optimisticHistory.map((m) => ({ speaker: m.speaker, text: m.text })),
+      };
+
+      let result;
+      try {
+        result = await speakingLiveTurn({ data: payload });
+      } catch {
+        // Seamless reactive fallback if offline or running inside a unit test without an HTTP server
+        result = generateLiveSpeakingFallback(payload);
+      }
+
+      setLiveSource(result.source);
+      setMessages((prev) => {
+        const enriched = prev.map((msg) =>
+          msg.id === learnerBubbleId
+            ? {
+                ...msg,
+                praise: result.praise,
+                naturalUpgrade: result.naturalUpgrade,
+                upgradeTip: result.upgradeTip,
+              }
+            : msg,
+        );
+        return [
+          ...enriched,
+          {
+            id: `partner-${Date.now()}`,
+            speaker: "partner",
+            text: result.partnerReply,
+          },
+        ];
+      });
+
+      setActiveHint(result.nextHint);
+      if (result.suggestedStarters.length > 0) {
+        setActiveStarters(result.suggestedStarters);
+      }
+      if (result.goalReached) {
+        setGoalReached(true);
+      }
+      setIsReplying(false);
+      speakPartnerLine(result.partnerReply);
+    },
+    [situation.id, speakPartnerLine],
   );
 
-  const turn = situation.turns[responses.length];
-  const coach = useMemo(
-    () => getTurnFluencyCoach(situation, responses.length),
-    [situation, responses.length],
-  );
+  sendLiveUtteranceRef.current = (spokenText: string) => {
+    void sendLiveUtterance(spokenText);
+  };
 
   function insertStarter(starter: string) {
     const clean = starter.replace(/\.\.\.$/, "").trim();
@@ -52,36 +199,95 @@ export function SpeakingConversation({ situation, onComplete }: SpeakingConversa
     });
   }
 
-  function submit() {
-    if (!draft.trim() || !turn || speech.listening) return;
-    window.speechSynthesis?.cancel();
-    const nextResponses = [...responses, draft.trim()];
-    setResponses(nextResponses);
-    setDraft("");
-    setShowModel(false);
-
-    const nextTurn = situation.turns[nextResponses.length];
-    if (nextTurn && autoSpeak) {
-      playSpeech(nextTurn.prompt, 0.94, "male");
-    } else if (!nextTurn) {
-      learningRecord.logActivity({ kind: "speaking", count: 1, minutes: 4, passed: true });
-      onComplete?.(situation.id);
+  function startLiveVoiceCall() {
+    setAutoSpeak(true);
+    setHandsFree(true);
+    autoSpeakRef.current = true;
+    handsFreeRef.current = true;
+    const lastPartner = [...messages].reverse().find((m) => m.speaker === "partner");
+    if (lastPartner) {
+      speakPartnerLine(lastPartner.text);
+    } else if (speech.supported) {
+      speech.start();
     }
   }
+
+  function finishSession() {
+    stopSpeech();
+    speech.stop();
+    setHandsFree(false);
+    setSessionFinished(true);
+    learningRecord.logActivity({
+      kind: "speaking",
+      count: 1,
+      minutes: Math.max(2, learnerTurnCount * 2),
+      passed: true,
+    });
+    onComplete?.(situation.id);
+  }
+
+  function resetSession() {
+    stopSpeech();
+    speech.stop();
+    setHandsFree(false);
+    setSessionFinished(false);
+    setGoalReached(false);
+    setLiveSource(null);
+    setDraft("");
+    setMessages([
+      { id: `${situation.id}-open-${Date.now()}`, speaker: "partner", text: initialPrompt },
+    ]);
+    setActiveHint(initialCoach.hint);
+    setActiveStarters(initialCoach.starters);
+  }
+
+  const learnerTurnCount = messages.filter((m) => m.speaker === "learner").length;
+  const latestPartnerMessage = [...messages].reverse().find((m) => m.speaker === "partner");
+  const sampleReference =
+    situation.turns[Math.min(learnerTurnCount, situation.turns.length - 1)]?.model ??
+    situation.keyPhrases?.[0] ??
+    "";
 
   return (
     <section
       className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-xs md:p-8"
       aria-label={situation.title[locale]}
     >
+      {/* Header & Live Session Controls */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-primary">
-            {situation.level} · {situation.role[locale]}
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge className="gap-1.5 bg-emerald-600 text-xs text-white">
+              <Radio className="size-3 animate-pulse" aria-hidden />
+              {liveSource === "ai" ? t.learning.liveAiPartnerBadge : t.learning.liveSessionBadge}
+            </Badge>
+            <span className="text-sm font-semibold text-primary">
+              {situation.level} · {situation.role[locale]}
+            </span>
+          </div>
           <h2 className="mt-1.5 text-2xl font-bold">{situation.title[locale]}</h2>
         </div>
+
         <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant={handsFree ? "default" : "outline"}
+            className="rounded-full text-xs"
+            onClick={() => {
+              if (handsFree) {
+                setHandsFree(false);
+                speech.stop();
+                stopSpeech();
+              } else {
+                startLiveVoiceCall();
+              }
+            }}
+          >
+            <PhoneCall className="me-1.5 size-3.5" aria-hidden />
+            {handsFree ? t.learning.liveHandsFreeOn : t.learning.liveHandsFreeBtn}
+          </Button>
+
           <Button
             type="button"
             size="sm"
@@ -96,15 +302,14 @@ export function SpeakingConversation({ situation, onComplete }: SpeakingConversa
             )}
             {t.learning.liveVoiceToggle}
           </Button>
+
           <Badge variant="outline" className="text-xs font-semibold">
-            {format(t.learning.turn, {
-              current: Math.min(responses.length + 1, situation.turns.length),
-              total: situation.turns.length,
-            })}
+            {format(t.learning.liveExchangesCount, { count: learnerTurnCount })}
           </Badge>
         </div>
       </div>
 
+      {/* Task Goal & Audio Cue Phrases */}
       {(situation.taskGoal || (situation.keyPhrases && situation.keyPhrases.length > 0)) && (
         <div className="mt-5 rounded-xl border border-border bg-muted/60 p-4">
           {situation.taskGoal && (
@@ -136,47 +341,111 @@ export function SpeakingConversation({ situation, onComplete }: SpeakingConversa
         </div>
       )}
 
-      {/* Completed Live Discourse Turns */}
-      <div className="mt-6 space-y-4">
-        {responses.map((response, i) => (
-          <div key={i} className="space-y-3 border-b border-border pb-4">
-            <p className="text-sm text-muted-foreground">
-              <strong>{t.learning.partner}</strong>
-              <span className="mt-1 block leading-relaxed" lang="en" dir="ltr">
-                {situation.turns[i]?.prompt}
-              </span>
-            </p>
-            <p className="border-s-2 border-accent ps-4">
-              <strong className="text-sm text-primary">{t.learning.you}</strong>
-              <span className="mt-1 block break-words leading-relaxed" lang="en" dir="ltr">
-                {response}
-              </span>
-            </p>
+      {/* Real-Time Interactive Conversation Stream */}
+      <div className="mt-6 space-y-4" aria-live="polite">
+        {messages.map((msg) =>
+          msg.speaker === "partner" ? (
+            <div key={msg.id} className="rounded-2xl border-s-4 border-primary bg-primary/5 p-4">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-bold text-primary">
+                  {t.learning.partner} ({situation.role[locale]})
+                </p>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="size-7 shrink-0"
+                  disabled={speech.listening}
+                  onClick={() => setVoiceError(!playSpeech(msg.text, 0.94, "male"))}
+                  aria-label={t.learning.listen}
+                >
+                  <Volume2 className="size-4 text-primary" aria-hidden />
+                </Button>
+              </div>
+              <p
+                className="mt-1 text-base font-medium leading-relaxed text-foreground"
+                lang="en"
+                dir="ltr"
+              >
+                {msg.text}
+              </p>
+            </div>
+          ) : (
+            <div key={msg.id} className="space-y-2 ps-3 md:ps-6">
+              <div className="rounded-2xl border border-accent/40 bg-accent/10 p-4">
+                <p className="text-xs font-bold text-primary">{t.learning.you}</p>
+                <p
+                  className="mt-1 break-words text-base leading-relaxed text-foreground"
+                  lang="en"
+                  dir="ltr"
+                >
+                  {msg.text}
+                </p>
+              </div>
+
+              {/* Instant Live Fluency Upgrade for the learner's actual response */}
+              {msg.naturalUpgrade && msg.praise && msg.upgradeTip && (
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-3.5 py-2.5 text-xs space-y-1">
+                  <p className="font-semibold text-emerald-700 dark:text-emerald-400">
+                    {msg.praise[locale]}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-bold text-foreground">
+                      {t.learning.liveUpgradeLabel}:
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => playSpeech(msg.naturalUpgrade ?? "", 0.92, "female")}
+                      className="inline-flex items-center gap-1 rounded-full bg-card px-2.5 py-0.5 font-medium text-foreground underline-offset-2 hover:underline"
+                      lang="en"
+                      dir="ltr"
+                    >
+                      <Volume2 className="size-3 text-primary" aria-hidden />
+                      {msg.naturalUpgrade}
+                    </button>
+                  </div>
+                  <p className="text-muted-foreground">{msg.upgradeTip[locale]}</p>
+                </div>
+              )}
+            </div>
+          ),
+        )}
+
+        {isReplying && (
+          <div className="inline-flex items-center gap-2 rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm font-medium text-primary">
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+            <span>{t.learning.livePartnerThinking}</span>
           </div>
-        ))}
+        )}
       </div>
 
-      {turn ? (
-        <>
-          <div className="mt-6 rounded-2xl border-s-4 border-primary bg-primary/5 p-4">
-            <p className="text-xs font-bold text-primary">
-              {t.learning.partner} ({situation.role[locale]})
-            </p>
-            <p className="mt-1.5 text-lg font-medium leading-relaxed" lang="en" dir="ltr">
-              {turn.prompt}
-            </p>
-          </div>
+      {/* Live Input & Dynamic Fluency Coach OR Completed Summary */}
+      {!sessionFinished ? (
+        <div className="mt-6 space-y-4">
+          {goalReached && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3.5 text-sm">
+              <p className="font-semibold text-emerald-800 dark:text-emerald-300">
+                {t.learning.liveGoalReachedNote}
+              </p>
+              <Button type="button" size="sm" onClick={finishSession}>
+                <Check className="size-4" aria-hidden />
+                {t.learning.liveFinishSaveBtn}
+              </Button>
+            </div>
+          )}
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={speech.listening}
-              onClick={() => setVoiceError(!playSpeech(turn.prompt, 0.94, "male"))}
-            >
-              <Volume2 aria-hidden />
-              {t.learning.listen}
-            </Button>
+          <div className="flex flex-wrap gap-2">
+            {latestPartnerMessage && (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={speech.listening}
+                onClick={() => setVoiceError(!playSpeech(latestPartnerMessage.text, 0.94, "male"))}
+              >
+                <Volume2 aria-hidden />
+                {t.learning.listen}
+              </Button>
+            )}
             <Button
               type="button"
               variant={showHints ? "secondary" : "outline"}
@@ -186,167 +455,162 @@ export function SpeakingConversation({ situation, onComplete }: SpeakingConversa
               <Lightbulb className="text-amber-500" aria-hidden />
               {t.learning.fluencyHintsBtn}
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              aria-expanded={showModel}
-              onClick={() => setShowModel(!showModel)}
-            >
-              {t.learning.sample}
-            </Button>
+            {sampleReference && (
+              <Button
+                type="button"
+                variant="ghost"
+                aria-expanded={showModel}
+                onClick={() => setShowModel((v) => !v)}
+              >
+                {t.learning.sample}
+              </Button>
+            )}
+            {learnerTurnCount >= 2 && !goalReached && (
+              <Button type="button" variant="ghost" onClick={finishSession}>
+                <Check className="size-4" aria-hidden />
+                {t.learning.liveFinishSaveBtn}
+              </Button>
+            )}
           </div>
 
-          {/* Helpful Fluency Hints & Clickable Sentence Starters */}
+          {/* Dynamic Fluency Hints & Clickable Sentence Starters (updated after EVERY turn) */}
           {showHints && (
-            <div className="mt-4 space-y-3 rounded-2xl border border-amber-500/35 bg-amber-500/5 p-4">
-              <div className="flex items-start gap-2">
-                <Lightbulb
-                  className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400"
-                  aria-hidden
-                />
-                <div className="space-y-1">
-                  <p className="text-xs font-extrabold uppercase tracking-wide text-amber-700 dark:text-amber-300">
-                    {t.learning.fluencyHintHeading}
-                  </p>
-                  <p className="text-sm leading-relaxed text-foreground">{coach.hint[locale]}</p>
-                </div>
+            <div className="rounded-xl border border-amber-500/35 bg-amber-500/10 p-4">
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-800 dark:text-amber-300">
+                <Sparkles className="size-4 shrink-0" aria-hidden />
+                <span>{t.learning.fluencyHintTitle}</span>
               </div>
+              <p className="mt-1.5 text-sm leading-relaxed text-foreground">{activeHint[locale]}</p>
 
-              {coach.starters.length > 0 && (
-                <div className="space-y-1.5">
-                  <p className="text-xs font-bold text-muted-foreground">
-                    {t.learning.sentenceStartersLabel}
-                  </p>
-                  <div className="flex flex-wrap gap-2" lang="en" dir="ltr">
-                    {coach.starters.map((starter) => (
-                      <button
-                        key={starter}
-                        type="button"
-                        onClick={() => insertStarter(starter)}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-card px-3 py-1 text-xs font-semibold text-foreground transition-colors hover:border-primary hover:bg-primary/10"
-                      >
-                        <Sparkles className="size-3 text-primary" aria-hidden />
-                        {starter}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {coach.keyWords.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5 pt-0.5" lang="en" dir="ltr">
-                  <span className="text-[11px] font-bold text-muted-foreground">
-                    {t.learning.helpfulWordsLabel}:
-                  </span>
-                  {coach.keyWords.map((w) => (
+              <div className="mt-3">
+                <p className="text-xs font-semibold text-muted-foreground">
+                  {t.learning.fluencyStartersLabel}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2" lang="en" dir="ltr">
+                  {activeStarters.map((starter) => (
                     <button
-                      key={w}
+                      key={starter}
                       type="button"
-                      onClick={() => playSpeech(w, 0.86, "female")}
-                      className="rounded-md bg-secondary px-2 py-0.5 text-xs font-semibold text-secondary-foreground hover:bg-secondary/80"
+                      onClick={() => insertStarter(starter)}
+                      className="rounded-full border border-amber-500/40 bg-card px-3 py-1 text-xs font-semibold text-foreground transition-colors hover:bg-amber-500/20"
                     >
-                      {w}
+                      + {starter}
                     </button>
                   ))}
                 </div>
-              )}
+              </div>
             </div>
           )}
 
-          {showModel && (
-            <div className="mt-3 flex items-start justify-between gap-3 rounded-xl bg-muted p-4">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed" lang="en" dir="ltr">
-                {turn.model}
+          {showModel && sampleReference && (
+            <div className="rounded-xl border border-border bg-secondary/50 p-4 text-sm">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-bold text-primary">{t.learning.sample}</span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => setVoiceError(!playSpeech(sampleReference, 0.92, "female"))}
+                >
+                  <Volume2 className="me-1 size-3.5" aria-hidden />
+                  {t.learning.listen}
+                </Button>
+              </div>
+              <p className="mt-1.5 font-medium leading-relaxed text-foreground" lang="en" dir="ltr">
+                {sampleReference}
               </p>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                aria-label={t.learning.listen}
-                onClick={() => playSpeech(turn.model, 0.9, "female")}
-              >
-                <Volume2 className="size-4" aria-hidden />
-              </Button>
             </div>
           )}
 
-          {voiceError && (
-            <p role="alert" className="mt-3 text-sm text-destructive">
-              {t.learning.audioUnavailable}
-            </p>
-          )}
-
-          <p className="mt-5 text-sm text-muted-foreground">{t.learning.responseHint}</p>
+          {/* Live Voice Mic + Typed Response Form */}
           <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              submit();
+            className="space-y-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void sendLiveUtterance(draft);
             }}
           >
-            <label className="mt-4 block text-sm font-semibold" htmlFor="speaking-response">
+            <label htmlFor={`reply-${situation.id}`} className="block text-sm font-semibold">
               {t.learning.type}
             </label>
             <textarea
-              id="speaking-response"
-              lang="en"
-              dir="ltr"
+              id={`reply-${situation.id}`}
+              rows={2}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              maxLength={5000}
-              className="mt-2 min-h-32 w-full rounded-xl border border-input bg-background p-4 leading-relaxed"
+              disabled={isReplying}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  void sendLiveUtterance(draft);
+                }
+              }}
+              placeholder={t.learning.liveInputPlaceholder}
+              dir="ltr"
+              lang="en"
+              className="w-full rounded-xl border border-input bg-background px-4 py-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-              <Button
-                type="button"
-                variant={speech.listening ? "destructive" : "outline"}
-                disabled={!speech.supported}
-                onClick={() => (speech.listening ? speech.stop() : speech.start())}
-              >
-                {speech.listening ? <Square aria-hidden /> : <Mic aria-hidden />}
-                {speech.listening ? t.learning.stop : t.learning.spoken}
-              </Button>
-              <Button type="submit" disabled={!draft.trim() || speech.listening}>
+            <div className="flex flex-wrap gap-2">
+              {speech.supported && (
+                <Button
+                  type="button"
+                  variant={speech.listening ? "destructive" : "secondary"}
+                  disabled={isReplying}
+                  onClick={() => (speech.listening ? speech.stop() : speech.start())}
+                >
+                  {speech.listening ? (
+                    <>
+                      <Square aria-hidden />
+                      {t.learning.stop}
+                    </>
+                  ) : (
+                    <>
+                      <Mic aria-hidden />
+                      {t.learning.spoken}
+                    </>
+                  )}
+                </Button>
+              )}
+              <Button type="submit" disabled={!draft.trim() || speech.listening || isReplying}>
                 <Send aria-hidden />
-                {t.learning.reply}
+                {t.learning.send}
+              </Button>
+              <Button type="button" variant="ghost" onClick={resetSession}>
+                <RotateCcw className="size-4" aria-hidden />
+                {t.learning.restart}
               </Button>
             </div>
           </form>
-          <p className="mt-3 text-sm text-muted-foreground" role="status">
-            {speech.listening
-              ? t.learning.recording
-              : speech.error
-                ? t.learning[speech.error]
-                : !speech.supported
-                  ? t.learning.unsupported
-                  : t.learning.microphoneNote}
-          </p>
-          <p className="mt-4 text-xs leading-relaxed text-muted-foreground">{t.learning.privacy}</p>
-        </>
+
+          {speech.listening && (
+            <p role="status" className="text-sm font-medium text-primary">
+              {handsFree ? t.learning.liveHandsFreeListening : t.learning.listening}
+            </p>
+          )}
+          {speech.error && (
+            <p role="alert" className="text-sm text-destructive">
+              {t.learning[speech.error]}
+            </p>
+          )}
+          {voiceError && (
+            <p role="alert" className="text-sm text-destructive">
+              {t.learning.audioUnavailable}
+            </p>
+          )}
+        </div>
       ) : (
-        <div className="mt-6 rounded-2xl border-s-4 border-success bg-success/5 p-5" role="status">
-          <h3 className="flex items-center gap-2 text-xl font-bold text-success">
-            <Check aria-hidden />
-            {t.learning.done}
-          </h3>
-          <p className="mt-2 leading-relaxed text-muted-foreground">{t.learning.doneBody}</p>
-          <Button
-            className="mt-4"
-            variant="secondary"
-            onClick={() => {
-              setResponses([]);
-              setDraft("");
-              setShowModel(false);
-            }}
-          >
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-secondary p-4">
+          <p className="flex items-center gap-2 font-semibold text-secondary-foreground">
+            <Check className="text-primary" aria-hidden />
+            {t.learning.done} ({format(t.learning.liveExchangesCount, { count: learnerTurnCount })})
+          </p>
+          <Button type="button" variant="outline" onClick={resetSession}>
             <RotateCcw aria-hidden />
             {t.learning.restart}
           </Button>
         </div>
       )}
-
-      <p className="mt-6 border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground">
-        {t.learning.recognitionNote}
-      </p>
     </section>
   );
 }
