@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Mail, MessageCircle } from "lucide-react";
 
 import { SITE } from "@/config/site";
 import { LEARNING_PATHS } from "@/content/paths";
@@ -12,10 +13,39 @@ export function SiteFooter() {
 
   return (
     <footer className="bg-inverse text-inverse-foreground">
-      <div className="container-page grid gap-12 py-16 md:grid-cols-[1.4fr_1fr_1fr]">
-        <div className="max-w-sm space-y-4">
+      <div className="container-page grid gap-12 py-16 md:grid-cols-[1.35fr_1fr_1fr]">
+        <div className="max-w-sm space-y-5">
           <BrandLogo tone="inverse" />
           <p className="text-sm leading-relaxed text-inverse-muted">{t.footer.about}</p>
+
+          {/* Direct Contact Card — WhatsApp & Email */}
+          <div className="space-y-2.5 rounded-2xl border border-inverse-foreground/15 bg-inverse-foreground/5 p-4">
+            <h2 className="eyebrow text-accent">{t.footer.contactTitle}</h2>
+            <p className="text-xs leading-relaxed text-inverse-muted">{t.footer.contactSubtitle}</p>
+            <div className="flex flex-col gap-2 pt-1">
+              <a
+                href={SITE.contact.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-500"
+              >
+                <MessageCircle className="size-4 shrink-0" aria-hidden />
+                <span>{t.footer.whatsappLabel}:</span>
+                <span dir="ltr" className="font-mono">
+                  {SITE.contact.whatsappDisplay}
+                </span>
+              </a>
+              <a
+                href={SITE.contact.mailtoUrl}
+                className="inline-flex items-center gap-2 rounded-xl border border-inverse-foreground/20 px-3.5 py-2 text-xs font-bold text-inverse-foreground transition-colors hover:border-accent hover:text-accent"
+              >
+                <Mail className="size-4 shrink-0 text-accent" aria-hidden />
+                <span dir="ltr" className="truncate">
+                  {SITE.contact.email}
+                </span>
+              </a>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -32,6 +62,17 @@ export function SiteFooter() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                to="/speaking"
+                className="text-sm font-semibold text-accent transition-colors hover:text-inverse-foreground"
+              >
+                {t.nav.dailySpeaking}{" "}
+                <span className="text-inverse-muted" dir="ltr">
+                  · 75 Situations
+                </span>
+              </Link>
+            </li>
             <li>
               <Link
                 to="/ielts-vocabulary"
@@ -163,9 +204,11 @@ export function SiteFooter() {
           </ul>
         </div>
 
-        <div>
-          <h2 className="eyebrow mb-4 text-accent">{t.footer.languageTitle}</h2>
-          <LanguageSwitcher variant="full" />
+        <div className="space-y-6">
+          <div>
+            <h2 className="eyebrow mb-4 text-accent">{t.footer.languageTitle}</h2>
+            <LanguageSwitcher variant="full" />
+          </div>
         </div>
       </div>
 

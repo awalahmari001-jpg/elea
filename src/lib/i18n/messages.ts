@@ -76,6 +76,7 @@ const en = {
     adminStudio: "Teacher & Admin Studio",
     certificates: "Certificates & Verification",
     speakingStudio: "Speaking & Pronunciation",
+    dailySpeaking: "Daily Speaking",
     kids: "Kids",
     adults: "Adults",
     ielts: "IELTS",
@@ -156,6 +157,10 @@ const en = {
     subtitle:
       "Go beyond static lessons with Band 7+ lexical precision, 600 progressive translations, 18-sector Business English, live AI role-play workshops, and unified analytics.",
     openCta: "Open Studio",
+    dailySpeakingBadge: "75 Situations · Live Hints",
+    dailySpeakingTitle: "Daily Real-Life Speaking Studio",
+    dailySpeakingDesc:
+      "Practise live conversations at the airport, hotel, clinic, café, bank, and work with voice replies, fluency hints, and clickable sentence starters.",
     ieltsVocabBadge: "Band 7+ · 15 Topics",
     ieltsVocabTitle: "IELTS Band 7+ Vocabulary Lab",
     ieltsVocabDesc:
@@ -351,9 +356,19 @@ const en = {
     speakTarget:
       "Speaking: develop coherent answers with flexible language and generally controlled pronunciation. All three parts matter.",
     sources: "Official IELTS criteria and test format",
-    situationsTitle: "Speaking studio",
-    situationsIntro: "Real conversations · everyday life, travel, work, study and IELTS",
-    situationsCount: "{count} situations",
+    situationsTitle: "Daily Real-Life Speaking Studio",
+    situationsIntro:
+      "Practise real live discourse across 75 everyday situations — airport check-in, security, customs, hotels, clinics, cafés, shopping, work, and IELTS — with guided fluency hints and sentence starters.",
+    situationsCount: "{count} real-life situations",
+    liveDiscourseBadge: "Live Discourse · Voice + Fluency Hints",
+    liveVoiceToggle: "Auto-Speak Partner",
+    fluencyHintsBtn: "Fluency Hints",
+    fluencyHintHeading: "Fluency Coaching Hint",
+    sentenceStartersLabel: "Tap a sentence starter to begin fluently:",
+    helpfulWordsLabel: "Helpful words",
+    airportSpotlightBtn: "Airport & Travel Spotlight",
+    unlockAllSituationsBtn: "Unlock All 75 Situations",
+    searchSituationsPlaceholder: "Search airport, hotel, doctor, café...",
     search: "Search situations",
     everyday: "Everyday life",
     travel: "Travel",
@@ -1537,6 +1552,12 @@ const en = {
   footer: {
     about:
       "An English academy for Arabic speakers — kids, adults and IELTS students, from A1 to C2.",
+    contactTitle: "Contact Us Directly",
+    contactBannerTitle: "Questions or Personalised Guidance? Reach Us Directly!",
+    contactSubtitle:
+      "Message us anytime on WhatsApp or by email for course help, placement advice, or support.",
+    whatsappLabel: "WhatsApp",
+    emailLabel: "Email",
     pathsTitle: "Learning paths",
     languageTitle: "Language",
     rights: "All rights reserved.",
@@ -1613,6 +1634,7 @@ const ar: Messages = {
     adminStudio: "استوديو المعلم والإدارة",
     certificates: "الشهادات والتحقّق",
     speakingStudio: "استوديو المحادثة والنطق",
+    dailySpeaking: "المحادثة اليومية",
     kids: "الأطفال",
     adults: "الكبار",
     ielts: "آيلتس",
@@ -1692,6 +1714,10 @@ const ar: Messages = {
     subtitle:
       "تجاوز الدروس التقليدية مع مختبر مفردات الآيلتس 7+، و٦٠٠ جملة للترجمة التدرّجية، وإنجليزية الأعمال لـ١٨ قطاعًا، وورش محاكاة الذكاء الاصطناعي، ولوحة التقدّم الموحّدة.",
     openCta: "افتح الاستوديو",
+    dailySpeakingBadge: "٧٥ موقفًا · تلميحات طلاقة",
+    dailySpeakingTitle: "استوديو المحادثة اليومية الحية",
+    dailySpeakingDesc:
+      "تدرّب على حوارات واقعية في المطار والفندق والعيادة والمقهى والبنك والعمل بالصوت مع تلميحات طلاقة وبدايات جُمل جاهزة.",
     ieltsVocabBadge: "الدرجة 7+ · ١٥ موضوعًا",
     ieltsVocabTitle: "مختبر مفردات الآيلتس (7+)",
     ieltsVocabDesc:
@@ -1884,9 +1910,19 @@ const ar: Messages = {
       "الكتابة: غطِّ المهمة ونظم الأفكار واستخدم مفردات دقيقة وقواعد متنوعة. المهمة 1: 150 كلمة فأكثر؛ المهمة 2: 250 فأكثر.",
     speakTarget: "المحادثة: طور إجابات مترابطة بلغة مرنة ونطق مضبوط عمومًا. الأجزاء الثلاثة مهمة.",
     sources: "معايير الآيلتس الرسمية وشكل الاختبار",
-    situationsTitle: "استوديو المحادثة",
-    situationsIntro: "محادثات واقعية · الحياة اليومية والسفر والعمل والدراسة والآيلتس",
-    situationsCount: "{count} موقفًا",
+    situationsTitle: "استوديو المحادثة اليومية الحية",
+    situationsIntro:
+      "تدرّب على المحادثة الحية في ٧٥ موقفًا يوميًا — تسجيل الوصول بالمطار، التفتيش، الجمارك، الفندق، العيادة، المقهى، التسوّق، العمل، والآيلتس — مع تلميحات طلاقة وبدايات جُمل جاهزة.",
+    situationsCount: "{count} موقفًا واقعيًا",
+    liveDiscourseBadge: "حوار حيّ · صوت + تلميحات طلاقة",
+    liveVoiceToggle: "نطق تلقائي لشريك الحوار",
+    fluencyHintsBtn: "تلميحات الطلاقة",
+    fluencyHintHeading: "تلميح للتحدّث بطلاقة",
+    sentenceStartersLabel: "اضغط على بداية جملة لتنطلق بطلاقة:",
+    helpfulWordsLabel: "كلمات مساعدة",
+    airportSpotlightBtn: "مواقف المطار والسفر",
+    unlockAllSituationsBtn: "فتح جميع الـ٧٥ موقفًا",
+    searchSituationsPlaceholder: "ابحث عن المطار، الفندق، الطبيب، المقهى...",
     search: "ابحث عن موقف",
     everyday: "الحياة اليومية",
     travel: "السفر",
@@ -3034,6 +3070,12 @@ const ar: Messages = {
   footer: {
     about:
       "أكاديمية لتعليم الإنجليزية للناطقين بالعربية — للأطفال والكبار وطلاب الآيلتس، من A1 إلى C2.",
+    contactTitle: "تواصل معنا مباشرة",
+    contactBannerTitle: "هل لديك استفسار أو ترغب بتوجيه شخصي؟ تواصل معنا مباشرة!",
+    contactSubtitle:
+      "راسلنا في أي وقت عبر واتساب أو البريد الإلكتروني للمساعدة في اختيار المسار أو الاستفسارات.",
+    whatsappLabel: "واتساب",
+    emailLabel: "البريد الإلكتروني",
     pathsTitle: "مسارات التعلّم",
     languageTitle: "اللغة",
     rights: "جميع الحقوق محفوظة.",

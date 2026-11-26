@@ -1,8 +1,19 @@
 import type { Bilingual } from "./lesson-types";
 import { EXTRA_SPEAKING_SITUATIONS } from "./speaking-situations-extra";
+import { DAILY_REAL_LIFE_SITUATIONS } from "./speaking-situations-daily";
 
 export const SPEAKING_CATEGORIES = ["everyday", "travel", "work", "study", "ielts"] as const;
 export type SpeakingCategory = (typeof SPEAKING_CATEGORIES)[number];
+
+export interface SpeakingTurn {
+  prompt: string;
+  model: string;
+  /** Helpful bilingual coaching hint to guide fluent, natural real-life responses. */
+  hint?: Bilingual;
+  /** Clickable sentence starters that learners can tap to build fluency smoothly. */
+  starters?: string[];
+}
+
 export interface SpeakingSituation {
   id: string;
   title: Bilingual;
@@ -11,7 +22,115 @@ export interface SpeakingSituation {
   role: Bilingual;
   taskGoal?: Bilingual;
   keyPhrases?: string[];
-  turns: { prompt: string; model: string }[];
+  turns: SpeakingTurn[];
+}
+
+export interface TurnFluencyCoach {
+  hint: Bilingual;
+  starters: string[];
+  keyWords: string[];
+}
+
+/**
+ * Generates contextual bilingual fluency hints, clickable sentence starters, and
+ * target cue words for ANY turn across all 75 speaking situations.
+ */
+export function getTurnFluencyCoach(
+  situation: SpeakingSituation,
+  turnIndex: number,
+): TurnFluencyCoach {
+  const turn = situation.turns[turnIndex];
+  if (!turn) {
+    return {
+      hint: {
+        en: "Reply naturally in one or two clear English sentences.",
+        ar: "أجب بشكل طبيعي بجملة أو جملتين واضحتين بالإنجليزية.",
+      },
+      starters: ["Thank you...", "Could you please..."],
+      keyWords: [],
+    };
+  }
+
+  // Build crisp 2–4 word sentence starters from the natural model + key phrases if not explicitly authored
+  const sentences = turn.model
+    .split(/(?<=[.?!])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const derivedStarters = sentences.slice(0, 2).map((s) => {
+    const words = s.split(/\s+/);
+    return words.length > 4 ? `${words.slice(0, 4).join(" ")}...` : s;
+  });
+  if (situation.keyPhrases?.[turnIndex]) {
+    derivedStarters.push(situation.keyPhrases[turnIndex]!);
+  }
+
+  const starters =
+    turn.starters && turn.starters.length > 0
+      ? turn.starters
+      : Array.from(new Set(derivedStarters)).slice(0, 3);
+
+  // Extract 3–4 meaningful content words from the model reply to nudge fluent phrasing
+  const stopWords = new Set([
+    "the",
+    "and",
+    "that",
+    "this",
+    "with",
+    "have",
+    "from",
+    "your",
+    "very",
+    "would",
+    "could",
+    "should",
+    "there",
+    "their",
+    "about",
+    "please",
+    "thank",
+  ]);
+  const keyWords = Array.from(
+    new Set(
+      turn.model
+        .toLowerCase()
+        .replace(/[^a-z\s'-]/g, " ")
+        .split(/\s+/)
+        .filter((w) => w.length >= 4 && !stopWords.has(w)),
+    ),
+  ).slice(0, 4);
+
+  if (turn.hint) {
+    return { hint: turn.hint, starters, keyWords };
+  }
+
+  const categoryCoach: Record<SpeakingCategory, Bilingual> = {
+    travel: {
+      en: `Speak politely to the ${situation.role.en.toLowerCase()}: answer directly, include one helpful detail, and keep your tone calm and clear.`,
+      ar: `تحدّث بأدب مع ${situation.role.ar}: أجب مباشرة وأضف تفصيلاً مفيدًا بنبرة هادئة وواضحة.`,
+    },
+    everyday: {
+      en: `Keep it natural and friendly with the ${situation.role.en.toLowerCase()}: state what you need clearly and add a polite closing phrase.`,
+      ar: `تحدّث بطبيعية ولطف مع ${situation.role.ar}: اذكر ما تحتاجه بوضوح وأضف عبارة مهذّبة.`,
+    },
+    work: {
+      en: `Respond professionally to the ${situation.role.en.toLowerCase()}: give a concise point first, then support it with a clear next step.`,
+      ar: `ردّ باحترافية على ${situation.role.ar}: قدّم الفكرة الرئيسية باختصار ثم أضف الخطوة العملية التالية.`,
+    },
+    study: {
+      en: `Explain your point clearly to the ${situation.role.en.toLowerCase()}: connect your idea with a reason or concrete example.`,
+      ar: `اشرح فكرتك بوضوح لـ${situation.role.ar}: اربط فكرتك بسبب أو مثال محدد.`,
+    },
+    ielts: {
+      en: `Extend your answer smoothly for IELTS fluency: give a direct opinion, add a clear reason, and finish with a real example.`,
+      ar: `وسّع إجابتك بسلاسة لطلاقة الآيلتس: ابدأ برأي مباشر ثم سبب واضح ثم مثال واقعي.`,
+    },
+  };
+
+  return {
+    hint: categoryCoach[situation.category],
+    starters,
+    keyWords,
+  };
 }
 
 const BASE_SPEAKING_SITUATIONS: SpeakingSituation[] = [
@@ -1151,8 +1270,9 @@ const BASE_SPEAKING_SITUATIONS: SpeakingSituation[] = [
   },
 ];
 
-/** 60 diverse speaking situations (12 per category across CEFR levels A1–C2). */
+/** 75 diverse real-life speaking situations across daily life, airport/travel, work, study, and IELTS (A1–C2). */
 export const SPEAKING_SITUATIONS: SpeakingSituation[] = [
   ...BASE_SPEAKING_SITUATIONS,
   ...EXTRA_SPEAKING_SITUATIONS,
+  ...DAILY_REAL_LIFE_SITUATIONS,
 ];

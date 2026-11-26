@@ -70,8 +70,8 @@ describe("requested curriculum", () => {
       ).toBeGreaterThanOrEqual(2);
     });
   }
-  it("provides at least 60 unique speaking settings across CEFR levels A1–C2", () => {
-    expect(SPEAKING_SITUATIONS.length).toBeGreaterThanOrEqual(60);
+  it("provides at least 70 unique speaking settings across CEFR levels A1–C2", () => {
+    expect(SPEAKING_SITUATIONS.length).toBeGreaterThanOrEqual(70);
     expect(new Set(SPEAKING_SITUATIONS.map((s) => s.id)).size).toBe(SPEAKING_SITUATIONS.length);
     expect(new Set(SPEAKING_SITUATIONS.map((s) => s.title.en)).size).toBe(
       SPEAKING_SITUATIONS.length,

@@ -165,6 +165,16 @@ export function SiteHeader() {
           </Link>
 
           <Link
+            to="/speaking"
+            activeOptions={{ exact: true }}
+            className={linkClass}
+            activeProps={{ className: activeClass }}
+          >
+            <Mic className="size-3.5 text-primary" aria-hidden />
+            {t.nav.dailySpeaking}
+          </Link>
+
+          <Link
             to="/workshops"
             activeOptions={{ exact: true }}
             className={linkClass}

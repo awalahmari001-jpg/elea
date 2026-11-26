@@ -6,16 +6,27 @@ import {
   BookOpenCheck,
   Briefcase,
   Layers,
+  Mail,
+  MessageCircle,
+  Mic,
   Presentation,
 } from "lucide-react";
 
 import { useI18n } from "@/components/i18n-provider";
+import { SITE } from "@/config/site";
 
 export function AdvancedStudios() {
   const { t } = useI18n();
   const s = t.advancedStudios;
 
   const cards = [
+    {
+      to: "/speaking" as const,
+      icon: Mic,
+      badge: s.dailySpeakingBadge,
+      title: s.dailySpeakingTitle,
+      desc: s.dailySpeakingDesc,
+    },
     {
       to: "/ielts-vocabulary" as const,
       icon: BookOpenCheck,
@@ -107,6 +118,38 @@ export function AdvancedStudios() {
               </Link>
             );
           })}
+        </div>
+
+        {/* Direct Academy Contact Banner — WhatsApp & Email */}
+        <div className="mt-12 flex flex-col items-start justify-between gap-5 rounded-3xl border-2 border-primary/30 bg-card p-6 shadow-xs md:flex-row md:items-center md:p-8">
+          <div className="space-y-1.5">
+            <p className="eyebrow text-primary">{t.footer.contactTitle}</p>
+            <h3 className="display-heading text-xl font-extrabold text-foreground md:text-2xl">
+              {t.footer.contactBannerTitle}
+            </h3>
+            <p className="max-w-xl text-sm text-muted-foreground">{t.footer.contactSubtitle}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href={SITE.contact.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-xs transition-colors hover:bg-emerald-500"
+            >
+              <MessageCircle className="size-4 shrink-0" aria-hidden />
+              <span>{t.footer.whatsappLabel}:</span>
+              <span dir="ltr" className="font-mono">
+                {SITE.contact.whatsappDisplay}
+              </span>
+            </a>
+            <a
+              href={SITE.contact.mailtoUrl}
+              className="inline-flex items-center gap-2 rounded-full border-2 border-border bg-background px-5 py-3 text-sm font-bold text-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              <Mail className="size-4 shrink-0 text-primary" aria-hidden />
+              <span dir="ltr">{SITE.contact.email}</span>
+            </a>
+          </div>
         </div>
       </div>
     </section>
