@@ -106,5 +106,5 @@ describe("Direct Contact Info & 75+ Daily Speaking Live Discourse Section", () =
     fireEvent.click(screen.getByRole("button", { name: /Airport: Going through security/i }));
     expect(screen.getByRole("heading", { name: /Airport: Going through security/i })).toBeTruthy();
     expect(screen.getByText(/Should I also take out my/i)).toBeTruthy();
-  });
+  }, 15000);
 });

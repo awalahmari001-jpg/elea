@@ -21,6 +21,7 @@ import { Route as IeltsRouteImport } from './routes/ielts'
 import { Route as IeltsVocabularyRouteImport } from './routes/ielts-vocabulary'
 import { Route as KidsRouteImport } from './routes/kids'
 import { Route as LevelTestRouteImport } from './routes/level-test'
+import { Route as MockExamsRouteImport } from './routes/mock-exams'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as ResourcesRouteImport } from './routes/resources'
@@ -91,6 +92,11 @@ const LevelTestRoute = LevelTestRouteImport.update({
   path: '/level-test',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MockExamsRoute = MockExamsRouteImport.update({
+  id: '/mock-exams',
+  path: '/mock-exams',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
+  '/mock-exams': typeof MockExamsRoute
   '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
   '/resources': typeof ResourcesRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
+  '/mock-exams': typeof MockExamsRoute
   '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
   '/resources': typeof ResourcesRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
   '/level-test': typeof LevelTestRoute
+  '/mock-exams': typeof MockExamsRoute
   '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
   '/resources': typeof ResourcesRoute
@@ -222,6 +231,7 @@ export interface FileRouteTypes {
     | '/ielts-vocabulary'
     | '/kids'
     | '/level-test'
+    | '/mock-exams'
     | '/profile'
     | '/progress'
     | '/resources'
@@ -245,6 +255,7 @@ export interface FileRouteTypes {
     | '/ielts-vocabulary'
     | '/kids'
     | '/level-test'
+    | '/mock-exams'
     | '/profile'
     | '/progress'
     | '/resources'
@@ -268,6 +279,7 @@ export interface FileRouteTypes {
     | '/ielts-vocabulary'
     | '/kids'
     | '/level-test'
+    | '/mock-exams'
     | '/profile'
     | '/progress'
     | '/resources'
@@ -292,6 +304,7 @@ export interface RootRouteChildren {
   IeltsVocabularyRoute: typeof IeltsVocabularyRoute
   KidsRoute: typeof KidsRoute
   LevelTestRoute: typeof LevelTestRoute
+  MockExamsRoute: typeof MockExamsRoute
   ProfileRoute: typeof ProfileRoute
   ProgressRoute: typeof ProgressRoute
   ResourcesRoute: typeof ResourcesRoute
@@ -389,6 +402,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LevelTestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mock-exams': {
+      id: '/mock-exams'
+      path: '/mock-exams'
+      fullPath: '/mock-exams'
+      preLoaderRoute: typeof MockExamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -468,6 +488,7 @@ const rootRouteChildren: RootRouteChildren = {
   IeltsVocabularyRoute: IeltsVocabularyRoute,
   KidsRoute: KidsRoute,
   LevelTestRoute: LevelTestRoute,
+  MockExamsRoute: MockExamsRoute,
   ProfileRoute: ProfileRoute,
   ProgressRoute: ProgressRoute,
   ResourcesRoute: ResourcesRoute,

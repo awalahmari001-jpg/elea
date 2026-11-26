@@ -1,5 +1,6 @@
 import type { Bilingual } from "@/content/lesson-types";
 import type { BusinessExpressionCategory, BusinessExpressionEntry } from "./business-types";
+import { BUSINESS_EXTRA_IDIOMS } from "./business-idioms-bank";
 
 export const BUSINESS_EXPRESSION_CATEGORIES: {
   id: BusinessExpressionCategory;
@@ -413,4 +414,5 @@ export const BUSINESS_EXPRESSIONS: BusinessExpressionEntry[] = [
     },
     example: "Going forward, all vendor invoices above $5,000 will require dual sign-off.",
   },
+  ...BUSINESS_EXTRA_IDIOMS,
 ];

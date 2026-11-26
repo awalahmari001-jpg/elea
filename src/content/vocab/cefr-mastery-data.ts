@@ -1,6 +1,7 @@
 import type { CefrLevel } from "@/content/courses";
 import type { CefrMasteryIndicatorId, CefrMasteryLevelData } from "./vocab-types";
 import type { Bilingual } from "@/content/lesson-types";
+import { expandCefrLevelIdioms } from "./cefr-idioms-expansion";
 
 export const CEFR_MASTERY_INDICATORS: {
   id: CefrMasteryIndicatorId;
@@ -65,7 +66,7 @@ export const CEFR_MASTERY_INDICATORS: {
   },
 ];
 
-export const CEFR_MASTERY_LEVELS: CefrMasteryLevelData[] = [
+const BASE_CEFR_MASTERY_LEVELS: CefrMasteryLevelData[] = [
   // ========================= A1 — BEGINNER =========================
   {
     level: "A1",
@@ -1826,6 +1827,11 @@ export const CEFR_MASTERY_LEVELS: CefrMasteryLevelData[] = [
     ],
   },
 ];
+
+export const CEFR_MASTERY_LEVELS: CefrMasteryLevelData[] = BASE_CEFR_MASTERY_LEVELS.map((item) => ({
+  ...item,
+  idioms: expandCefrLevelIdioms(item.level, item.idioms, 72),
+}));
 
 export function getCefrMasteryLevel(level: CefrLevel): CefrMasteryLevelData {
   return CEFR_MASTERY_LEVELS.find((item) => item.level === level) ?? CEFR_MASTERY_LEVELS[0]!;

@@ -8,6 +8,7 @@ import {
   MessageSquare,
   Mic,
   MicOff,
+  Search,
   Sparkles,
   Target,
   Volume2,
@@ -18,6 +19,7 @@ import { useI18n } from "@/components/i18n-provider";
 import { HighlightedText } from "@/components/learning/highlighted-text";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { CefrLevel } from "@/content/courses";
 import {
@@ -44,13 +46,34 @@ export function CefrMasteryStudio({ initialLevel = "A1" }: { initialLevel?: Cefr
   const { t, locale } = useI18n();
   const [level, setLevel] = useState<CefrLevel>(initialLevel);
   const [activeTab, setActiveTab] = useState<CefrStudioTab>("vocab");
+  const [idiomSearch, setIdiomSearch] = useState("");
+  const [visibleIdiomCount, setVisibleIdiomCount] = useState(12);
   const [progress, setProgress] = useState<CefrMasteryProgress>({});
 
   useEffect(() => {
     setProgress(learnerStorage.getCefrMastery());
   }, []);
 
+  useEffect(() => {
+    setVisibleIdiomCount(12);
+  }, [level, idiomSearch]);
+
   const data = useMemo(() => getCefrMasteryLevel(level), [level]);
+  const filteredIdioms = useMemo(() => {
+    const q = idiomSearch.trim().toLowerCase();
+    if (!q) return data.idioms;
+    return data.idioms.filter(
+      (idm) =>
+        idm.idiom.toLowerCase().includes(q) ||
+        idm.meaning.toLowerCase().includes(q) ||
+        idm.arabic.toLowerCase().includes(q) ||
+        idm.example.toLowerCase().includes(q),
+    );
+  }, [data.idioms, idiomSearch]);
+  const visibleIdioms = useMemo(
+    () => filteredIdioms.slice(0, visibleIdiomCount),
+    [filteredIdioms, visibleIdiomCount],
+  );
   const passedIndicators = progress[level]?.passedIndicators ?? [];
 
   const totalIndicatorsPassed = useMemo(() => {
@@ -378,8 +401,31 @@ export function CefrMasteryStudio({ initialLevel = "A1" }: { initialLevel?: Cefr
             </section>
 
             <section className="space-y-3">
-              <h3 className="text-xl font-bold text-foreground">{t.vocab.cefrIdiomsTitle}</h3>
-              {data.idioms.map((idm) => (
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-xl font-bold text-foreground">
+                  {t.vocab.cefrIdiomsTitle}{" "}
+                  <Badge variant="secondary" className="ms-1.5 text-xs" dir="ltr">
+                    {data.idioms.length}
+                  </Badge>
+                </h3>
+                <span className="text-xs text-muted-foreground" dir="ltr">
+                  {visibleIdioms.length} / {filteredIdioms.length}
+                </span>
+              </div>
+              <div className="relative">
+                <Search
+                  className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden
+                />
+                <Input
+                  value={idiomSearch}
+                  onChange={(e) => setIdiomSearch(e.target.value)}
+                  placeholder={t.vocab.searchPlaceholder}
+                  className="ps-9"
+                  aria-label={t.vocab.cefrIdiomsTitle}
+                />
+              </div>
+              {visibleIdioms.map((idm) => (
                 <article
                   key={idm.idiom}
                   className="rounded-2xl border border-border bg-card p-4 shadow-sm"
@@ -413,6 +459,19 @@ export function CefrMasteryStudio({ initialLevel = "A1" }: { initialLevel?: Cefr
                   </p>
                 </article>
               ))}
+              {visibleIdioms.length < filteredIdioms.length && (
+                <div className="flex justify-center pt-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setVisibleIdiomCount((c) => c + 12)}
+                  >
+                    {locale === "ar"
+                      ? `عرض المزيد (${filteredIdioms.length - visibleIdioms.length} متبقية)`
+                      : `Show more (${filteredIdioms.length - visibleIdioms.length} remaining)`}
+                  </Button>
+                </div>
+              )}
             </section>
           </div>
         )}

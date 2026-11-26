@@ -19,7 +19,8 @@ type MetaKey =
   | "certificates"
   | "calendar"
   | "resources"
-  | "admin";
+  | "admin"
+  | "mockExams";
 
 /** Builds the page title + social-share tags in the visitor's language. */
 export function pageMeta(locale: Locale | undefined, key: MetaKey) {

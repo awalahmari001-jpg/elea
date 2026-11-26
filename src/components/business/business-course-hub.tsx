@@ -64,7 +64,9 @@ export function BusinessCourseHub() {
   const [vocabSearch, setVocabSearch] = useState("");
   const [selectedSector, setSelectedSector] = useState<BusinessSectorId | "all">("all");
   const [selectedExprCat, setSelectedExprCat] = useState<BusinessExpressionCategory | "all">("all");
+  const [exprSearch, setExprSearch] = useState("");
   const [visibleVocabCount, setVisibleVocabCount] = useState(24);
+  const [visibleExprCount, setVisibleExprCount] = useState(24);
 
   // Meetings & Interview state
   const [selectedStageIdx, setSelectedStageIdx] = useState(0);
@@ -91,6 +93,10 @@ export function BusinessCourseHub() {
   useEffect(() => {
     setVisibleVocabCount(24);
   }, [vocabSearch, selectedSector]);
+
+  useEffect(() => {
+    setVisibleExprCount(24);
+  }, [exprSearch, selectedExprCat]);
 
   function updateProgress(patch: Partial<Omit<BusinessCourseProgress, "updatedAt">>) {
     const next = learnerStorage.saveBusiness({
@@ -136,10 +142,32 @@ export function BusinessCourseHub() {
     [filteredVocab, visibleVocabCount],
   );
 
+  const exprCategoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const e of BUSINESS_EXPRESSIONS) {
+      counts[e.category] = (counts[e.category] ?? 0) + 1;
+    }
+    return counts;
+  }, []);
+
   const filteredExpressions = useMemo(() => {
-    if (selectedExprCat === "all") return BUSINESS_EXPRESSIONS;
-    return BUSINESS_EXPRESSIONS.filter((e) => e.category === selectedExprCat);
-  }, [selectedExprCat]);
+    const q = exprSearch.trim().toLowerCase();
+    return BUSINESS_EXPRESSIONS.filter((e) => {
+      if (selectedExprCat !== "all" && e.category !== selectedExprCat) return false;
+      if (!q) return true;
+      return (
+        e.expression.toLowerCase().includes(q) ||
+        e.meaning.toLowerCase().includes(q) ||
+        e.arabic.toLowerCase().includes(q) ||
+        e.example.toLowerCase().includes(q)
+      );
+    });
+  }, [selectedExprCat, exprSearch]);
+
+  const visibleExpressions = useMemo(
+    () => filteredExpressions.slice(0, visibleExprCount),
+    [filteredExpressions, visibleExprCount],
+  );
 
   const filteredCommSkills = useMemo(() => {
     if (audience === "all") return BUSINESS_COMM_SKILLS;
@@ -537,6 +565,25 @@ export function BusinessCourseHub() {
         {/* TAB 2: BUSINESS IDIOMS, WORKPLACE EXPRESSIONS & PHRASAL VERBS */}
         {activeTab === "expressions" && (
           <section className="space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="relative max-w-md flex-1">
+                <Search
+                  className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden
+                />
+                <Input
+                  value={exprSearch}
+                  onChange={(e) => setExprSearch(e.target.value)}
+                  placeholder={t.business.searchVocabPlaceholder}
+                  className="ps-9"
+                  aria-label={t.business.tabExpressions}
+                />
+              </div>
+              <p className="text-xs font-semibold text-muted-foreground" dir="ltr">
+                {visibleExpressions.length} / {filteredExpressions.length}
+              </p>
+            </div>
+
             <div
               className="flex flex-wrap gap-1.5"
               role="group"
@@ -548,7 +595,10 @@ export function BusinessCourseHub() {
                 className="rounded-full text-xs"
                 onClick={() => setSelectedExprCat("all")}
               >
-                {t.business.allExprCategories}
+                {t.business.allExprCategories}{" "}
+                <span className="ms-1 opacity-75" dir="ltr">
+                  ({BUSINESS_EXPRESSIONS.length})
+                </span>
               </Button>
               {BUSINESS_EXPRESSION_CATEGORIES.map((cat) => (
                 <Button
@@ -558,13 +608,16 @@ export function BusinessCourseHub() {
                   className="rounded-full text-xs"
                   onClick={() => setSelectedExprCat(cat.id)}
                 >
-                  {cat.label[locale]}
+                  {cat.label[locale]}{" "}
+                  <span className="ms-1 opacity-75" dir="ltr">
+                    ({exprCategoryCounts[cat.id] ?? 0})
+                  </span>
                 </Button>
               ))}
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              {filteredExpressions.map((expr) => (
+              {visibleExpressions.map((expr) => (
                 <article
                   key={expr.id}
                   className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-2.5"
@@ -604,6 +657,20 @@ export function BusinessCourseHub() {
                 </article>
               ))}
             </div>
+
+            {visibleExpressions.length < filteredExpressions.length && (
+              <div className="flex justify-center pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setVisibleExprCount((c) => c + 24)}
+                >
+                  {locale === "ar"
+                    ? `عرض المزيد (${filteredExpressions.length - visibleExpressions.length} متبقية)`
+                    : `Show more (${filteredExpressions.length - visibleExpressions.length} remaining)`}
+                </Button>
+              </div>
+            )}
           </section>
         )}
 

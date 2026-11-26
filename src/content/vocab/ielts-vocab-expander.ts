@@ -271,3 +271,178 @@ export function expandIeltsTopicWords(
 
   return entries;
 }
+
+/**
+ * Compact tuple for authentic English idioms used for natural communication & IELTS Speaking:
+ * [idiom, meaning, arabic, formalEquivalent, example]
+ */
+export type CompactIdiomRow = readonly [
+  idiom: string,
+  meaning: string,
+  arabic: string,
+  formalEquivalent: string,
+  example: string,
+];
+
+export function expandIeltsIdioms(
+  topic: IeltsTopicCategory,
+  rows: readonly CompactIdiomRow[],
+  existingTopicIdioms?: Set<string>,
+): IeltsVocabEntry[] {
+  const ctx = TOPIC_CONTEXT[topic];
+  const seen = existingTopicIdioms ?? new Set<string>();
+  const entries: IeltsVocabEntry[] = [];
+
+  rows.forEach((row, idx) => {
+    const [idiom, meaning, arabic, formalEquivalent, example] = row;
+    const norm = idiom.trim().toLowerCase();
+    if (!norm || seen.has(norm)) return;
+    seen.add(norm);
+
+    const slug = norm.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const bandTarget: IeltsVocabEntry["bandTarget"] =
+      idx % 3 === 0 ? "7.5+" : idx % 5 === 0 ? "8.0+" : "7.0";
+
+    entries.push({
+      id: `ielts-idiom-${topic}-${slug}`,
+      word: idiom,
+      ipa: "/ˈɪd.i.əm/",
+      partOfSpeech: "idiom",
+      category: "idioms",
+      topic,
+      bandTarget,
+      definition: meaning,
+      arabic,
+      collocations: [idiom, formalEquivalent],
+      synonyms: [formalEquivalent],
+      antonyms: [],
+      registerContrast: {
+        everyday: idiom,
+        academic: formalEquivalent,
+        whenToUse: {
+          en: `Use "${idiom}" naturally in IELTS Speaking Parts 1–3 and everyday conversation; switch to "${formalEquivalent}" in formal IELTS Writing Task 2 essays.`,
+          ar: `استخدم التعبير الاصطلاحي «${idiom}» بطبيعية في المحادثة واختبار التحدث، واستبدله بـ «${formalEquivalent}» في مقالات الكتابة الأكاديمية.`,
+        },
+      },
+      examples: [
+        example,
+        `In ${ctx.en}, speakers frequently use "${idiom}" to communicate this idea quickly and naturally.`,
+      ],
+      ieltsSpeaking: {
+        prompt: ctx.speakingPrompt,
+        sample: example,
+        tip: {
+          en: `Deliver "${idiom}" smoothly without pausing or over-explaining it—natural rhythm is what examiners reward.`,
+          ar: `انطق التعبير «${idiom}» بسلاسة وطبيعية دون توقف مفتعل لإبراز الطلاقة الحقيقية.`,
+        },
+      },
+      ieltsWriting: {
+        task: "Task 2",
+        prompt: ctx.writingPrompt,
+        sample: `In academic essays on ${ctx.domainNoun}, express the same idea formally using "${formalEquivalent}" rather than the spoken idiom "${idiom}".`,
+        tip: {
+          en: `Keep spoken idioms for IELTS Speaking; paraphrase them into formal academic phrasing ("${formalEquivalent}") in Writing Task 2.`,
+          ar: `احتفظ بالتعابير الاصطلاحية للمحادثة، وحوّلها في الكتابة الأكاديمية إلى صياغة رسمية مثل «${formalEquivalent}».`,
+        },
+      },
+      commonMistake: {
+        wrong: `Do not change the fixed wording of "${idiom}" or force it into an overly formal Task 1 report.`,
+        right: example,
+        why: {
+          en: `Idioms are fixed expressions—keep every preposition and noun intact, and match the register to spoken or semi-formal communication.`,
+          ar: `التعابير الاصطلاحية تراكيب ثابتة؛ حافظ على كلماتها وحروف جرها كما هي واستخدمها في السياق المناسب.`,
+        },
+      },
+    });
+  });
+
+  return entries;
+}
+
+/**
+ * Compact tuple for high-frequency IELTS Band 7+ academic & exam vocabulary:
+ * [word, ipa, pos, topic, arabic, definition, everydayAlt, collocation1, collocation2, synonym]
+ */
+export type CompactHighFreqRow = readonly [
+  word: string,
+  ipa: string,
+  pos: "noun" | "verb" | "adjective" | "adverb",
+  topic: IeltsTopicCategory,
+  arabic: string,
+  definition: string,
+  everydayAlt: string,
+  collocation1: string,
+  collocation2: string,
+  synonym: string,
+];
+
+export function expandIeltsHighFrequencyWords(
+  rows: readonly CompactHighFreqRow[],
+  existingWords: Set<string>,
+): IeltsVocabEntry[] {
+  const entries: IeltsVocabEntry[] = [];
+
+  rows.forEach((row, idx) => {
+    const [word, ipa, pos, topic, arabic, definition, everydayAlt, coll1, coll2, synonym] = row;
+    const norm = word.trim().toLowerCase();
+    if (!norm || existingWords.has(norm)) return;
+    existingWords.add(norm);
+
+    const ctx = TOPIC_CONTEXT[topic];
+    const slug = norm.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const bandTarget: IeltsVocabEntry["bandTarget"] =
+      idx % 3 === 0 ? "7.5+" : idx % 5 === 0 ? "8.0+" : "7.0";
+    const examples = buildNaturalExamples(word, pos, coll1, topic);
+
+    entries.push({
+      id: `ielts-hf-${slug}`,
+      word,
+      ipa: ipa.startsWith("/") ? ipa : `/${ipa}/`,
+      partOfSpeech: pos,
+      category: "high-frequency",
+      topic,
+      bandTarget,
+      definition,
+      arabic,
+      collocations: [coll1, coll2],
+      synonyms: [synonym],
+      antonyms: [],
+      registerContrast: {
+        everyday: everydayAlt,
+        academic: coll1,
+        whenToUse: {
+          en: `High-frequency IELTS exam word: replace casual "${everydayAlt}" with "${word}" or "${coll1}" across Reading, Listening, Writing, and Speaking.`,
+          ar: `كلمة آيلتس عالية التكرار: استبدل «${everydayAlt}» بـ «${word}» أو «${coll1}» لرفع درجتك في جميع مهارات الاختبار.`,
+        },
+      },
+      examples,
+      ieltsSpeaking: {
+        prompt: ctx.speakingPrompt,
+        sample: `From my perspective, "${coll1}" is one of the clearest ways to understand modern ${ctx.en}.`,
+        tip: {
+          en: `Practise stressing "${word}" accurately (${ipa}) and combining it with "${coll1}".`,
+          ar: `تدرّب على نطق «${word}» بدقة وربطها مباشرة مع «${coll1}».`,
+        },
+      },
+      ieltsWriting: {
+        task: idx % 3 === 0 ? "Task 1" : "Task 2",
+        prompt: ctx.writingPrompt,
+        sample: examples[0],
+        tip: {
+          en: `High-frequency AWL words like "${word}" help you paraphrase IELTS prompts cleanly without repetition.`,
+          ar: `المفردات الأكاديمية عالية التكرار مثل «${word}» تساعدك على إعادة صياغة سؤال الآيلتس بدقة ودون تكرار.`,
+        },
+      },
+      commonMistake: {
+        wrong: `Many students repeat "${everydayAlt}" five times in one IELTS essay.`,
+        right: examples[0],
+        why: {
+          en: `Using "${word}" with "${coll1}" demonstrates Band 7+ lexical precision and avoids repetitive basic phrasing.`,
+          ar: `استخدام «${word}» مع «${coll1}» يبرز دقة المفردات ويمنع التكرار الممل في المقال.`,
+        },
+      },
+    });
+  });
+
+  return entries;
+}

@@ -75,12 +75,23 @@ export function SiteFooter() {
             </li>
             <li>
               <Link
+                to="/mock-exams"
+                className="text-sm font-semibold text-accent transition-colors hover:text-inverse-foreground"
+              >
+                {t.nav.mockExams}{" "}
+                <span className="text-inverse-muted" dir="ltr">
+                  · IELTS & TOEFL
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/ielts-vocabulary"
                 className="text-sm font-medium text-inverse-foreground/85 transition-colors hover:text-accent"
               >
                 {t.nav.ieltsVocab}{" "}
                 <span className="text-inverse-muted" dir="ltr">
-                  · Band 7+
+                  · 500+ HF · 70+ Idioms
                 </span>
               </Link>
             </li>

@@ -230,6 +230,24 @@ export function IeltsVocabStudio() {
     [selectedCategory],
   );
 
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const entry of IELTS_VOCABULARY) {
+      if (selectedTopic !== "all" && entry.topic !== selectedTopic) continue;
+      counts[entry.category] = (counts[entry.category] ?? 0) + 1;
+    }
+    return counts;
+  }, [selectedTopic]);
+
+  const topicCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const entry of IELTS_VOCABULARY) {
+      if (selectedCategory !== "all" && entry.category !== selectedCategory) continue;
+      counts[entry.topic] = (counts[entry.topic] ?? 0) + 1;
+    }
+    return counts;
+  }, [selectedCategory]);
+
   function toggleMastered(id: string) {
     const exists = progress.masteredIds.includes(id);
     const nextIds = exists
@@ -376,7 +394,10 @@ export function IeltsVocabStudio() {
                       className="rounded-full text-xs"
                       onClick={() => setSelectedCategory(cat.id)}
                     >
-                      {cat.label[locale]}
+                      {cat.label[locale]}{" "}
+                      <span className="ms-1 opacity-75" dir="ltr">
+                        ({categoryCounts[cat.id] ?? 0})
+                      </span>
                     </Button>
                   ))}
                 </div>
@@ -409,7 +430,10 @@ export function IeltsVocabStudio() {
                       className="rounded-full text-xs"
                       onClick={() => setSelectedTopic(topic.id)}
                     >
-                      {topic.label[locale]}
+                      {topic.label[locale]}{" "}
+                      <span className="ms-1 opacity-75" dir="ltr">
+                        ({topicCounts[topic.id] ?? 0})
+                      </span>
                     </Button>
                   ))}
                 </div>

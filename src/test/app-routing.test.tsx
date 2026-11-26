@@ -36,6 +36,7 @@ const ALL_PLATFORM_ROUTES = [
   "/kids",
   "/adults",
   "/ielts",
+  "/mock-exams",
   "/courses",
   "/level-test",
   "/ielts-vocabulary",
@@ -56,6 +57,7 @@ const ALL_META_KEYS = [
   "kids",
   "adults",
   "ielts",
+  "mockExams",
   "placement",
   "courses",
   "ieltsVocab",
@@ -90,7 +92,7 @@ describe("App routing & Phase 6 platform-wide QA", () => {
     }
   });
 
-  it("renders all 6 Advanced Studios links on the Home page cleanly in both English and Arabic", () => {
+  it("renders all Advanced Studios links on the Home page cleanly in both English and Arabic", () => {
     const { rerender } = render(
       <I18nProvider locale="en" theme="light">
         <AdvancedStudios />
@@ -100,11 +102,13 @@ describe("App routing & Phase 6 platform-wide QA", () => {
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: /Six Interactive Studios Built for Real Mastery/i,
+        name: /Interactive Studios Built for Real Mastery/i,
       }),
     ).toBeTruthy();
 
     const expectedHrefs = [
+      "/mock-exams",
+      "/speaking",
       "/ielts-vocabulary",
       "/cefr-mastery",
       "/self-learning",
@@ -125,7 +129,7 @@ describe("App routing & Phase 6 platform-wide QA", () => {
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: /ستة استوديوهات تفاعلية صُمّمت للإتقان الحقيقي/i,
+        name: /استوديوهات تفاعلية صُمّمت للإتقان الحقيقي/i,
       }),
     ).toBeTruthy();
   });

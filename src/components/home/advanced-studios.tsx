@@ -5,6 +5,7 @@ import {
   BookMarked,
   BookOpenCheck,
   Briefcase,
+  ClipboardCheck,
   Layers,
   Mail,
   MessageCircle,
@@ -20,6 +21,13 @@ export function AdvancedStudios() {
   const s = t.advancedStudios;
 
   const cards = [
+    {
+      to: "/mock-exams" as const,
+      icon: ClipboardCheck,
+      badge: s.mockExamsBadge,
+      title: s.mockExamsTitle,
+      desc: s.mockExamsDesc,
+    },
     {
       to: "/speaking" as const,
       icon: Mic,

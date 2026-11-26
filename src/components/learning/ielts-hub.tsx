@@ -120,6 +120,17 @@ export function IeltsHub() {
               {joined ? t.courses.joined : t.learning.joinToUnlock}
             </Button>
             <Button asChild variant="accent" size="lg">
+              <Link to="/mock-exams">
+                <ClipboardCheck aria-hidden />
+                {t.nav.mockExams}
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-inverse-foreground/30 bg-transparent text-inverse-foreground hover:bg-inverse-foreground/10"
+            >
               <Link to="/ielts-vocabulary">
                 <BookOpen aria-hidden />
                 {t.vocab.openIeltsVocabCta}

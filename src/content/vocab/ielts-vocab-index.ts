@@ -7,7 +7,11 @@ import type {
 } from "./vocab-types";
 import { IELTS_VOCAB_PART1 } from "./ielts-vocab-part1";
 import { IELTS_VOCAB_PART2 } from "./ielts-vocab-part2";
-import { expandIeltsTopicWords } from "./ielts-vocab-expander";
+import {
+  expandIeltsHighFrequencyWords,
+  expandIeltsIdioms,
+  expandIeltsTopicWords,
+} from "./ielts-vocab-expander";
 import {
   IELTS_EDUCATION_WORDS,
   IELTS_ENVIRONMENT_WORDS,
@@ -33,6 +37,29 @@ import {
   IELTS_TOURISM_WORDS,
   IELTS_TRANSPORT_WORDS,
 } from "./ielts-bank-transport-family-tour";
+import {
+  IELTS_IDIOMS_EDUCATION,
+  IELTS_IDIOMS_ENVIRONMENT,
+  IELTS_IDIOMS_TECH_AI,
+} from "./ielts-idioms-1";
+import {
+  IELTS_IDIOMS_BUSINESS,
+  IELTS_IDIOMS_GLOBALISATION,
+  IELTS_IDIOMS_HEALTH,
+} from "./ielts-idioms-2";
+import {
+  IELTS_IDIOMS_CRIME,
+  IELTS_IDIOMS_GOVERNMENT,
+  IELTS_IDIOMS_SOCIETY,
+} from "./ielts-idioms-3";
+import { IELTS_IDIOMS_CULTURE, IELTS_IDIOMS_MEDIA, IELTS_IDIOMS_SCIENCE } from "./ielts-idioms-4";
+import {
+  IELTS_IDIOMS_FAMILY,
+  IELTS_IDIOMS_TOURISM,
+  IELTS_IDIOMS_TRANSPORT,
+} from "./ielts-idioms-5";
+import { IELTS_HIGH_FREQ_BANK_1 } from "./ielts-high-frequency-1";
+import { IELTS_HIGH_FREQ_BANK_2 } from "./ielts-high-frequency-2";
 
 const existingIeltsWords = new Set<string>(
   [...IELTS_VOCAB_PART1, ...IELTS_VOCAB_PART2].map((e) => e.word.trim().toLowerCase()),
@@ -56,10 +83,99 @@ const expandedTopics: IeltsVocabEntry[] = [
   ...expandIeltsTopicWords("tourism-travel", IELTS_TOURISM_WORDS, existingIeltsWords),
 ];
 
+const expandedHighFrequency: IeltsVocabEntry[] = [
+  ...expandIeltsHighFrequencyWords(IELTS_HIGH_FREQ_BANK_1, existingIeltsWords),
+  ...expandIeltsHighFrequencyWords(IELTS_HIGH_FREQ_BANK_2, existingIeltsWords),
+];
+
+const baseEntries = [...IELTS_VOCAB_PART1, ...IELTS_VOCAB_PART2, ...expandedTopics];
+
+function existingTopicIdiomSet(topic: IeltsTopicCategory): Set<string> {
+  return new Set(
+    baseEntries
+      .filter((e) => e.topic === topic && e.category === "idioms")
+      .map((e) => e.word.trim().toLowerCase()),
+  );
+}
+
+const expandedIdioms: IeltsVocabEntry[] = [
+  ...expandIeltsIdioms("education", IELTS_IDIOMS_EDUCATION, existingTopicIdiomSet("education")),
+  ...expandIeltsIdioms(
+    "technology-ai",
+    IELTS_IDIOMS_TECH_AI,
+    existingTopicIdiomSet("technology-ai"),
+  ),
+  ...expandIeltsIdioms(
+    "environment-climate",
+    IELTS_IDIOMS_ENVIRONMENT,
+    existingTopicIdiomSet("environment-climate"),
+  ),
+  ...expandIeltsIdioms(
+    "health-lifestyle",
+    IELTS_IDIOMS_HEALTH,
+    existingTopicIdiomSet("health-lifestyle"),
+  ),
+  ...expandIeltsIdioms(
+    "business-employment",
+    IELTS_IDIOMS_BUSINESS,
+    existingTopicIdiomSet("business-employment"),
+  ),
+  ...expandIeltsIdioms(
+    "globalisation",
+    IELTS_IDIOMS_GLOBALISATION,
+    existingTopicIdiomSet("globalisation"),
+  ),
+  ...expandIeltsIdioms(
+    "society-issues",
+    IELTS_IDIOMS_SOCIETY,
+    existingTopicIdiomSet("society-issues"),
+  ),
+  ...expandIeltsIdioms(
+    "crime-punishment",
+    IELTS_IDIOMS_CRIME,
+    existingTopicIdiomSet("crime-punishment"),
+  ),
+  ...expandIeltsIdioms(
+    "government-services",
+    IELTS_IDIOMS_GOVERNMENT,
+    existingTopicIdiomSet("government-services"),
+  ),
+  ...expandIeltsIdioms(
+    "culture-traditions",
+    IELTS_IDIOMS_CULTURE,
+    existingTopicIdiomSet("culture-traditions"),
+  ),
+  ...expandIeltsIdioms(
+    "media-advertising",
+    IELTS_IDIOMS_MEDIA,
+    existingTopicIdiomSet("media-advertising"),
+  ),
+  ...expandIeltsIdioms(
+    "science-innovation",
+    IELTS_IDIOMS_SCIENCE,
+    existingTopicIdiomSet("science-innovation"),
+  ),
+  ...expandIeltsIdioms(
+    "transport-urbanisation",
+    IELTS_IDIOMS_TRANSPORT,
+    existingTopicIdiomSet("transport-urbanisation"),
+  ),
+  ...expandIeltsIdioms(
+    "family-relationships",
+    IELTS_IDIOMS_FAMILY,
+    existingTopicIdiomSet("family-relationships"),
+  ),
+  ...expandIeltsIdioms(
+    "tourism-travel",
+    IELTS_IDIOMS_TOURISM,
+    existingTopicIdiomSet("tourism-travel"),
+  ),
+];
+
 export const IELTS_VOCABULARY: IeltsVocabEntry[] = [
-  ...IELTS_VOCAB_PART1,
-  ...IELTS_VOCAB_PART2,
-  ...expandedTopics,
+  ...baseEntries,
+  ...expandedHighFrequency,
+  ...expandedIdioms,
 ];
 
 export const IELTS_CATEGORIES: {

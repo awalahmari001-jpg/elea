@@ -128,11 +128,17 @@ export function SiteHeader() {
                 <ChevronDown className="size-3 opacity-70" aria-hidden />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuContent align="start" className="w-60">
               <DropdownMenuItem asChild>
                 <Link to="/ielts" className="flex items-center gap-2 font-medium">
                   <GraduationCap className="size-4 text-primary" aria-hidden />
                   {t.nav.ielts}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/mock-exams" className="flex items-center gap-2 font-medium">
+                  <ClipboardCheck className="size-4 text-primary" aria-hidden />
+                  {t.nav.mockExams}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -353,6 +359,7 @@ export function SiteHeader() {
                   </p>
                   {[
                     { to: "/ielts" as const, label: t.nav.ielts, Icon: GraduationCap },
+                    { to: "/mock-exams" as const, label: t.nav.mockExams, Icon: ClipboardCheck },
                     { to: "/ielts-vocabulary" as const, label: t.nav.ieltsVocab, Icon: BookOpen },
                     { to: "/business" as const, label: t.nav.business, Icon: Briefcase },
                     { to: "/self-learning" as const, label: t.nav.selfLearning, Icon: BookMarked },
