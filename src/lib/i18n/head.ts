@@ -18,7 +18,8 @@ type MetaKey =
   | "profile"
   | "certificates"
   | "calendar"
-  | "resources";
+  | "resources"
+  | "admin";
 
 /** Builds the page title + social-share tags in the visitor's language. */
 export function pageMeta(locale: Locale | undefined, key: MetaKey) {

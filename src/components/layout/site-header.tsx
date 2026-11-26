@@ -15,6 +15,7 @@ import {
   Mic,
   Presentation,
   Settings,
+  Shield,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -224,6 +225,12 @@ export function SiteHeader() {
                   {t.nav.profile}
                 </Link>
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/admin" className="flex items-center gap-2 font-medium">
+                  <Shield className="size-4 text-primary" aria-hidden />
+                  {t.nav.adminStudio}
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </nav>
@@ -407,6 +414,16 @@ export function SiteHeader() {
                     >
                       <Settings className="size-4 text-primary" aria-hidden />
                       {t.nav.profile}
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link
+                      to="/admin"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-muted"
+                      activeProps={{ className: activeClass }}
+                    >
+                      <Shield className="size-4 text-primary" aria-hidden />
+                      {t.nav.adminStudio}
                     </Link>
                   </SheetClose>
                 </div>

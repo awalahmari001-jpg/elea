@@ -6,15 +6,19 @@ import {
   CheckCircle2,
   Download,
   LayoutDashboard,
+  LogOut,
   RotateCcw,
   Settings,
+  Shield,
   Upload,
   UserCheck,
+  UserPlus,
 } from "lucide-react";
 
 import { useI18n } from "@/components/i18n-provider";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,6 +26,12 @@ import { pageMeta } from "@/lib/i18n/head";
 import { exportLearnerBackupJson, importLearnerBackupJson } from "@/lib/learner-progress";
 import { learnerStorage } from "@/lib/learner-storage";
 import { learningRecord } from "@/lib/learning-record";
+import {
+  canAccessAdminPanel,
+  rbacStore,
+  type RbacStoreState,
+  type UserRole,
+} from "@/lib/rbac-store";
 
 export const Route = createFileRoute("/profile")({
   head: ({ match }) => pageMeta(match.context.locale, "profile"),
@@ -32,6 +42,7 @@ function ProfilePage() {
   const { t, dir } = useI18n();
   const pt = t.progress;
   const dt = t.dashboard;
+  const at = t.admin;
 
   const [displayName, setDisplayName] = useState("");
   const [targetGoal, setTargetGoal] = useState("");
@@ -40,13 +51,60 @@ function ProfilePage() {
     null,
   );
   const [confirmReset, setConfirmReset] = useState(false);
+  const [rbac, setRbac] = useState<RbacStoreState>(() => rbacStore.getState());
+  const [newAccName, setNewAccName] = useState("");
+  const [newAccEmail, setNewAccEmail] = useState("");
+  const [newAccRole, setNewAccRole] = useState<UserRole>("student");
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
+  const syncProfileFromStorage = () => {
     const meta = learnerStorage.getProfile();
     setDisplayName(meta.displayName);
     setTargetGoal(meta.targetGoal);
+    setRbac(rbacStore.getState());
+  };
+
+  useEffect(() => {
+    syncProfileFromStorage();
   }, []);
+
+  const currentAccount = rbac.accounts.find((a) => a.id === rbac.activeAccountId) ?? null;
+
+  const roleLabel = (role: UserRole): string => {
+    switch (role) {
+      case "super_admin":
+        return at.roleSuperAdmin;
+      case "admin":
+        return at.roleAdmin;
+      case "teacher":
+        return at.roleTeacher;
+      case "student":
+        return at.roleStudent;
+    }
+  };
+
+  const handleSwitchAccount = (accountId: string) => {
+    rbacStore.signIn(accountId);
+    syncProfileFromStorage();
+  };
+
+  const handleSignOut = () => {
+    rbacStore.signOut();
+    syncProfileFromStorage();
+  };
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAccName.trim()) return;
+    rbacStore.registerAccount({
+      name: newAccName,
+      email: newAccEmail || `${newAccName.toLowerCase().replace(/\s+/g, ".")}@elea.local`,
+      role: newAccRole,
+    });
+    setNewAccName("");
+    setNewAccEmail("");
+    syncProfileFromStorage();
+  };
 
   const handleSave = () => {
     learnerStorage.saveProfile({ displayName, targetGoal });
@@ -107,6 +165,104 @@ function ProfilePage() {
         </h1>
         <p className="text-sm text-muted-foreground md:text-base">{dt.profilePageSubtitle}</p>
       </header>
+
+      {/* Multi-Account Local Session & Role Switcher */}
+      <Card className="border-primary/25">
+        <CardHeader>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Shield className="size-5 text-primary" aria-hidden />
+                {at.sessionCardTitle}
+              </CardTitle>
+              <CardDescription>{at.sessionCardDesc}</CardDescription>
+            </div>
+            {currentAccount ? (
+              <div className="flex items-center gap-2">
+                <Badge className="bg-primary text-primary-foreground">
+                  {currentAccount.name} · {roleLabel(currentAccount.role)}
+                </Badge>
+                <Button type="button" size="sm" variant="outline" onClick={handleSignOut}>
+                  <LogOut className="me-1.5 size-3.5" aria-hidden />
+                  {at.signOutBtn}
+                </Button>
+              </div>
+            ) : (
+              <Badge variant="outline">{at.signedOutLabel}</Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="space-y-2">
+            <div className="text-xs font-bold text-muted-foreground">{at.switchAccountLabel}</div>
+            <div className="flex flex-wrap gap-2">
+              {rbac.accounts.map((acc) => {
+                const active = acc.id === rbac.activeAccountId;
+                return (
+                  <Button
+                    key={acc.id}
+                    type="button"
+                    size="sm"
+                    variant={active ? "default" : "outline"}
+                    className="rounded-full text-xs"
+                    onClick={() => handleSwitchAccount(acc.id)}
+                  >
+                    {acc.name} ({roleLabel(acc.role)})
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+
+          {currentAccount && canAccessAdminPanel(currentAccount.role) && (
+            <div className="rounded-xl bg-primary/10 p-3 flex flex-wrap items-center justify-between gap-3">
+              <span className="text-xs font-bold text-foreground">
+                {roleLabel(currentAccount.role)} — {t.nav.adminStudio}
+              </span>
+              <Button asChild size="sm">
+                <Link to="/admin">
+                  <Shield className="me-1.5 size-4" aria-hidden />
+                  {at.openAdminStudioBtn}
+                </Link>
+              </Button>
+            </div>
+          )}
+
+          <form
+            onSubmit={handleRegister}
+            className="grid gap-2.5 border-t border-border/70 pt-4 sm:grid-cols-[1fr_1fr_auto_auto]"
+          >
+            <Input
+              value={newAccName}
+              onChange={(e) => setNewAccName(e.target.value)}
+              placeholder={at.registerNamePlaceholder}
+              aria-label={at.registerNamePlaceholder}
+              required
+            />
+            <Input
+              value={newAccEmail}
+              onChange={(e) => setNewAccEmail(e.target.value)}
+              placeholder={at.registerEmailPlaceholder}
+              aria-label={at.registerEmailPlaceholder}
+              type="email"
+            />
+            <select
+              aria-label={at.registerHeading}
+              value={newAccRole}
+              onChange={(e) => setNewAccRole(e.target.value as UserRole)}
+              className="rounded-lg border border-input bg-background px-3 py-2 text-xs font-semibold"
+            >
+              <option value="student">{at.roleStudent}</option>
+              <option value="teacher">{at.roleTeacher}</option>
+              <option value="admin">{at.roleAdmin}</option>
+            </select>
+            <Button type="submit" size="sm">
+              <UserPlus className="me-1.5 size-4" aria-hidden />
+              {at.registerBtn}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>

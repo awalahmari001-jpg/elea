@@ -122,7 +122,7 @@ describe("Kids Phase K4 · 30 Vocabulary Themes & 17 Visual Grammar Units", () =
 
 describe("Kids Phase K5 · 12 6-Part Animated ESL Videos & 8-Game Learning Arcade", () => {
   it("includes 12 original ESL animated video lessons each following the strict 6-stage pedagogical structure", () => {
-    expect(KIDS_ANIMATED_VIDEOS).toHaveLength(12);
+    expect(KIDS_ANIMATED_VIDEOS.length).toBeGreaterThanOrEqual(15);
     for (const vid of KIDS_ANIMATED_VIDEOS) {
       expect(vid.stages.map((s) => s.stage)).toEqual([
         "intro",

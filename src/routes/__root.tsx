@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/components/i18n-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { MobileQuickNav } from "@/components/layout/mobile-quick-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SITE } from "@/config/site";
@@ -157,7 +158,7 @@ function RootComponent() {
         >
           {messages[locale].nav.skipToContent}
         </a>
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-screen flex-col pb-16 xl:pb-0">
           <SiteHeader />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <main id="main" className="flex-1">
@@ -165,6 +166,7 @@ function RootComponent() {
           </main>
           <SiteFooter />
         </div>
+        <MobileQuickNav />
         <Toaster position="top-center" richColors />
       </I18nProvider>
     </QueryClientProvider>
