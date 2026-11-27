@@ -1,19 +1,22 @@
 /**
- * Calibrated Kids Phonics, Pure Phoneme Synthesis & Musical Song Audio Engine.
+ * Calibrated Kids Phonics, Authentic IPA Sample Audio & Musical Song Engine.
  *
  * Standard Web Speech TTS pronounces single letters ("a", "b", "c", "s") as their
  * LETTER NAMES (/eɪ/, /biː/, /siː/, /es/), spells out repeated-letter strings like
  * "fff", "lll", "sss", "ih" as letter names ("eff-eff-eff", "I-H"), and reads
- * "aah"/"aw" as wrong vowels (/ɑː/, /ɔː/) instead of authentic short /æ/ and /ɒ/.
+ * "short a" / "fuh" / "suh" literally or with heavy trailing schwas.
  *
- * This engine solves all three problems:
- * 1. Keeps Letter NAME audio strictly separated from Pure Letter SOUND audio.
- * 2. Synthesizes all 5 short vowels (3-formant F1/F2/F3 resonators), voiceless &
- *    voiced fricatives (bandpass noise + glottal buzz), nasals, liquids, and /ks/
- *    bursts directly via Web Audio API (`playAcousticPhonemeCue`), never sending
- *    spelled-out strings or wrong vowels to Web Speech TTS.
- * 3. Includes a cheerful Web Audio Xylophone / Marimba Song Engine synchronized
- *    with spoken/sung phonics verses and pure phoneme cues.
+ * This engine solves every single one of those issues using authentic IPA audio:
+ * 1. Plays studio-normalized, real-human International Phonetic Alphabet (IPA)
+ *    reference MP3 recordings bundled locally under `/audio/ipa/*.mp3` for all 26
+ *    English alphabet phonemes (A–Z), long vowels, and digraphs — zero external
+ *    network dependency, instant playback, 100% Safari/iOS/Chrome/Firefox support.
+ * 2. Keeps Letter NAME audio strictly separated from Pure IPA SOUND audio, with
+ *    zero-overlap sequencing (waits for IPA clip `ended` before speaking anchor words).
+ * 3. Falls back gracefully to calibrated Web Audio F1/F2/F3 formants & fricatives
+ *    or TTS only when HTMLAudioElement playback is unavailable (e.g., headless tests).
+ * 4. Includes a cheerful Web Audio Xylophone / Marimba Song Engine synchronized
+ *    with authentic IPA phoneme samples and kid-friendly phonics song verses.
  */
 import {
   FULL_PHONICS_SONGS,
@@ -43,226 +46,282 @@ export type AcousticPhonemeKind =
 
 export interface LetterPhonicsAudioSpec {
   letter: string;
+  /** Exact IPA phoneme symbol for this letter's primary phonics sound. */
+  ipaSymbol: string;
+  /** Path to the bundled real-human IPA reference MP3 clip under `public/audio/ipa/`. */
+  ipaSampleUrl: string;
   /** Spoken text that guarantees TTS pronounces the Letter NAME clearly. */
   nameSpeech: string;
-  /** TTS-safe pure sound realization (never bare single letters, repeated letters, or wrong vowels). */
+  /** Fallback phoneme realization token (never bare single letters or spelled-out strings). */
   soundSpeech: string;
-  /** Child-friendly pure-sound label shown alongside the IPA badge (contrasted with letter name). */
+  /** Child-friendly IPA-anchored hint shown alongside the IPA badge. */
   phoneticHint: string;
-  /** Anchor example word demonstrating the pure initial (or final for X) sound. */
+  /** Anchor example word demonstrating the authentic IPA phoneme. */
   anchorWord: string;
-  /** Web Audio acoustic synthesizer mode for pure vowels, fricatives, nasals, liquids & bursts. */
+  /** Web Audio acoustic fallback synthesizer mode if HTMLAudio is unavailable. */
   acousticKind?: AcousticPhonemeKind;
-  /** True for stop/plosive/glide consonants spoken slightly brisker to clip trailing schwa. */
+  /** True for stop/plosive/glide consonants when using TTS fallback. */
   clippedStop?: boolean;
 }
 
 export const LETTER_PHONICS_AUDIO: Record<string, LetterPhonicsAudioSpec> = {
   A: {
     letter: "A",
+    ipaSymbol: "/æ/",
+    ipaSampleUrl: "/audio/ipa/ae.mp3",
     nameSpeech: "The letter A",
     soundSpeech: "short a",
-    phoneticHint: "short a (apple)",
+    phoneticHint: "/æ/ as in apple",
     anchorWord: "apple",
     acousticKind: "a-short",
   },
   B: {
     letter: "B",
+    ipaSymbol: "/b/",
+    ipaSampleUrl: "/audio/ipa/b.mp3",
     nameSpeech: "The letter B",
     soundSpeech: "buh",
-    phoneticHint: "quick buh (ball)",
+    phoneticHint: "/b/ as in ball",
     anchorWord: "ball",
     clippedStop: true,
   },
   C: {
     letter: "C",
+    ipaSymbol: "/k/",
+    ipaSampleUrl: "/audio/ipa/k.mp3",
     nameSpeech: "The letter C",
     soundSpeech: "kuh",
-    phoneticHint: "crisp k (cat)",
+    phoneticHint: "/k/ as in cat",
     anchorWord: "cat",
     clippedStop: true,
   },
   D: {
     letter: "D",
+    ipaSymbol: "/d/",
+    ipaSampleUrl: "/audio/ipa/d.mp3",
     nameSpeech: "The letter D",
     soundSpeech: "duh",
-    phoneticHint: "quick d (dog)",
+    phoneticHint: "/d/ as in dog",
     anchorWord: "dog",
     clippedStop: true,
   },
   E: {
     letter: "E",
+    ipaSymbol: "/e/",
+    ipaSampleUrl: "/audio/ipa/e.mp3",
     nameSpeech: "The letter E",
     soundSpeech: "eh",
-    phoneticHint: "short e (egg)",
+    phoneticHint: "/e/ as in egg",
     anchorWord: "egg",
     acousticKind: "e-short",
   },
   F: {
     letter: "F",
+    ipaSymbol: "/f/",
+    ipaSampleUrl: "/audio/ipa/f.mp3",
     nameSpeech: "The letter F",
     soundSpeech: "fuh",
-    phoneticHint: "soft air f (fish)",
+    phoneticHint: "/f/ as in fish",
     anchorWord: "fish",
     acousticKind: "f-air",
   },
   G: {
     letter: "G",
+    ipaSymbol: "/ɡ/",
+    ipaSampleUrl: "/audio/ipa/g.mp3",
     nameSpeech: "The letter G",
     soundSpeech: "guh",
-    phoneticHint: "quick g (goat)",
+    phoneticHint: "/ɡ/ as in goat",
     anchorWord: "goat",
     clippedStop: true,
   },
   H: {
     letter: "H",
+    ipaSymbol: "/h/",
+    ipaSampleUrl: "/audio/ipa/h.mp3",
     nameSpeech: "The letter H",
     soundSpeech: "huh",
-    phoneticHint: "soft breath h (hat)",
+    phoneticHint: "/h/ as in hat",
     anchorWord: "hat",
     acousticKind: "h-breath",
   },
   I: {
     letter: "I",
+    ipaSymbol: "/ɪ/",
+    ipaSampleUrl: "/audio/ipa/ih.mp3",
     nameSpeech: "The letter I",
     soundSpeech: "short i",
-    phoneticHint: "short i (igloo)",
+    phoneticHint: "/ɪ/ as in igloo",
     anchorWord: "igloo",
     acousticKind: "i-short",
   },
   J: {
     letter: "J",
+    ipaSymbol: "/dʒ/",
+    ipaSampleUrl: "/audio/ipa/dj.mp3",
     nameSpeech: "The letter J",
     soundSpeech: "juh",
-    phoneticHint: "bouncy j (jam)",
+    phoneticHint: "/dʒ/ as in jam",
     anchorWord: "jam",
     clippedStop: true,
   },
   K: {
     letter: "K",
+    ipaSymbol: "/k/",
+    ipaSampleUrl: "/audio/ipa/k.mp3",
     nameSpeech: "The letter K",
     soundSpeech: "kuh",
-    phoneticHint: "crisp k (kite)",
+    phoneticHint: "/k/ as in kite",
     anchorWord: "kite",
     clippedStop: true,
   },
   L: {
     letter: "L",
+    ipaSymbol: "/l/",
+    ipaSampleUrl: "/audio/ipa/l.mp3",
     nameSpeech: "The letter L",
     soundSpeech: "luh",
-    phoneticHint: "smooth l (lion)",
+    phoneticHint: "/l/ as in lion",
     anchorWord: "lion",
     acousticKind: "l-liquid",
   },
   M: {
     letter: "M",
+    ipaSymbol: "/m/",
+    ipaSampleUrl: "/audio/ipa/m.mp3",
     nameSpeech: "The letter M",
     soundSpeech: "muh",
-    phoneticHint: "lip hum m (moon)",
+    phoneticHint: "/m/ as in moon",
     anchorWord: "moon",
     acousticKind: "m-hum",
   },
   N: {
     letter: "N",
+    ipaSymbol: "/n/",
+    ipaSampleUrl: "/audio/ipa/n.mp3",
     nameSpeech: "The letter N",
     soundSpeech: "nuh",
-    phoneticHint: "nose hum n (nest)",
+    phoneticHint: "/n/ as in nest",
     anchorWord: "nest",
     acousticKind: "n-hum",
   },
   O: {
     letter: "O",
+    ipaSymbol: "/ɒ/",
+    ipaSampleUrl: "/audio/ipa/o.mp3",
     nameSpeech: "The letter O",
     soundSpeech: "short o",
-    phoneticHint: "short o (octopus)",
+    phoneticHint: "/ɒ/ as in octopus",
     anchorWord: "octopus",
     acousticKind: "o-short",
   },
   P: {
     letter: "P",
+    ipaSymbol: "/p/",
+    ipaSampleUrl: "/audio/ipa/p.mp3",
     nameSpeech: "The letter P",
     soundSpeech: "puh",
-    phoneticHint: "air pop p (pen)",
+    phoneticHint: "/p/ as in pen",
     anchorWord: "pen",
     clippedStop: true,
   },
   Q: {
     letter: "Q",
+    ipaSymbol: "/kw/",
+    ipaSampleUrl: "/audio/ipa/kw.mp3",
     nameSpeech: "The letter Q",
     soundSpeech: "kwuh",
-    phoneticHint: "kw blend (queen)",
+    phoneticHint: "/kw/ as in queen",
     anchorWord: "queen",
     clippedStop: true,
   },
   R: {
     letter: "R",
+    ipaSymbol: "/r/",
+    ipaSampleUrl: "/audio/ipa/r.mp3",
     nameSpeech: "The letter R",
     soundSpeech: "ruh",
-    phoneticHint: "curled r (rabbit)",
+    phoneticHint: "/r/ as in rabbit",
     anchorWord: "rabbit",
     acousticKind: "r-liquid",
   },
   S: {
     letter: "S",
+    ipaSymbol: "/s/",
+    ipaSampleUrl: "/audio/ipa/s.mp3",
     nameSpeech: "The letter S",
     soundSpeech: "suh",
-    phoneticHint: "snake hiss s (sun)",
+    phoneticHint: "/s/ as in sun",
     anchorWord: "sun",
     acousticKind: "s-hiss",
   },
   T: {
     letter: "T",
+    ipaSymbol: "/t/",
+    ipaSampleUrl: "/audio/ipa/t.mp3",
     nameSpeech: "The letter T",
     soundSpeech: "tuh",
-    phoneticHint: "crisp tap t (tiger)",
+    phoneticHint: "/t/ as in tiger",
     anchorWord: "tiger",
     clippedStop: true,
   },
   U: {
     letter: "U",
+    ipaSymbol: "/ʌ/",
+    ipaSampleUrl: "/audio/ipa/u.mp3",
     nameSpeech: "The letter U",
     soundSpeech: "uh",
-    phoneticHint: "short u (umbrella)",
+    phoneticHint: "/ʌ/ as in umbrella",
     anchorWord: "umbrella",
     acousticKind: "u-short",
   },
   V: {
     letter: "V",
+    ipaSymbol: "/v/",
+    ipaSampleUrl: "/audio/ipa/v.mp3",
     nameSpeech: "The letter V",
     soundSpeech: "vuh",
-    phoneticHint: "buzzing v (van)",
+    phoneticHint: "/v/ as in van",
     anchorWord: "van",
     acousticKind: "v-buzz",
   },
   W: {
     letter: "W",
+    ipaSymbol: "/w/",
+    ipaSampleUrl: "/audio/ipa/w.mp3",
     nameSpeech: "The letter W",
     soundSpeech: "wuh",
-    phoneticHint: "round glide w (water)",
+    phoneticHint: "/w/ as in water",
     anchorWord: "water",
     clippedStop: true,
   },
   X: {
     letter: "X",
+    ipaSymbol: "/ks/",
+    ipaSampleUrl: "/audio/ipa/ks.mp3",
     nameSpeech: "The letter X",
     soundSpeech: "kuh-suh",
-    phoneticHint: "k-s burst (box)",
+    phoneticHint: "/ks/ as in box",
     anchorWord: "box",
     acousticKind: "ks-burst",
   },
   Y: {
     letter: "Y",
+    ipaSymbol: "/j/",
+    ipaSampleUrl: "/audio/ipa/j.mp3",
     nameSpeech: "The letter Y",
     soundSpeech: "yuh",
-    phoneticHint: "soft glide y (yellow)",
+    phoneticHint: "/j/ as in yellow",
     anchorWord: "yellow",
     clippedStop: true,
   },
   Z: {
     letter: "Z",
+    ipaSymbol: "/z/",
+    ipaSampleUrl: "/audio/ipa/z.mp3",
     nameSpeech: "The letter Z",
     soundSpeech: "zuh",
-    phoneticHint: "bee buzz z (zebra)",
+    phoneticHint: "/z/ as in zebra",
     anchorWord: "zebra",
     acousticKind: "z-buzz",
   },
@@ -271,10 +330,14 @@ export const LETTER_PHONICS_AUDIO: Record<string, LetterPhonicsAudioSpec> = {
 export interface VowelSoundSpeechSpec {
   /** Return-value label token preserved for audio engine contracts. */
   shortSpeech: string;
-  /** Authentic Web Audio formant cue for the pure short vowel. */
+  /** Bundled real-human IPA MP3 clip for the pure short vowel. */
+  shortIpaSampleUrl: string;
+  /** Web Audio formant fallback cue if HTMLAudio is unavailable. */
   shortAcousticKind: AcousticPhonemeKind;
   /** TTS-safe fallback cue (never passes "aah", "ih", or "aw" to Web Speech TTS). */
   shortTtsSpeech: string;
+  /** Optional bundled real-human IPA MP3 clip for monophthong long vowels (/iː/). */
+  longIpaSampleUrl?: string;
   /** Natural spoken cue for the long vowel (says its name). */
   longSpeech: string;
 }
@@ -282,30 +345,36 @@ export interface VowelSoundSpeechSpec {
 export const VOWEL_SOUND_SPEECH: Record<"A" | "E" | "I" | "O" | "U", VowelSoundSpeechSpec> = {
   A: {
     shortSpeech: "aah",
+    shortIpaSampleUrl: "/audio/ipa/ae.mp3",
     shortAcousticKind: "a-short",
     shortTtsSpeech: "short a",
     longSpeech: "ay",
   },
   E: {
     shortSpeech: "eh",
+    shortIpaSampleUrl: "/audio/ipa/e.mp3",
     shortAcousticKind: "e-short",
     shortTtsSpeech: "eh",
+    longIpaSampleUrl: "/audio/ipa/ee.mp3",
     longSpeech: "ee",
   },
   I: {
     shortSpeech: "short i",
+    shortIpaSampleUrl: "/audio/ipa/ih.mp3",
     shortAcousticKind: "i-short",
     shortTtsSpeech: "short i",
     longSpeech: "eye",
   },
   O: {
     shortSpeech: "short o",
+    shortIpaSampleUrl: "/audio/ipa/o.mp3",
     shortAcousticKind: "o-short",
     shortTtsSpeech: "short o",
     longSpeech: "oh",
   },
   U: {
     shortSpeech: "uh",
+    shortIpaSampleUrl: "/audio/ipa/u.mp3",
     shortAcousticKind: "u-short",
     shortTtsSpeech: "uh",
     longSpeech: "yoo",
@@ -317,59 +386,214 @@ export interface ResolvedPhonemeSpeech {
   speech: string;
   /** Strictly TTS-safe spoken fallback (never repeated letters like "fff"/"shhh" or wrong vowels). */
   ttsSpeech: string;
-  /** Authentic Web Audio cue played directly for pure vowels, fricatives, nasals, liquids & bursts. */
+  /** Bundled real-human IPA reference MP3 clip played as primary audio source. */
+  ipaSampleUrl?: string;
+  /** Web Audio fallback cue if HTMLAudio playback is unavailable. */
   acousticKind?: AcousticPhonemeKind;
-  /** True for plosives/affricates/glides spoken briskly to minimize trailing schwa. */
+  /** True for plosives/affricates/glides spoken briskly when falling back to TTS. */
   clippedStop?: boolean;
 }
 
-/** Maps IPA symbols, digraphs, and single phoneme letters to accurate acoustic & TTS-safe cues. */
+/** Maps IPA symbols, digraphs, and single phoneme letters to authentic IPA MP3 samples & fallbacks. */
 const PHONEME_SPEECH_MAP: Record<string, ResolvedPhonemeSpeech> = {
-  "/p/": { speech: "puh", ttsSpeech: "puh", clippedStop: true },
-  "/b/": { speech: "buh", ttsSpeech: "buh", clippedStop: true },
-  "/m/": { speech: "muh", ttsSpeech: "muh", acousticKind: "m-hum" },
-  "/w/": { speech: "wuh", ttsSpeech: "wuh", clippedStop: true },
-  "/f/": { speech: "fuh", ttsSpeech: "fuh", acousticKind: "f-air" },
-  "/v/": { speech: "vuh", ttsSpeech: "vuh", acousticKind: "v-buzz" },
-  "/θ/": { speech: "thuh", ttsSpeech: "thuh", acousticKind: "th-air" },
-  "/ð/": { speech: "theh", ttsSpeech: "theh" },
-  "/t/": { speech: "tuh", ttsSpeech: "tuh", clippedStop: true },
-  "/d/": { speech: "duh", ttsSpeech: "duh", clippedStop: true },
-  "/n/": { speech: "nuh", ttsSpeech: "nuh", acousticKind: "n-hum" },
-  "/s/": { speech: "suh", ttsSpeech: "suh", acousticKind: "s-hiss" },
-  "/z/": { speech: "zuh", ttsSpeech: "zuh", acousticKind: "z-buzz" },
-  "/l/": { speech: "luh", ttsSpeech: "luh", acousticKind: "l-liquid" },
-  "/r/": { speech: "ruh", ttsSpeech: "ruh", acousticKind: "r-liquid" },
-  "/ʃ/": { speech: "shhh", ttsSpeech: "shuh", acousticKind: "sh-hush" },
+  "/p/": { speech: "puh", ttsSpeech: "puh", ipaSampleUrl: "/audio/ipa/p.mp3", clippedStop: true },
+  "/b/": { speech: "buh", ttsSpeech: "buh", ipaSampleUrl: "/audio/ipa/b.mp3", clippedStop: true },
+  "/m/": {
+    speech: "muh",
+    ttsSpeech: "muh",
+    ipaSampleUrl: "/audio/ipa/m.mp3",
+    acousticKind: "m-hum",
+  },
+  "/w/": { speech: "wuh", ttsSpeech: "wuh", ipaSampleUrl: "/audio/ipa/w.mp3", clippedStop: true },
+  "/f/": {
+    speech: "fuh",
+    ttsSpeech: "fuh",
+    ipaSampleUrl: "/audio/ipa/f.mp3",
+    acousticKind: "f-air",
+  },
+  "/v/": {
+    speech: "vuh",
+    ttsSpeech: "vuh",
+    ipaSampleUrl: "/audio/ipa/v.mp3",
+    acousticKind: "v-buzz",
+  },
+  "/θ/": {
+    speech: "thuh",
+    ttsSpeech: "thuh",
+    ipaSampleUrl: "/audio/ipa/th-voiceless.mp3",
+    acousticKind: "th-air",
+  },
+  "/ð/": { speech: "theh", ttsSpeech: "theh", ipaSampleUrl: "/audio/ipa/th-voiced.mp3" },
+  "/t/": { speech: "tuh", ttsSpeech: "tuh", ipaSampleUrl: "/audio/ipa/t.mp3", clippedStop: true },
+  "/d/": { speech: "duh", ttsSpeech: "duh", ipaSampleUrl: "/audio/ipa/d.mp3", clippedStop: true },
+  "/n/": {
+    speech: "nuh",
+    ttsSpeech: "nuh",
+    ipaSampleUrl: "/audio/ipa/n.mp3",
+    acousticKind: "n-hum",
+  },
+  "/s/": {
+    speech: "suh",
+    ttsSpeech: "suh",
+    ipaSampleUrl: "/audio/ipa/s.mp3",
+    acousticKind: "s-hiss",
+  },
+  "/z/": {
+    speech: "zuh",
+    ttsSpeech: "zuh",
+    ipaSampleUrl: "/audio/ipa/z.mp3",
+    acousticKind: "z-buzz",
+  },
+  "/l/": {
+    speech: "luh",
+    ttsSpeech: "luh",
+    ipaSampleUrl: "/audio/ipa/l.mp3",
+    acousticKind: "l-liquid",
+  },
+  "/r/": {
+    speech: "ruh",
+    ttsSpeech: "ruh",
+    ipaSampleUrl: "/audio/ipa/r.mp3",
+    acousticKind: "r-liquid",
+  },
+  "/ɹ/": {
+    speech: "ruh",
+    ttsSpeech: "ruh",
+    ipaSampleUrl: "/audio/ipa/r.mp3",
+    acousticKind: "r-liquid",
+  },
+  "/ʃ/": {
+    speech: "shhh",
+    ttsSpeech: "shuh",
+    ipaSampleUrl: "/audio/ipa/sh.mp3",
+    acousticKind: "sh-hush",
+  },
   "/ʒ/": { speech: "zhuh", ttsSpeech: "zhuh" },
-  "/tʃ/": { speech: "chuh", ttsSpeech: "chuh", clippedStop: true },
-  "/dʒ/": { speech: "juh", ttsSpeech: "juh", clippedStop: true },
-  "/j/": { speech: "yuh", ttsSpeech: "yuh", clippedStop: true },
-  "/k/": { speech: "kuh", ttsSpeech: "kuh", clippedStop: true },
-  "/ɡ/": { speech: "guh", ttsSpeech: "guh", clippedStop: true },
-  "/g/": { speech: "guh", ttsSpeech: "guh", clippedStop: true },
-  "/ŋ/": { speech: "ing", ttsSpeech: "ing", acousticKind: "n-hum" },
-  "/h/": { speech: "huh", ttsSpeech: "huh", acousticKind: "h-breath" },
-  "/æ/": { speech: "aah", ttsSpeech: "short a", acousticKind: "a-short" },
-  "/e/": { speech: "eh", ttsSpeech: "eh", acousticKind: "e-short" },
-  "/ɪ/": { speech: "short i", ttsSpeech: "short i", acousticKind: "i-short" },
-  "/ɒ/": { speech: "short o", ttsSpeech: "short o", acousticKind: "o-short" },
-  "/ʌ/": { speech: "uh", ttsSpeech: "uh", acousticKind: "u-short" },
-  "/iː/": { speech: "ee", ttsSpeech: "ee" },
+  "/tʃ/": {
+    speech: "chuh",
+    ttsSpeech: "chuh",
+    ipaSampleUrl: "/audio/ipa/ch.mp3",
+    clippedStop: true,
+  },
+  "/dʒ/": {
+    speech: "juh",
+    ttsSpeech: "juh",
+    ipaSampleUrl: "/audio/ipa/dj.mp3",
+    clippedStop: true,
+  },
+  "/j/": { speech: "yuh", ttsSpeech: "yuh", ipaSampleUrl: "/audio/ipa/j.mp3", clippedStop: true },
+  "/k/": { speech: "kuh", ttsSpeech: "kuh", ipaSampleUrl: "/audio/ipa/k.mp3", clippedStop: true },
+  "/ɡ/": { speech: "guh", ttsSpeech: "guh", ipaSampleUrl: "/audio/ipa/g.mp3", clippedStop: true },
+  "/g/": { speech: "guh", ttsSpeech: "guh", ipaSampleUrl: "/audio/ipa/g.mp3", clippedStop: true },
+  "/ŋ/": {
+    speech: "ing",
+    ttsSpeech: "ing",
+    ipaSampleUrl: "/audio/ipa/ng.mp3",
+    acousticKind: "n-hum",
+  },
+  "/h/": {
+    speech: "huh",
+    ttsSpeech: "huh",
+    ipaSampleUrl: "/audio/ipa/h.mp3",
+    acousticKind: "h-breath",
+  },
+  "/æ/": {
+    speech: "aah",
+    ttsSpeech: "short a",
+    ipaSampleUrl: "/audio/ipa/ae.mp3",
+    acousticKind: "a-short",
+  },
+  "/e/": {
+    speech: "eh",
+    ttsSpeech: "eh",
+    ipaSampleUrl: "/audio/ipa/e.mp3",
+    acousticKind: "e-short",
+  },
+  "/ɛ/": {
+    speech: "eh",
+    ttsSpeech: "eh",
+    ipaSampleUrl: "/audio/ipa/e.mp3",
+    acousticKind: "e-short",
+  },
+  "/ɪ/": {
+    speech: "short i",
+    ttsSpeech: "short i",
+    ipaSampleUrl: "/audio/ipa/ih.mp3",
+    acousticKind: "i-short",
+  },
+  "/ɒ/": {
+    speech: "short o",
+    ttsSpeech: "short o",
+    ipaSampleUrl: "/audio/ipa/o.mp3",
+    acousticKind: "o-short",
+  },
+  "/ʌ/": {
+    speech: "uh",
+    ttsSpeech: "uh",
+    ipaSampleUrl: "/audio/ipa/u.mp3",
+    acousticKind: "u-short",
+  },
+  "/iː/": { speech: "ee", ttsSpeech: "ee", ipaSampleUrl: "/audio/ipa/ee.mp3" },
+  "/i/": { speech: "ee", ttsSpeech: "ee", ipaSampleUrl: "/audio/ipa/ee.mp3" },
   "/eɪ/": { speech: "ay", ttsSpeech: "ay" },
   "/aɪ/": { speech: "eye", ttsSpeech: "eye" },
   "/əʊ/": { speech: "oh", ttsSpeech: "oh" },
   "/juː/": { speech: "yoo", ttsSpeech: "yoo" },
-  "/uː/": { speech: "ooh", ttsSpeech: "ooh" },
-  "/ks/": { speech: "kuh-suh", ttsSpeech: "kuh-suh", acousticKind: "ks-burst" },
-  "/kw/": { speech: "kwuh", ttsSpeech: "kwuh", clippedStop: true },
-  sh: { speech: "shhh", ttsSpeech: "shuh", acousticKind: "sh-hush" },
-  ch: { speech: "chuh", ttsSpeech: "chuh", clippedStop: true },
-  th: { speech: "thuh", ttsSpeech: "thuh", acousticKind: "th-air" },
-  ph: { speech: "fuh", ttsSpeech: "fuh", acousticKind: "f-air" },
-  wh: { speech: "wuh", ttsSpeech: "wuh", clippedStop: true },
-  ck: { speech: "kuh", ttsSpeech: "kuh", clippedStop: true },
-  ng: { speech: "ing", ttsSpeech: "ing", acousticKind: "n-hum" },
+  "/uː/": { speech: "ooh", ttsSpeech: "ooh", ipaSampleUrl: "/audio/ipa/oo.mp3" },
+  "/ks/": {
+    speech: "kuh-suh",
+    ttsSpeech: "kuh-suh",
+    ipaSampleUrl: "/audio/ipa/ks.mp3",
+    acousticKind: "ks-burst",
+  },
+  "/kw/": {
+    speech: "kwuh",
+    ttsSpeech: "kwuh",
+    ipaSampleUrl: "/audio/ipa/kw.mp3",
+    clippedStop: true,
+  },
+  sh: {
+    speech: "shhh",
+    ttsSpeech: "shuh",
+    ipaSampleUrl: "/audio/ipa/sh.mp3",
+    acousticKind: "sh-hush",
+  },
+  ch: {
+    speech: "chuh",
+    ttsSpeech: "chuh",
+    ipaSampleUrl: "/audio/ipa/ch.mp3",
+    clippedStop: true,
+  },
+  th: {
+    speech: "thuh",
+    ttsSpeech: "thuh",
+    ipaSampleUrl: "/audio/ipa/th-voiceless.mp3",
+    acousticKind: "th-air",
+  },
+  ph: {
+    speech: "fuh",
+    ttsSpeech: "fuh",
+    ipaSampleUrl: "/audio/ipa/f.mp3",
+    acousticKind: "f-air",
+  },
+  wh: {
+    speech: "wuh",
+    ttsSpeech: "wuh",
+    ipaSampleUrl: "/audio/ipa/w.mp3",
+    clippedStop: true,
+  },
+  ck: {
+    speech: "kuh",
+    ttsSpeech: "kuh",
+    ipaSampleUrl: "/audio/ipa/k.mp3",
+    clippedStop: true,
+  },
+  ng: {
+    speech: "ing",
+    ttsSpeech: "ing",
+    ipaSampleUrl: "/audio/ipa/ng.mp3",
+    acousticKind: "n-hum",
+  },
 };
 
 interface FormantSpec {
@@ -386,8 +610,8 @@ interface FormantSpec {
 }
 
 /**
- * Calibrated F1 / F2 / F3 formant resonator specifications for all 5 pure short vowels,
- * nasals (/m/, /n/), and liquids (/l/, /r/).
+ * Calibrated F1 / F2 / F3 formant resonator specifications used as offline/fallback
+ * synthesis when HTMLAudioElement playback is unavailable.
  */
 const FORMANT_SPECS: Partial<Record<AcousticPhonemeKind, FormantSpec>> = {
   "a-short": {
@@ -522,6 +746,8 @@ let activeAudioCtx: AudioContext | null = null;
 let sequenceTimerIds: number[] = [];
 let songPlaybackToken = 0;
 let activeSongNodes: AudioScheduledSourceNode[] = [];
+let activeIpaAudio: HTMLAudioElement | null = null;
+const ipaAudioCache = new Map<string, HTMLAudioElement>();
 
 function clearPendingTimers(): void {
   if (typeof window === "undefined") return;
@@ -543,6 +769,19 @@ function stopActiveSongNodes(): void {
   activeSongNodes = [];
 }
 
+function stopActiveIpaAudio(): void {
+  if (!activeIpaAudio) return;
+  try {
+    activeIpaAudio.onended = null;
+    activeIpaAudio.onerror = null;
+    activeIpaAudio.pause();
+    activeIpaAudio.currentTime = 0;
+  } catch {
+    // Ignore audio stop errors in non-media environments
+  }
+  activeIpaAudio = null;
+}
+
 function getAudioContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
   const Ctx =
@@ -557,6 +796,61 @@ function getAudioContext(): AudioContext | null {
     return activeAudioCtx;
   } catch {
     return null;
+  }
+}
+
+/**
+ * Plays a bundled studio-mastered IPA MP3 sample (`/audio/ipa/*.mp3`).
+ * Returns `true` when browser HTMLAudio playback was initiated cleanly; triggers
+ * `onEnded` after the clip finishes or `onFallback` if HTMLAudio cannot play.
+ */
+function playBundledIpaSample(
+  url: string,
+  token: number,
+  onEnded?: () => void,
+  onFallback?: () => void,
+): boolean {
+  if (typeof window === "undefined" || typeof Audio === "undefined") return false;
+  // JSDOM does not implement real audio decoding/playback
+  if (typeof navigator !== "undefined" && /jsdom/i.test(navigator.userAgent)) {
+    return false;
+  }
+
+  try {
+    stopActiveIpaAudio();
+    let audio = ipaAudioCache.get(url);
+    if (!audio) {
+      audio = new Audio(url);
+      audio.preload = "auto";
+      ipaAudioCache.set(url, audio);
+    }
+    audio.currentTime = 0;
+    activeIpaAudio = audio;
+
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      if (activeIpaAudio === audio) activeIpaAudio = null;
+      if (token === songPlaybackToken) onEnded?.();
+    };
+    const fail = () => {
+      if (settled) return;
+      settled = true;
+      if (activeIpaAudio === audio) activeIpaAudio = null;
+      if (token === songPlaybackToken) onFallback?.();
+    };
+
+    audio.onended = finish;
+    audio.onerror = fail;
+
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(fail);
+    }
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -633,11 +927,8 @@ function playFormantPhoneme(ctx: AudioContext, spec: FormantSpec): void {
 }
 
 /**
- * Plays a pure, realistic Web Audio API acoustic phoneme cue:
- * - Short vowels (`a-short`, `e-short`, `i-short`, `o-short`, `u-short`) via calibrated 3-formant synthesis
- * - Nasals & liquids (`m-hum`, `n-hum`, `l-liquid`, `r-liquid`) via formant resonators
- * - Voiceless & voiced fricatives (`f-air`, `s-hiss`, `sh-hush`, `th-air`, `h-breath`, `v-buzz`, `z-buzz`)
- * - Two-part `/ks/` velar burst + sibilant hiss (`ks-burst`)
+ * Plays a Web Audio API acoustic phoneme cue fallback when HTMLAudio playback
+ * of bundled IPA MP3 samples is unavailable.
  */
 export function playAcousticPhonemeCue(kind: AcousticPhonemeKind): boolean {
   const ctx = getAudioContext();
@@ -651,7 +942,6 @@ export function playAcousticPhonemeCue(kind: AcousticPhonemeKind): boolean {
 
     if (kind === "ks-burst") {
       const now = ctx.currentTime;
-      // Crisp velar stop burst /k/ followed immediately by alveolar sibilant /s/
       playFilteredNoiseBurst(ctx, now, 0.048, 2300, 1.6, 0.55);
       playFilteredNoiseBurst(ctx, now + 0.055, 0.21, 6300, 2.3, 0.44);
       return true;
@@ -691,6 +981,8 @@ export function playLetterName(letter: string): string {
   songPlaybackToken += 1;
   clearPendingTimers();
   stopActiveSongNodes();
+  stopActiveIpaAudio();
+  stopSpeech();
   const key = letter.trim().toUpperCase();
   const spec = LETTER_PHONICS_AUDIO[key];
   const text = spec ? spec.nameSpeech : `The letter ${key}`;
@@ -699,14 +991,51 @@ export function playLetterName(letter: string): string {
 }
 
 /**
- * Plays a letter's PURE PHONEME SOUND accurately (never reading the letter name,
- * never sending spelled-out repeated letters like "fff"/"sss" or wrong vowels to TTS!),
- * followed after a crisp pause by its anchor example word (e.g. pure /æ/ -> "apple").
+ * Plays ONLY the isolated authentic real-human IPA sample for a letter (A–Z)
+ * or IPA symbol (e.g., "/æ/", "/b/", "/ks/") with no trailing spoken word.
+ */
+export function playPureIpaSample(letterOrIpa: string): string {
+  songPlaybackToken += 1;
+  const token = songPlaybackToken;
+  clearPendingTimers();
+  stopActiveSongNodes();
+  stopActiveIpaAudio();
+  stopSpeech();
+
+  const resolved = resolvePhonemeSpeech(letterOrIpa);
+  const runFallback = () => {
+    if (token !== songPlaybackToken) return;
+    const acousticPlayed = resolved.acousticKind
+      ? playAcousticPhonemeCue(resolved.acousticKind)
+      : false;
+    if (!acousticPlayed) {
+      speakAsRole(resolved.ttsSpeech, "female-teacher", {
+        rate: resolved.clippedStop ? 0.92 : 0.82,
+      });
+    }
+  };
+
+  if (resolved.ipaSampleUrl) {
+    const started = playBundledIpaSample(resolved.ipaSampleUrl, token, undefined, runFallback);
+    if (started) return resolved.ipaSampleUrl;
+  }
+
+  runFallback();
+  return resolved.ipaSampleUrl ?? resolved.speech;
+}
+
+/**
+ * Plays a letter's PURE IPA PHONEME SOUND using the bundled real-human IPA MP3
+ * recording (e.g. `/audio/ipa/ae.mp3` -> /æ/), followed after a clean pause by
+ * its anchor example word (e.g. "apple"). Never reads the letter name and never
+ * overlaps the IPA clip with TTS.
  */
 export function playLetterSound(letter: string, exampleWord?: string): string {
   songPlaybackToken += 1;
+  const token = songPlaybackToken;
   clearPendingTimers();
   stopActiveSongNodes();
+  stopActiveIpaAudio();
   stopSpeech();
   const key = letter.trim().toUpperCase();
   const spec = LETTER_PHONICS_AUDIO[key];
@@ -716,33 +1045,107 @@ export function playLetterSound(letter: string, exampleWord?: string): string {
   }
 
   const word = exampleWord ?? spec.anchorWord;
-  const acousticPlayed = spec.acousticKind ? playAcousticPhonemeCue(spec.acousticKind) : false;
 
-  if (acousticPlayed) {
-    if (word && typeof window !== "undefined") {
-      const tid = window.setTimeout(() => {
+  const speakAnchorWord = (delayMs = 170) => {
+    if (!word || typeof window === "undefined" || token !== songPlaybackToken) return;
+    const tid = window.setTimeout(() => {
+      if (token === songPlaybackToken) {
         speakAsRole(word, "female-teacher", { rate: 0.84 });
-      }, 360);
-      sequenceTimerIds.push(tid);
+      }
+    }, delayMs);
+    sequenceTimerIds.push(tid);
+  };
+
+  const runFallback = () => {
+    if (token !== songPlaybackToken) return;
+    const acousticPlayed = spec.acousticKind ? playAcousticPhonemeCue(spec.acousticKind) : false;
+    if (acousticPlayed) {
+      speakAnchorWord(360);
+    } else {
+      speakAsRole(spec.soundSpeech, "female-teacher", {
+        rate: spec.clippedStop ? 0.92 : 0.82,
+        onEnd: () => speakAnchorWord(210),
+      });
     }
-  } else {
-    speakAsRole(spec.soundSpeech, "female-teacher", {
-      rate: spec.clippedStop ? 0.92 : 0.82,
-      onEnd: () => {
-        if (word && typeof window !== "undefined") {
-          const tid = window.setTimeout(() => {
-            speakAsRole(word, "female-teacher", { rate: 0.84 });
-          }, 210);
-          sequenceTimerIds.push(tid);
-        }
-      },
-    });
+  };
+
+  const startedIpa = playBundledIpaSample(
+    spec.ipaSampleUrl,
+    token,
+    () => speakAnchorWord(170),
+    runFallback,
+  );
+
+  if (!startedIpa) {
+    runFallback();
   }
 
   return word ? `${spec.soundSpeech} ... ${word}` : spec.soundSpeech;
 }
 
-/** Plays a pure short (via authentic formant synthesis) or long vowel sound followed by its anchor word. */
+/**
+ * Plays a crisp side-by-side contrast:
+ * Letter NAME ("The letter A") -> pause -> Authentic IPA Sample (/æ/) -> Anchor word ("apple").
+ */
+export function playLetterNameVsSound(letter: string, exampleWord?: string): string {
+  songPlaybackToken += 1;
+  const token = songPlaybackToken;
+  clearPendingTimers();
+  stopActiveSongNodes();
+  stopActiveIpaAudio();
+  stopSpeech();
+
+  const key = letter.trim().toUpperCase();
+  const spec = LETTER_PHONICS_AUDIO[key];
+  if (!spec) return letter;
+
+  const word = exampleWord ?? spec.anchorWord;
+  const playSecondStage = () => {
+    if (token !== songPlaybackToken || typeof window === "undefined") return;
+    const tid = window.setTimeout(() => {
+      if (token !== songPlaybackToken) return;
+      const speakWord = () => {
+        if (token !== songPlaybackToken || !word) return;
+        const wTid = window.setTimeout(() => {
+          if (token === songPlaybackToken) {
+            speakAsRole(word, "female-teacher", { rate: 0.84 });
+          }
+        }, 180);
+        sequenceTimerIds.push(wTid);
+      };
+      const started = playBundledIpaSample(spec.ipaSampleUrl, token, speakWord, () => {
+        if (spec.acousticKind && playAcousticPhonemeCue(spec.acousticKind)) {
+          const wTid = window.setTimeout(speakWord, 340);
+          sequenceTimerIds.push(wTid);
+        } else {
+          speakWord();
+        }
+      });
+      if (!started) {
+        if (spec.acousticKind && playAcousticPhonemeCue(spec.acousticKind)) {
+          const wTid = window.setTimeout(speakWord, 340);
+          sequenceTimerIds.push(wTid);
+        } else {
+          speakWord();
+        }
+      }
+    }, 320);
+    sequenceTimerIds.push(tid);
+  };
+
+  const spoke = speakAsRole(spec.nameSpeech, "female-teacher", {
+    rate: 0.84,
+    onEnd: playSecondStage,
+    onError: playSecondStage,
+  });
+  if (!spoke) {
+    playSecondStage();
+  }
+
+  return `${spec.nameSpeech} -> ${spec.ipaSymbol} (${word})`;
+}
+
+/** Plays an authentic IPA short or long vowel sound followed by its anchor word. */
 export function playVowelSound(
   vowel: "A" | "E" | "I" | "O" | "U",
   length: "short" | "long",
@@ -750,55 +1153,74 @@ export function playVowelSound(
   exampleSentence?: string,
 ): string {
   songPlaybackToken += 1;
+  const token = songPlaybackToken;
   clearPendingTimers();
   stopActiveSongNodes();
+  stopActiveIpaAudio();
   stopSpeech();
   const spec = VOWEL_SOUND_SPEECH[vowel];
   const cueLabel = length === "short" ? spec.shortSpeech : spec.longSpeech;
   const tail = exampleSentence ? `${exampleWord}. ${exampleSentence}` : exampleWord;
 
-  if (length === "short") {
-    const acousticPlayed = playAcousticPhonemeCue(spec.shortAcousticKind);
-    if (acousticPlayed) {
-      if (typeof window !== "undefined") {
-        const tid = window.setTimeout(() => {
-          speakAsRole(tail, "female-teacher", { rate: 0.84 });
-        }, 360);
-        sequenceTimerIds.push(tid);
+  const speakTail = (delayMs = 190) => {
+    if (typeof window === "undefined" || token !== songPlaybackToken) return;
+    const tid = window.setTimeout(() => {
+      if (token === songPlaybackToken) {
+        speakAsRole(tail, "female-teacher", { rate: 0.84 });
       }
-      return `${cueLabel} ... ${exampleWord}`;
+    }, delayMs);
+    sequenceTimerIds.push(tid);
+  };
+
+  if (length === "short") {
+    const runFallback = () => {
+      if (token !== songPlaybackToken) return;
+      const acousticPlayed = playAcousticPhonemeCue(spec.shortAcousticKind);
+      if (acousticPlayed) {
+        speakTail(360);
+      } else {
+        speakAsRole(spec.shortTtsSpeech, "female-teacher", {
+          rate: 0.82,
+          onEnd: () => speakTail(220),
+        });
+      }
+    };
+
+    const startedIpa = playBundledIpaSample(
+      spec.shortIpaSampleUrl,
+      token,
+      () => speakTail(190),
+      runFallback,
+    );
+    if (!startedIpa) {
+      runFallback();
     }
-    // Fallback when Web Audio is unavailable: always use TTS-safe cue (never "aah", "ih", "aw")
-    speakAsRole(spec.shortTtsSpeech, "female-teacher", {
-      rate: 0.82,
-      onEnd: () => {
-        if (typeof window !== "undefined") {
-          const tid = window.setTimeout(() => {
-            speakAsRole(tail, "female-teacher", { rate: 0.84 });
-          }, 220);
-          sequenceTimerIds.push(tid);
-        }
-      },
-    });
     return `${cueLabel} ... ${exampleWord}`;
+  }
+
+  if (spec.longIpaSampleUrl) {
+    const startedLong = playBundledIpaSample(
+      spec.longIpaSampleUrl,
+      token,
+      () => speakTail(190),
+      () =>
+        speakAsRole(spec.longSpeech, "female-teacher", {
+          rate: 0.8,
+          onEnd: () => speakTail(220),
+        }),
+    );
+    if (startedLong) return `${cueLabel} ... ${exampleWord}`;
   }
 
   speakAsRole(spec.longSpeech, "female-teacher", {
     rate: 0.8,
-    onEnd: () => {
-      if (typeof window !== "undefined") {
-        const tid = window.setTimeout(() => {
-          speakAsRole(tail, "female-teacher", { rate: 0.84 });
-        }, 220);
-        sequenceTimerIds.push(tid);
-      }
-    },
+    onEnd: () => speakTail(220),
   });
 
   return `${cueLabel} ... ${exampleWord}`;
 }
 
-/** Resolves any IPA symbol, digraph, or single letter to its authentic acoustic & TTS-safe cue. */
+/** Resolves any IPA symbol, digraph, or single letter to its authentic IPA sample & fallback cue. */
 export function resolvePhonemeSpeech(phonemeOrGrapheme: string): ResolvedPhonemeSpeech {
   const trimmed = phonemeOrGrapheme.trim();
   const direct = PHONEME_SPEECH_MAP[trimmed] ?? PHONEME_SPEECH_MAP[trimmed.toLowerCase()];
@@ -810,6 +1232,7 @@ export function resolvePhonemeSpeech(phonemeOrGrapheme: string): ResolvedPhoneme
     return {
       speech: letterSpec.soundSpeech,
       ttsSpeech: letterSpec.soundSpeech,
+      ipaSampleUrl: letterSpec.ipaSampleUrl,
       ...(letterSpec.acousticKind ? { acousticKind: letterSpec.acousticKind } : {}),
       ...(letterSpec.clippedStop ? { clippedStop: letterSpec.clippedStop } : {}),
     };
@@ -818,84 +1241,116 @@ export function resolvePhonemeSpeech(phonemeOrGrapheme: string): ResolvedPhoneme
   return { speech: clean, ttsSpeech: clean };
 }
 
-/** Plays a single phoneme/digraph sound (e.g., /θ/, /ʃ/, sh, ch, /æ/, /k/) accurately. */
+/** Plays a single phoneme/digraph sound (e.g., /θ/, /ʃ/, sh, ch, /æ/, /k/) using its authentic IPA sample. */
 export function playPhonemeSound(phonemeOrGrapheme: string, exampleWord?: string): string {
   songPlaybackToken += 1;
+  const token = songPlaybackToken;
   clearPendingTimers();
   stopActiveSongNodes();
+  stopActiveIpaAudio();
   stopSpeech();
   const resolved = resolvePhonemeSpeech(phonemeOrGrapheme);
-  const acousticPlayed = resolved.acousticKind
-    ? playAcousticPhonemeCue(resolved.acousticKind)
-    : false;
 
-  if (acousticPlayed) {
-    if (exampleWord && typeof window !== "undefined") {
-      const tid = window.setTimeout(() => {
+  const speakExample = (delayMs = 180) => {
+    if (!exampleWord || typeof window === "undefined" || token !== songPlaybackToken) return;
+    const tid = window.setTimeout(() => {
+      if (token === songPlaybackToken) {
         speakAsRole(exampleWord, "female-teacher", { rate: 0.84 });
-      }, 360);
-      sequenceTimerIds.push(tid);
+      }
+    }, delayMs);
+    sequenceTimerIds.push(tid);
+  };
+
+  const runFallback = () => {
+    if (token !== songPlaybackToken) return;
+    const acousticPlayed = resolved.acousticKind
+      ? playAcousticPhonemeCue(resolved.acousticKind)
+      : false;
+    if (acousticPlayed) {
+      speakExample(360);
+    } else {
+      speakAsRole(resolved.ttsSpeech, "female-teacher", {
+        rate: resolved.clippedStop ? 0.92 : 0.82,
+        onEnd: () => speakExample(220),
+      });
     }
-  } else {
-    speakAsRole(resolved.ttsSpeech, "female-teacher", {
-      rate: resolved.clippedStop ? 0.92 : 0.82,
-      onEnd: () => {
-        if (exampleWord && typeof window !== "undefined") {
-          const tid = window.setTimeout(() => {
-            speakAsRole(exampleWord, "female-teacher", { rate: 0.84 });
-          }, 220);
-          sequenceTimerIds.push(tid);
-        }
-      },
-    });
+  };
+
+  if (resolved.ipaSampleUrl) {
+    const started = playBundledIpaSample(
+      resolved.ipaSampleUrl,
+      token,
+      () => speakExample(180),
+      runFallback,
+    );
+    if (started) {
+      return exampleWord ? `${resolved.speech} ... ${exampleWord}` : resolved.speech;
+    }
   }
 
+  runFallback();
   return exampleWord ? `${resolved.speech} ... ${exampleWord}` : resolved.speech;
 }
 
 /**
  * Plays a full phoneme blending sequence (e.g., ["/k/", "/æ/", "/t/"] -> "cat")
- * sounding out each pure phoneme cleanly (using Web Audio formants/fricatives wherever available)
- * before speaking the blended word.
+ * sounding out each real-human IPA phoneme sample cleanly before speaking the blended word.
  */
 export function playBlendedWord(phonemes: string[], fullWord: string): string[] {
   songPlaybackToken += 1;
+  const token = songPlaybackToken;
   clearPendingTimers();
   stopActiveSongNodes();
+  stopActiveIpaAudio();
   stopSpeech();
   const resolvedSteps = phonemes.map((p) => resolvePhonemeSpeech(p));
 
   const playStep = (idx: number) => {
+    if (token !== songPlaybackToken) return;
     if (idx >= resolvedSteps.length) {
       if (typeof window !== "undefined") {
         const tid = window.setTimeout(() => {
-          speakAsRole(fullWord, "female-teacher", { rate: 0.84 });
-        }, 240);
+          if (token === songPlaybackToken) {
+            speakAsRole(fullWord, "female-teacher", { rate: 0.84 });
+          }
+        }, 220);
         sequenceTimerIds.push(tid);
       }
       return;
     }
     const step = resolvedSteps[idx]!;
-    if (step.acousticKind && playAcousticPhonemeCue(step.acousticKind)) {
-      if (typeof window !== "undefined") {
-        const tid = window.setTimeout(() => playStep(idx + 1), 390);
-        sequenceTimerIds.push(tid);
-      }
-      return;
-    }
-    const ok = speakAsRole(step.ttsSpeech, "female-teacher", {
-      rate: step.clippedStop ? 0.92 : 0.82,
-      onEnd: () => {
-        if (typeof window !== "undefined") {
-          const tid = window.setTimeout(() => playStep(idx + 1), 170);
-          sequenceTimerIds.push(tid);
-        }
-      },
-    });
-    if (!ok && typeof window !== "undefined") {
-      const tid = window.setTimeout(() => playStep(idx + 1), 350);
+    const scheduleNext = (delayMs = 130) => {
+      if (token !== songPlaybackToken || typeof window === "undefined") return;
+      const tid = window.setTimeout(() => playStep(idx + 1), delayMs);
       sequenceTimerIds.push(tid);
+    };
+
+    const runFallback = () => {
+      if (token !== songPlaybackToken) return;
+      if (step.acousticKind && playAcousticPhonemeCue(step.acousticKind)) {
+        scheduleNext(390);
+        return;
+      }
+      const ok = speakAsRole(step.ttsSpeech, "female-teacher", {
+        rate: step.clippedStop ? 0.92 : 0.82,
+        onEnd: () => scheduleNext(170),
+      });
+      if (!ok) {
+        scheduleNext(350);
+      }
+    };
+
+    if (step.ipaSampleUrl) {
+      const started = playBundledIpaSample(
+        step.ipaSampleUrl,
+        token,
+        () => scheduleNext(130),
+        runFallback,
+      );
+      if (started) return;
     }
+
+    runFallback();
   };
 
   playStep(0);
@@ -909,11 +1364,7 @@ export function playBlendedWord(phonemes: string[], fullWord: string): string[] 
 /**
  * Synthesizes a single cheerful wooden marimba / bell-xylophone note via Web Audio API.
  */
-export function playMarimbaNote(
-  freqHz: number,
-  durationSec = 0.34,
-  startOffsetSec = 0,
-): boolean {
+export function playMarimbaNote(freqHz: number, durationSec = 0.34, startOffsetSec = 0): boolean {
   const ctx = getAudioContext();
   if (!ctx) return false;
   try {
@@ -923,7 +1374,6 @@ export function playMarimbaNote(
     const fundGain = ctx.createGain();
     const overGain = ctx.createGain();
 
-    // Warm sine fundamental + bright xylophone 4th-harmonic wooden strike transient
     fundamental.type = "sine";
     fundamental.frequency.setValueAtTime(freqHz, startAt);
 
@@ -965,17 +1415,18 @@ function playMarimbaPhrase(notesHz: number[], stepSec = 0.19): void {
   }
 }
 
-/** Stops any currently playing phonics song verse or multi-letter musical phonics song. */
+/** Stops any currently playing IPA clip, phonics song verse, or multi-letter musical song. */
 export function stopPhonicsSong(): void {
   songPlaybackToken += 1;
   clearPendingTimers();
   stopActiveSongNodes();
+  stopActiveIpaAudio();
   stopSpeech();
 }
 
 /**
  * Plays a single letter's cheerful 4-line Phonics Song Verse (A–Z) with synchronized
- * xylophone/marimba notes, the letter's pure acoustic phoneme cue, and beat callbacks.
+ * xylophone/marimba notes, the letter's real-human IPA phoneme sample, and beat callbacks.
  */
 export function playPhonicsSongVerse(
   letter: string,
@@ -994,8 +1445,10 @@ export function playPhonicsSongVerse(
   const runLine = (idx: number) => {
     if (token !== songPlaybackToken) return;
     if (idx >= lines.length) {
-      // Celebratory major triad cadence
-      playMarimbaPhrase([PHONICS_NOTES.C5, PHONICS_NOTES.E5, PHONICS_NOTES.G5, PHONICS_NOTES.C6], 0.13);
+      playMarimbaPhrase(
+        [PHONICS_NOTES.C5, PHONICS_NOTES.E5, PHONICS_NOTES.G5, PHONICS_NOTES.C6],
+        0.13,
+      );
       onBeat?.(-1);
       return;
     }
@@ -1009,18 +1462,6 @@ export function playPhonicsSongVerse(
     ];
     playMarimbaPhrase(phrase, 0.17);
 
-    // On line 1 (pure sound intro), reinforce with the letter's authentic Web Audio phoneme cue
-    if (idx === 1 && letterSpec?.acousticKind) {
-      if (typeof window !== "undefined") {
-        const cueId = window.setTimeout(() => {
-          if (token === songPlaybackToken && letterSpec.acousticKind) {
-            playAcousticPhonemeCue(letterSpec.acousticKind);
-          }
-        }, 120);
-        sequenceTimerIds.push(cueId);
-      }
-    }
-
     const lineText = lines[idx]!;
     const scheduleNext = () => {
       if (token !== songPlaybackToken || typeof window === "undefined") return;
@@ -1028,18 +1469,31 @@ export function playPhonicsSongVerse(
       sequenceTimerIds.push(tid);
     };
 
-    const spoke = speakAsRole(lineText, "female-teacher", {
-      rate: 0.9,
-      onEnd: scheduleNext,
-      onError: scheduleNext,
-    });
-    if (!spoke && typeof window !== "undefined") {
-      const tid = window.setTimeout(() => runLine(idx + 1), 1650);
-      sequenceTimerIds.push(tid);
+    const speakLine = () => {
+      if (token !== songPlaybackToken) return;
+      const spoke = speakAsRole(lineText, "female-teacher", {
+        rate: 0.9,
+        onEnd: scheduleNext,
+        onError: scheduleNext,
+      });
+      if (!spoke && typeof window !== "undefined") {
+        const tid = window.setTimeout(() => runLine(idx + 1), 1650);
+        sequenceTimerIds.push(tid);
+      }
+    };
+
+    // On beat 1 (pure sound intro), play the letter's authentic IPA sample cleanly BEFORE the line
+    if (idx === 1 && letterSpec?.ipaSampleUrl) {
+      const started = playBundledIpaSample(letterSpec.ipaSampleUrl, token, speakLine, () => {
+        if (letterSpec.acousticKind) playAcousticPhonemeCue(letterSpec.acousticKind);
+        speakLine();
+      });
+      if (started) return;
     }
+
+    speakLine();
   };
 
-  // Cheerful 2-note xylophone intro chime before beat 0
   playMarimbaPhrase([notes[0] ?? PHONICS_NOTES.C5, notes[1] ?? PHONICS_NOTES.E5], 0.14);
   if (typeof window !== "undefined") {
     const startId = window.setTimeout(() => runLine(0), 260);
@@ -1054,7 +1508,7 @@ export function playPhonicsSongVerse(
 /**
  * Plays one of the 4 complete educational multi-letter phonics songs (`pure-sounds-az`,
  * `five-short-vowels`, `soft-air-buzz`, `bouncy-consonants`) with synchronized marimba
- * melodies, pure Web Audio phoneme cues, and line-highlight callbacks.
+ * melodies, real-human IPA phoneme samples, and line-highlight callbacks.
  */
 export function playMusicalPhonicsSong(
   songId: string,
@@ -1083,36 +1537,48 @@ export function playMusicalPhonicsSong(
     onLine?.(idx);
     playMarimbaPhrase(line.melodyHz.slice(0, 4), beatStepSec);
 
-    const resolvedPhoneme = line.phoneme ? resolvePhonemeSpeech(line.phoneme) : null;
-    if (resolvedPhoneme?.acousticKind) {
-      playAcousticPhonemeCue(resolvedPhoneme.acousticKind);
-    }
-
     const scheduleNext = () => {
       if (token !== songPlaybackToken || typeof window === "undefined") return;
       const tid = window.setTimeout(() => runLine(idx + 1), 280);
       sequenceTimerIds.push(tid);
     };
 
+    const speakLyric = () => {
+      if (token !== songPlaybackToken) return;
+      const spoke = speakAsRole(line.lyricEn, "female-teacher", {
+        rate: 0.9,
+        onEnd: scheduleNext,
+        onError: scheduleNext,
+      });
+      if (!spoke && typeof window !== "undefined") {
+        const fallbackTid = window.setTimeout(() => runLine(idx + 1), 1900);
+        sequenceTimerIds.push(fallbackTid);
+      }
+    };
+
+    const resolvedPhoneme = line.phoneme ? resolvePhonemeSpeech(line.phoneme) : null;
+    if (resolvedPhoneme?.ipaSampleUrl) {
+      const started = playBundledIpaSample(resolvedPhoneme.ipaSampleUrl, token, speakLyric, () => {
+        if (resolvedPhoneme.acousticKind) playAcousticPhonemeCue(resolvedPhoneme.acousticKind);
+        if (typeof window !== "undefined") {
+          const speakTid = window.setTimeout(speakLyric, 320);
+          sequenceTimerIds.push(speakTid);
+        }
+      });
+      if (started) return;
+    }
+
+    if (resolvedPhoneme?.acousticKind) {
+      playAcousticPhonemeCue(resolvedPhoneme.acousticKind);
+    }
+
     const speakStartDelay = resolvedPhoneme?.acousticKind ? 320 : 120;
     if (typeof window !== "undefined") {
-      const speakTid = window.setTimeout(() => {
-        if (token !== songPlaybackToken) return;
-        const spoke = speakAsRole(line.lyricEn, "female-teacher", {
-          rate: 0.9,
-          onEnd: scheduleNext,
-          onError: scheduleNext,
-        });
-        if (!spoke) {
-          const fallbackTid = window.setTimeout(() => runLine(idx + 1), 1900);
-          sequenceTimerIds.push(fallbackTid);
-        }
-      }, speakStartDelay);
+      const speakTid = window.setTimeout(speakLyric, speakStartDelay);
       sequenceTimerIds.push(speakTid);
     }
   };
 
-  // Upbeat 3-note xylophone intro
   playMarimbaPhrase(song.melodyHz.slice(0, 3), 0.14);
   if (typeof window !== "undefined") {
     const startTid = window.setTimeout(() => runLine(0), 380);

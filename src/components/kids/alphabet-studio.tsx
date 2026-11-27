@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Music, Sparkles, Square, Star, Volume2 } from "lucide-react";
+import {
+  ArrowLeftRight,
+  CheckCircle2,
+  Headphones,
+  Music,
+  Sparkles,
+  Square,
+  Star,
+  Volume2,
+} from "lucide-react";
 
 import { useI18n } from "@/components/i18n-provider";
 import { Badge } from "@/components/ui/badge";
@@ -15,9 +24,12 @@ import { playSpeech } from "@/hooks/use-speech";
 import {
   LETTER_PHONICS_AUDIO,
   playLetterName,
+  playLetterNameVsSound,
   playLetterSound,
   playMusicalPhonicsSong,
+  playPhonemeSound,
   playPhonicsSongVerse,
+  playPureIpaSample,
   stopPhonicsSong,
 } from "@/lib/kids-phonics-audio";
 import type { KidsProgressState } from "@/lib/kids-storage";
@@ -160,8 +172,15 @@ export function AlphabetStudio({
                 {item.letter}
                 <span className="ms-0.5 text-sm opacity-80">{item.lower}</span>
               </span>
+              <span
+                className={`mt-1 font-mono text-[10px] font-bold leading-none ${
+                  active ? "text-primary-foreground/90" : "text-primary"
+                }`}
+              >
+                {item.mainSoundIpa}
+              </span>
               {done && (
-                <span className="mt-1 text-[10px]" aria-label="Mastered">
+                <span className="mt-0.5 text-[10px]" aria-label="Mastered">
                   ⭐
                 </span>
               )}
@@ -174,12 +193,26 @@ export function AlphabetStudio({
       <div className="grid gap-6 lg:grid-cols-12">
         <div className="space-y-5 rounded-3xl border-2 border-foreground/85 bg-card p-6 shadow-ink lg:col-span-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Badge
                 variant={entry.kind === "vowel" ? "default" : "secondary"}
                 className={entry.kind === "vowel" ? "bg-amber-500 text-foreground" : ""}
               >
                 {entry.kind === "vowel" ? kw.vowelPill : kw.consonantPill}
+              </Badge>
+              <Badge
+                variant="outline"
+                className={
+                  entry.voiced
+                    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                    : "border-sky-500/40 bg-sky-500/10 text-sky-700 dark:text-sky-300"
+                }
+              >
+                {entry.voiced ? kw.voicedBadge : kw.voicelessBadge}
+              </Badge>
+              <Badge variant="outline" className="gap-1 border-primary/35 text-primary">
+                <Headphones className="size-3" aria-hidden />
+                {kw.ipaAuthenticBadge}
               </Badge>
               {isMastered && (
                 <Badge variant="default" className="bg-emerald-600">
@@ -199,16 +232,31 @@ export function AlphabetStudio({
             </Button>
           </div>
 
-          {/* Giant Animated Letter + Name vs Sound Controls */}
-          <div className="grid items-center gap-5 sm:grid-cols-[0.85fr_1.15fr]">
+          {/* Giant Animated Letter + Name vs Pure IPA Sound Controls */}
+          <div className="grid items-center gap-5 sm:grid-cols-[0.82fr_1.18fr]">
             <div
               dir="ltr"
-              className="flex flex-col items-center justify-center rounded-3xl border-2 border-primary/25 bg-gradient-to-br from-primary/10 via-background to-accent/20 py-7 text-center"
+              className="flex flex-col items-center justify-center rounded-3xl border-2 border-primary/25 bg-gradient-to-br from-primary/10 via-background to-accent/20 px-3 py-6 text-center"
             >
               <div className="text-7xl font-black tracking-tight text-primary">
                 {entry.letter} <span className="text-6xl text-foreground/85">{entry.lower}</span>
               </div>
-              <div className="mt-3 flex gap-3 text-3xl" aria-hidden>
+              <button
+                type="button"
+                onClick={() => playPureIpaSample(entry.letter)}
+                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/35 bg-card/90 px-3 py-1 font-mono text-sm font-black text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                aria-label={`${kw.hearPureIpaBtn} ${entry.mainSoundIpa}`}
+              >
+                <Volume2 className="size-3.5" aria-hidden />
+                {entry.mainSoundIpa}
+              </button>
+              <p
+                dir={locale === "ar" ? "rtl" : "ltr"}
+                className="mt-2 text-[11px] font-semibold leading-snug text-muted-foreground"
+              >
+                {entry.ipaClassification[locale]}
+              </p>
+              <div className="mt-2.5 flex gap-3 text-3xl" aria-hidden>
                 {entry.examples.map((ex) => (
                   <span key={ex.word} className="transition-transform hover:scale-125">
                     {ex.emoji}
@@ -218,9 +266,9 @@ export function AlphabetStudio({
             </div>
 
             <div className="space-y-3">
-              {/* Distinct Button 1: Letter NAME */}
+              {/* Distinct Control 1: Letter NAME */}
               <div className="rounded-2xl border border-border bg-muted/40 p-3.5">
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <div className="text-[11px] font-bold uppercase text-muted-foreground">
                       {kw.hearNameBtn}
@@ -245,9 +293,9 @@ export function AlphabetStudio({
                 </div>
               </div>
 
-              {/* Distinct Button 2: Letter SOUND */}
-              <div className="rounded-2xl border-2 border-primary/35 bg-primary/8 p-3.5">
-                <div className="flex items-center justify-between gap-2">
+              {/* Distinct Control 2: Authentic Pure IPA SOUND */}
+              <div className="rounded-2xl border-2 border-primary/35 bg-primary/8 p-3.5 space-y-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <div className="text-[11px] font-bold uppercase text-primary">
                       {kw.hearSoundBtn}
@@ -262,6 +310,8 @@ export function AlphabetStudio({
                       </span>
                     </div>
                   </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
                   <Button
                     type="button"
                     size="sm"
@@ -272,13 +322,65 @@ export function AlphabetStudio({
                     <Volume2 className="me-1 size-4" aria-hidden />
                     {kw.hearSoundBtn}
                   </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    className="rounded-full font-bold"
+                    onClick={() => playPureIpaSample(entry.letter)}
+                  >
+                    <Headphones className="me-1 size-3.5" aria-hidden />
+                    {kw.hearPureIpaBtn}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="rounded-full text-xs font-bold"
+                    onClick={() => playLetterNameVsSound(entry.letter, entry.examples[0].word)}
+                  >
+                    <ArrowLeftRight className="me-1 size-3.5" aria-hidden />
+                    {kw.compareNameVsIpaBtn}
+                  </Button>
                 </div>
-                <p className="mt-2 text-xs text-muted-foreground">{entry.soundTip[locale]}</p>
+                <p className="text-xs text-muted-foreground">{entry.soundTip[locale]}</p>
               </div>
+
+              {/* Optional Secondary IPA Sound (Long Vowels, Soft C/G, Ending Y) */}
+              {entry.secondarySound && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    playPhonemeSound(entry.secondarySound!.ipa, entry.secondarySound!.sampleWord)
+                  }
+                  className="flex w-full items-center justify-between gap-2 rounded-2xl border border-amber-400/45 bg-amber-500/10 px-3.5 py-2.5 text-start transition-colors hover:bg-amber-500/18"
+                >
+                  <div className="min-w-0">
+                    <span className="text-[11px] font-bold text-amber-800 dark:text-amber-200">
+                      {kw.secondaryIpaLabel}: {entry.secondarySound.label[locale]}
+                    </span>
+                    <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs" dir="ltr">
+                      <span className="font-mono font-extrabold text-primary">
+                        {entry.secondarySound.ipa}
+                      </span>
+                      <span className="font-bold text-foreground">
+                        {entry.secondarySound.sampleWord}
+                      </span>
+                      <span className="font-mono text-muted-foreground">
+                        {entry.secondarySound.sampleWordIpa}
+                      </span>
+                    </div>
+                  </div>
+                  <Volume2
+                    className="size-4 shrink-0 text-amber-700 dark:text-amber-300"
+                    aria-hidden
+                  />
+                </button>
+              )}
             </div>
           </div>
 
-          {/* 3 Interactive Picture Examples */}
+          {/* 3 Interactive IPA Picture Examples */}
           <div className="space-y-2.5">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
               {kw.examplesTitle}
@@ -295,10 +397,19 @@ export function AlphabetStudio({
                     {ex.emoji}
                   </span>
                   <span className="mt-1.5 text-base font-extrabold text-foreground" dir="ltr">
-                    <span className="text-primary underline decoration-2">{ex.word[0]}</span>
-                    {ex.word.slice(1)}
+                    {ex.word.slice(0, ex.targetIndex)}
+                    <span className="text-primary underline decoration-2">
+                      {ex.word[ex.targetIndex]}
+                    </span>
+                    {ex.word.slice(ex.targetIndex + 1)}
                   </span>
-                  <span className="text-[11px] font-semibold text-muted-foreground">
+                  <span
+                    className="mt-0.5 rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[11px] font-bold text-primary"
+                    dir="ltr"
+                  >
+                    {ex.ipa}
+                  </span>
+                  <span className="mt-1 text-[11px] font-semibold text-muted-foreground">
                     {ex.arabicWord}
                   </span>
                   <span className="mt-1 text-xs text-muted-foreground" dir="ltr">
@@ -606,7 +717,17 @@ export function AlphabetStudio({
                   {currentRound.target.examples[0].emoji}
                 </span>
                 <p className="text-lg font-bold text-foreground" dir="ltr">
-                  _ {currentRound.target.examples[0].word.slice(1)}
+                  {currentRound.target.examples[0].word.slice(
+                    0,
+                    currentRound.target.examples[0].targetIndex,
+                  )}
+                  {" _ "}
+                  {currentRound.target.examples[0].word.slice(
+                    currentRound.target.examples[0].targetIndex + 1,
+                  )}
+                </p>
+                <p className="font-mono text-xs font-bold text-primary" dir="ltr">
+                  {currentRound.target.examples[0].ipa}
                 </p>
               </div>
               <div className="mx-auto grid max-w-md grid-cols-4 gap-3" dir="ltr">

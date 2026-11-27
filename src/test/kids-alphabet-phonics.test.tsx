@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -19,6 +21,11 @@ import {
   KIDS_AGE_GROUPS,
   MISSING_VOWEL_QUIZ,
 } from "@/content/kids/alphabet-phonics-data";
+import {
+  LETTER_PHONICS_AUDIO,
+  playLetterNameVsSound,
+  playPureIpaSample,
+} from "@/lib/kids-phonics-audio";
 import { computeKidsBadges, kidsStorage } from "@/lib/kids-storage";
 
 afterEach(() => {
@@ -30,7 +37,7 @@ beforeEach(() => {
 });
 
 describe("Kids Phase K2 · Alphabet, Vowels & Consonants Dataset Integrity", () => {
-  it("covers all 26 English letters A–Z with distinct Letter Name IPA vs. Main Sound IPA, 5 vowels, and 21 consonants", () => {
+  it("covers all 26 English letters A–Z with distinct Letter Name IPA vs. Main Sound IPA, bundled IPA MP3 samples, and 78 IPA-transcribed examples", () => {
     expect(ALPHABET_ENTRIES).toHaveLength(26);
     expect(ALPHABET_ENTRIES.map((e) => e.letter).join("")).toBe("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
@@ -39,12 +46,40 @@ describe("Kids Phase K2 · Alphabet, Vowels & Consonants Dataset Integrity", () 
     expect(vowels.map((v) => v.letter)).toEqual(["A", "E", "I", "O", "U"]);
     expect(consonants).toHaveLength(21);
 
+    const publicDir = path.resolve(process.cwd(), "public");
+
     for (const entry of ALPHABET_ENTRIES) {
       expect(entry.letterNameIpa.startsWith("/")).toBe(true);
       expect(entry.mainSoundIpa.startsWith("/")).toBe(true);
       expect(entry.letterNameIpa).not.toBe(entry.mainSoundIpa);
+      expect(entry.ipaClassification.en.length).toBeGreaterThan(5);
+      expect(entry.ipaClassification.ar.length).toBeGreaterThan(5);
+      expect(entry.ipaSampleUrl.startsWith("/audio/ipa/")).toBe(true);
+
+      // Verify the real-human IPA MP3 sample exists on disk and matches LETTER_PHONICS_AUDIO
+      const audioSpec = LETTER_PHONICS_AUDIO[entry.letter]!;
+      expect(audioSpec.ipaSampleUrl).toBe(entry.ipaSampleUrl);
+      expect(audioSpec.ipaSymbol).toBe(entry.mainSoundIpa);
+      const mp3Path = path.join(publicDir, entry.ipaSampleUrl.replace(/^\//, ""));
+      expect(fs.existsSync(mp3Path), `Missing IPA MP3 file: ${mp3Path}`).toBe(true);
+      expect(fs.statSync(mp3Path).size).toBeGreaterThan(1000);
+
+      // Verify pure IPA playback & contrast helpers
+      expect(playPureIpaSample(entry.letter)).toBe(entry.ipaSampleUrl);
+      expect(playLetterNameVsSound(entry.letter)).toContain(entry.mainSoundIpa);
+
+      // Verify all 3 example words have exact IPA transcriptions and valid targetIndex
       expect(entry.examples).toHaveLength(3);
+      for (const ex of entry.examples) {
+        expect(ex.ipa.startsWith("/") && ex.ipa.endsWith("/")).toBe(true);
+        expect(ex.word[ex.targetIndex]?.toLowerCase()).toBe(entry.lower);
+      }
     }
+
+    // Verify Letter O uses pure short /ɒ/ sample words (never diphthong 'owl')
+    const letterO = ALPHABET_ENTRIES.find((e) => e.letter === "O")!;
+    expect(letterO.examples.map((e) => e.word)).not.toContain("owl");
+    expect(letterO.examples.every((e) => e.ipa.includes("ɒ"))).toBe(true);
   });
 
   it("includes all 3 Kids Age Groups and the 5 Magic Vowels with exact short/long contrast examples", () => {
@@ -96,10 +131,14 @@ describe("Kids Phase K2 · Kids World Hub & Alphabet/Vowels Studios UI", () => {
     fireEvent.click(screen.getByText(/Young Learners \(Ages 7–9\)/i));
     expect(kidsStorage.get().ageGroup).toBe("young-7-9");
 
-    // Select letter B and verify Letter Name vs Sound separation
+    // Select letter B and verify Letter Name vs Authentic IPA Sound controls & word IPA badges
     fireEvent.click(screen.getAllByText(/^B$/)[0]!);
     expect(screen.getByText(/B → \/biː\//i)).toBeTruthy();
     expect(screen.getAllByText(/\/b\//i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Authentic IPA Audio Sample/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^Pure IPA Clip$/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^Compare Name vs\. IPA$/i })).toBeTruthy();
+    expect(screen.getByText("/bɔːl/")).toBeTruthy();
 
     fireEvent.click(screen.getByText(/I Know This Letter!/i));
     fireEvent.click(screen.getByText(/I Traced It!/i));

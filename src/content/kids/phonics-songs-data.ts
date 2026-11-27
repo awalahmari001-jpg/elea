@@ -339,9 +339,9 @@ export const LETTER_PHONICS_SONGS: Record<string, LetterPhonicsSong> = {
       "Short and round and crystal clear — ticking like a clock!",
     ],
     lyricsAr:
-      "اسمي حرف O (/əʊ/)، وصوتي القصير الصافي /ɒ/ بشفتين مستديرتين: أخطبوط octopus، وبرتقالة orange!",
+      "اسمي حرف O (/əʊ/)، وصوتي القصير الصافي /ɒ/ بشفتين مستديرتين: أخطبوط octopus، برتقالة orange، وقضاعة otter!",
     melodyHz: [C5, E5, G5, C6, G5, E5, D5, C5],
-    anchorWords: ["octopus", "orange", "owl"],
+    anchorWords: ["octopus", "orange", "otter"],
   },
   P: {
     letter: "P",
@@ -535,7 +535,10 @@ export const LETTER_PHONICS_SONGS: Record<string, LetterPhonicsSong> = {
   },
   Z: {
     letter: "Z",
-    title: { en: "Zipping Zebra Bee — Letter Z Song", ar: "أغنية حرف Z — طنين النحلة والحمار الوحشي" },
+    title: {
+      en: "Zipping Zebra Bee — Letter Z Song",
+      ar: "أغنية حرف Z — طنين النحلة والحمار الوحشي",
+    },
     pureSoundBadge: "/z/ · bee buzz (zebra)",
     actionMove: {
       en: "Flap your elbows like a buzzing bee and zip up an imaginary coat!",
@@ -610,7 +613,8 @@ export const FULL_PHONICS_SONGS: FullPhonicsSong[] = [
         id: "az-5",
         emoji: "👑🐰☀️🐯☂️",
         phoneme: "/s/",
-        lyricEn: "Q blends queen, R curls rabbit, S hisses sun, T taps tiger, and U lifts umbrella!",
+        lyricEn:
+          "Q blends queen, R curls rabbit, S hisses sun, T taps tiger, and U lifts umbrella!",
         lyricAr: "حرف Q في queen، وR في rabbit، وS في sun، وT في tiger، وU القصير في umbrella!",
         melodyHz: [C5, C5, G5, G5, A5, A5, G5],
       },
@@ -788,8 +792,10 @@ export const FULL_PHONICS_SONGS: FullPhonicsSong[] = [
         id: "bc-td",
         emoji: "🐯🐶",
         phoneme: "/t/",
-        lyricEn: "Tongue tip taps! Quiet light tap for tiger and tree — now add voice for drum and dog!",
-        lyricAr: "طرف اللسان ينقر! نقرة خفيفة /t/ في tiger وtree، ومع الاهتزاز تصبح /d/ في drum وdog!",
+        lyricEn:
+          "Tongue tip taps! Quiet light tap for tiger and tree — now add voice for drum and dog!",
+        lyricAr:
+          "طرف اللسان ينقر! نقرة خفيفة /t/ في tiger وtree، ومع الاهتزاز تصبح /d/ في drum وdog!",
         melodyHz: [D5, F5, A5, F5, D5, A5],
       },
       {
@@ -804,7 +810,8 @@ export const FULL_PHONICS_SONGS: FullPhonicsSong[] = [
         id: "bc-kg",
         emoji: "🪁🐐",
         phoneme: "/k/",
-        lyricEn: "Back of your mouth! Crisp voiceless click for cat and kite — now add voice for goat and grapes!",
+        lyricEn:
+          "Back of your mouth! Crisp voiceless click for cat and kite — now add voice for goat and grapes!",
         lyricAr: "من مؤخرة الفم! صوت /k/ خفيف في cat وkite، ومع الاهتزاز يصبح /ɡ/ في goat وgrapes!",
         melodyHz: [E5, G5, C6, G5, E5, G5],
       },

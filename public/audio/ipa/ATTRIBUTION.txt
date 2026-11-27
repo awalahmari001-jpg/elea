@@ -1,0 +1,20 @@
+Authentic IPA Phoneme Audio Samples — Attribution
+==================================================
+
+The 32 MP3 phoneme reference clips in this directory are loudness-normalized,
+trimmed, MP3-encoded derivatives of the International Phonetic Alphabet (IPA)
+audio chart recordings hosted on Wikimedia Commons under CC BY-SA 3.0 and
+Public Domain licenses:
+
+- Vowels (/æ/, /ɛ/, /ɪ/, /ɒ/, /ʌ/, /iː/, /uː/):
+  Wikimedia Commons IPA Vowel Chart recordings (User:Denelson83 & contributors,
+  CC BY-SA 3.0).
+- Consonants & Digraphs (/b/, /k/, /d/, /f/, /ɡ/, /h/, /dʒ/, /l/, /m/, /n/,
+  /p/, /r/, /s/, /t/, /v/, /w/, /j/, /z/, /ʃ/, /tʃ/, /θ/, /ð/, /ŋ/, and
+  clusters /kw/, /ks/):
+  Wikimedia Commons IPA Pulmonic Consonant & Affricate Chart recordings
+  (User:Peter Isotalo & contributors, CC BY-SA 3.0 / Public Domain).
+
+Source catalog: https://commons.wikimedia.org/wiki/Category:IPA_sound_samples
+License: Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
+         https://creativecommons.org/licenses/by-sa/3.0/
