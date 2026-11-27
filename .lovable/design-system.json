@@ -2,7 +2,7 @@
   "meta": {
     "name": "ELEA",
     "package": "@ws-02a46459c8787a794b56/5973be80-2c6d-4079-9f58-27f6217ac5f4",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "framework": "react",
     "css_framework": "tailwind",
     "starter_template": "custom_design_system_tailwind",
@@ -11,7 +11,7 @@
     ],
     "source_type": "local",
     "source_manifest": {
-      "#enrichment": "e8ac5959c13be71cf39b9092a3b100f1855c79eb3a26cfb275ea3836344020c2",
+      "#enrichment": "29563f059f89a0f8108548f2ec33686e1ac0003ecad6f21c89a4703461264462",
       ".gitignore": "6d9e901a692b46a83707c245fb03bc91",
       ".lovable/meta.yaml": "954a981e8847ec1692669dbb04ae9ae9",
       ".lovable/north-star/north-star.md": "08c5a012d8c3dc56979260d84389a540",
@@ -26,6 +26,39 @@
       "eslint.config.js": "345bdd57e188e0e4525edcd00e5003f5",
       "package.json": "286180cb671750ed74531fc4bc23fb60",
       "public/apple-touch-icon.png": "e3bab92588b70a3853b47a9cf9f195e5",
+      "public/audio/ipa/ATTRIBUTION.txt": "bd460fc40c087ff197e4d12b4eb087b7",
+      "public/audio/ipa/ae.mp3": "297a0a4e90249e2aab8844c4f9c06e34",
+      "public/audio/ipa/b.mp3": "a7c5de55bcc50010608d5385c50b4705",
+      "public/audio/ipa/ch.mp3": "fd59e3464b2bc68ac1cb437412e0004d",
+      "public/audio/ipa/d.mp3": "3ff540e37b819a7a910f0ed5a4e8dac9",
+      "public/audio/ipa/dj.mp3": "b589b9b8c1e3f5748844599b85f83de0",
+      "public/audio/ipa/e.mp3": "673648bc5773420c2f7869fca7ed37ce",
+      "public/audio/ipa/ee.mp3": "5fc0a46d4fa77afaf542916088818a7d",
+      "public/audio/ipa/f.mp3": "cd63dc9a6b4c46fc6aadc31418ee7eb3",
+      "public/audio/ipa/g.mp3": "7fce744a2377ce8a5b4c4d061ab1a0e8",
+      "public/audio/ipa/h.mp3": "2a08bb5460c7cf367e8068345e1fd85e",
+      "public/audio/ipa/ih.mp3": "4bad948ccae3bff6fb1fd1685925160c",
+      "public/audio/ipa/j.mp3": "e032e29442f028a21ef62e3d3e984b81",
+      "public/audio/ipa/k.mp3": "ebc7b6b2ff7778bd7ab1a561c87df569",
+      "public/audio/ipa/ks.mp3": "70f13ccde8d5fa77ff558403c6e95b9a",
+      "public/audio/ipa/kw.mp3": "8e6529a58f6fcc0ce1c2094165636d54",
+      "public/audio/ipa/l.mp3": "18b2c5c314e517e23eb8cef6bc4ae6f6",
+      "public/audio/ipa/m.mp3": "4171ed60783bffcb43cb13a4df4e60ec",
+      "public/audio/ipa/n.mp3": "495b5e1908a3f85cc3446741c4760e68",
+      "public/audio/ipa/ng.mp3": "80a969627bf6265841a8305f145b1e91",
+      "public/audio/ipa/o.mp3": "3b4ef77135daef5f71fc7004f008d074",
+      "public/audio/ipa/oo.mp3": "01c71e1fd9ba730c5b04bdbc7adf069e",
+      "public/audio/ipa/p.mp3": "a47178c6f34894b9893a513634e949b6",
+      "public/audio/ipa/r.mp3": "690617d269795558c2ced0e5acb761a1",
+      "public/audio/ipa/s.mp3": "953b831bc8e49f7af059ff8e71a7f8c6",
+      "public/audio/ipa/sh.mp3": "2fc8979972c511ea9a83fc77dd423fb3",
+      "public/audio/ipa/t.mp3": "3fd72b0d87a6f3c71d9ab5da897be8e6",
+      "public/audio/ipa/th-voiced.mp3": "128e38adc71de7249b920f754c219344",
+      "public/audio/ipa/th-voiceless.mp3": "b2caf88e50778e7e1a37e4aa726adda4",
+      "public/audio/ipa/u.mp3": "89c9b3e64740d7275bde31b6642aa2b3",
+      "public/audio/ipa/v.mp3": "da806d15da153fe4c22a66d1dd43a8dd",
+      "public/audio/ipa/w.mp3": "383a52e9652114efa7528120ef39a481",
+      "public/audio/ipa/z.mp3": "5b2e0c41ea39b210d723066d9be519ae",
       "public/favicon.png": "7dffc8029c6090a764e95de198370bb0",
       "public/robots.txt": "f9dff89adf98833e676de2205921996a",
       "roadmap.md": "28211da591ae4742a4c783360b59b71a",
@@ -37,31 +70,65 @@
       "src/assets/path-adults.webp": "770f3998879d3fb685f73e20566cf450",
       "src/assets/path-ielts.webp": "fb154846a0a4da4e07f29d251076806f",
       "src/assets/path-kids.webp": "757416a2bca21fc8c9c4c7110276167d",
+      "src/components/admin/admin-teacher-studio.tsx": "86a9295c9ad4f07dcfca54ade795b82f",
+      "src/components/assistant/ai-assistant-drawer.tsx": "df9872695e601bca81167cdbdd2fb2a3",
+      "src/components/business/business-course-hub.tsx": "1146bf3d545036b2889fdeb357665537",
+      "src/components/calendar/learning-calendar-view.tsx": "36f650d479c0cc214d36cd4aecbbde1b",
+      "src/components/certificates/certificates-portal.tsx": "d5966fd34128ee749fe19041e2da2fd8",
+      "src/components/courses/cefr-module-pathway.tsx": "80e39a7c8e335ae1521bfb008449ef69",
       "src/components/courses/course-card.tsx": "641720a9fc6802237486e98effcd5f03",
       "src/components/courses/level-badge.tsx": "f8a9cd93423e57bab04786898076e1e0",
+      "src/components/dashboard/learning-dashboard.tsx": "8e7537fa5a382f6b5c62f52837f653fe",
+      "src/components/exams/mock-exam-center.tsx": "962c61e51fcc41e2478422cb68bf1115",
+      "src/components/exams/step-question-bank.tsx": "2b5f9dbae5a828bff03b6d594956bdbe",
+      "src/components/grammar/complete-grammar-hub.tsx": "5effe21521d976a8edcdf32922c5588e",
+      "src/components/home/advanced-studios.tsx": "ad710ae458335375f8c93e81c4efe9d6",
       "src/components/home/features.tsx": "7cd8ab4ec3d3a4b1f333071b8058ca72",
       "src/components/home/hero.tsx": "f731f10c7027c474d19bc1e3ab3cc31b",
       "src/components/home/path-selector.tsx": "4bc952aab2b2acce92ae117391962d1b",
       "src/components/home/placement-band.tsx": "b089a66d733bd4a2bdeb8ed09009eed9",
       "src/components/i18n-provider.tsx": "a329d125d6df27a41a7f479c19a31b3b",
+      "src/components/kids/alphabet-studio.tsx": "bb919d861966416a785ef424300c62bc",
+      "src/components/kids/articulation-studio.tsx": "8d7a55f0dc5cdca07696ac6af780bbb5",
+      "src/components/kids/kids-assessment-rewards-studio.tsx": "aa43a728a9e6b278ec3ebe7a1f7f9448",
+      "src/components/kids/kids-world-hub.tsx": "d6405c7fb96881e09c076ff9a7d71831",
+      "src/components/kids/letter-tracing-pad.tsx": "15967427a20183122ff9c4677d4ba90f",
+      "src/components/kids/parent-teacher-view.tsx": "c0fdd25a30575ce8a1e6c80cfa7dc66b",
+      "src/components/kids/reading-blending-studio.tsx": "95af77731c193b150bddffe2ec39b0ff",
+      "src/components/kids/stories-comm-studio.tsx": "6b2bfe7141016d0378f0edeacf21b542",
+      "src/components/kids/videos-games-studio.tsx": "c6ba5130cf0284fe16a4527139c36058",
+      "src/components/kids/vocab-grammar-studio.tsx": "80d5a49c370cb386b7a0e4d624b487fd",
+      "src/components/kids/vowels-consonants-studio.tsx": "cf789f146ec482d4fac90f77321f833f",
       "src/components/layout/brand-logo.tsx": "feb13375b76b2712aa341852392b76e9",
       "src/components/layout/language-switcher.tsx": "fb8748d15d7ed047c14f223c6da59b19",
-      "src/components/layout/site-footer.tsx": "ba47031685b77be725289fdce830d363",
-      "src/components/layout/site-header.tsx": "e625137d974a465702b12fa45816249e",
+      "src/components/layout/mobile-quick-nav.tsx": "7d323399593e4557b556aa5ca6e208fc",
+      "src/components/layout/site-footer.tsx": "371a6fbf349eb077532b26b9adec2d59",
+      "src/components/layout/site-header.tsx": "74a1baa222da944109f42be287d16ab5",
       "src/components/layout/theme-toggle.tsx": "7b31408e9523c0e584ca286fd825990e",
-      "src/components/learning/ielts-hub.tsx": "38ef6ec4350652ec241a07cb9e692fb8",
-      "src/components/learning/lesson-list.tsx": "a0852e5b200f6fc7b2b3507c81d50192",
-      "src/components/learning/lesson-view.tsx": "403da9ad502eb1505df506b8e00c929e",
+      "src/components/learning/course-assessment-panel.tsx": "b0c2c620c2a8dfc9c39d56aea5944ce2",
+      "src/components/learning/detailed-rule-guide.tsx": "44c3483a391ca1924512504394a1155c",
+      "src/components/learning/highlighted-text.tsx": "580bbb7b650e39008d7e9f7f5bff07cf",
+      "src/components/learning/ielts-hub.tsx": "977903ac80da90af486fc296dd08fe38",
+      "src/components/learning/lesson-list.tsx": "0abd8ec1d4afdadaaca2b199707caaab",
+      "src/components/learning/lesson-objectives-card.tsx": "6e46982a7ddaf19af532f11f0148e64f",
+      "src/components/learning/lesson-post-evaluation.tsx": "6625d91af689372725936c308c52702d",
+      "src/components/learning/lesson-view.tsx": "853d8ce5c90231eb08351be8938bbb91",
       "src/components/learning/locked-lesson.tsx": "3d57a9c67d2d350d3f4cc8c7b1abc54d",
       "src/components/learning/pronunciation.tsx": "3fa88e4937693ca85f4af57042412366",
-      "src/components/learning/speaking-conversation.tsx": "5251a6c93955e8e41943c047065486da",
-      "src/components/learning/speaking-studio.tsx": "f793560d798cd997f61ab1a58c014083",
-      "src/components/paths/path-page.tsx": "a28df5f5b427a99b2fe3ad0f445ea5c1",
+      "src/components/learning/question-card.tsx": "5954d3f1b18411e621e2afa703f6e95f",
+      "src/components/learning/rule-video-player.tsx": "5bd255964d5542067162b1c4f1b1810d",
+      "src/components/learning/speaking-conversation.tsx": "4b4c776eab1ca04926bdbf2218425c5c",
+      "src/components/learning/speaking-studio.tsx": "778ebfa464fe92c239fa6e1b232abf55",
+      "src/components/learning/video-visuals.tsx": "de2f9fb29bf1022e2574dba17ed517e2",
+      "src/components/paths/path-page.tsx": "b027257a308197e418b08badd6547ac2",
       "src/components/placement/answer-review.tsx": "c64739470bed73f62baa0cf9d84e7f38",
       "src/components/placement/placement-test.tsx": "e8ffea359adf6b64d23cd0cf571763b8",
       "src/components/placement/question-card.tsx": "230ae56324f195b1a625ecfefcb89890",
       "src/components/placement/result-view.tsx": "4b3cd2e1778f8a0bd5f0f9a373efd9a7",
       "src/components/placement/writing-step.tsx": "4b45efe72086d1f68105d98b160d068c",
+      "src/components/progress/progress-dashboard.tsx": "c98dcb495828692c670a4779d06dccc0",
+      "src/components/resources/resources-library-view.tsx": "d87b539f08648f8bc954f47d733874d4",
+      "src/components/self-learning/self-learning-studio.tsx": "824305b98489bf978263c753a568b2da",
       "src/components/ui/accordion.tsx": "55f9dda62b4e3913c9b23e5015a86aef",
       "src/components/ui/alert-dialog.tsx": "96350e949e9b7b674545430a410ab89c",
       "src/components/ui/alert.tsx": "f993d7e96b1e25ce50e68ed97e11d2a8",
@@ -108,8 +175,27 @@
       "src/components/ui/toggle-group.tsx": "ac26383acf721d116ca8e3ab5c5355d5",
       "src/components/ui/toggle.tsx": "ee8c5adac74e7242b85b544db1a8fbad",
       "src/components/ui/tooltip.tsx": "67d71db5a1ab935695d1def497f5b8a6",
-      "src/config/site.ts": "e6b2fecee4b813886c5f06bc6a0cbf4c",
+      "src/components/vocab/cefr-mastery-studio.tsx": "2130540ab4ff2b95ddcd37401594a0a2",
+      "src/components/vocab/ielts-vocab-studio.tsx": "76e41564493d6c6113e5ff747c0d354a",
+      "src/components/workshops/speaking-through-writing.tsx": "d6aa8b914f4779d236b1db817c643fd4",
+      "src/components/workshops/workshop-studio.tsx": "7687ba587d214583f7931ca9b247ec91",
+      "src/config/site.ts": "dd2466ffa27684777053f9ea125798a2",
       "src/content/adults-lessons.ts": "166308ed6cfc3886fdfd91f947e3b9f5",
+      "src/content/business/business-bank-1.ts": "298771a98d4121ffb8f9439b91cdc001",
+      "src/content/business/business-bank-2.ts": "31d2ed664182a793a87e16454d0b72de",
+      "src/content/business/business-bank-3.ts": "0303c16422e52ed6f5bac7ba92b88895",
+      "src/content/business/business-bank-4.ts": "8ec9ddfbfd7133638a172dafb3386d79",
+      "src/content/business/business-bank-5.ts": "240b264807d6d33d82b77297faac5610",
+      "src/content/business/business-bank-6.ts": "4707a3e537a897dc05effed698ddd29b",
+      "src/content/business/business-comm-skills.ts": "e096cca66817e028f5a82f02c4f64d98",
+      "src/content/business/business-expressions.ts": "1204eaeb6a613e82c930d52609bc6508",
+      "src/content/business/business-idioms-bank.ts": "ebcc1a51e9d9599e978b62e6de17a15f",
+      "src/content/business/business-job-prep.ts": "70db1b2cfc245c366395b19f07b1e375",
+      "src/content/business/business-meetings.ts": "f75c1a17140881fb597a96e0038d3ee9",
+      "src/content/business/business-types.ts": "f7e58dbbe8796fc31922b5438b286ce6",
+      "src/content/business/business-vocab-expander.ts": "459a41777c4988bb583fd29c31a6113c",
+      "src/content/business/business-vocab.ts": "4277b0ca5d811132de7fe721ffde18c8",
+      "src/content/business/index.ts": "cbdf627912edc117299d0daf498eb7e7",
       "src/content/cefr/core-a1.ts": "4bd59c59d02079354deca5090d6a1f50",
       "src/content/cefr/core-a2.ts": "c19a595d4aecfdfb61dfe1ef4629e307",
       "src/content/cefr/core-b1.ts": "67985600bc5c710bb28fcf63d4e067c9",
@@ -123,13 +209,35 @@
       "src/content/cefr/reading-passages-2.ts": "ed027c728511a15955f9050edc14fad2",
       "src/content/cefr/reading-passages.ts": "88c18cf30cc3ce05f4538ea94b022d91",
       "src/content/cefr/tbll-helpers.ts": "bc76040c67f8193fbd1c003fb8075ef4",
+      "src/content/course-assessments.ts": "833573d239ecbd9b94c627c4492501cd",
       "src/content/courses.ts": "ea235ac9f3c847b55eb3923bee5c596e",
+      "src/content/curriculum-expansion.ts": "203817a81a64f19fef84a00c10b93897",
+      "src/content/enrichment-builders.ts": "4e54e51203420faed68eb15a4350ef31",
+      "src/content/esl-deep-guides.ts": "79cc544c4b8ebbd78377d27e8c71bcc4",
+      "src/content/explainer-videos.ts": "ef30d207b0679922ac26a7af7518e0b5",
+      "src/content/grammar-guides-lower.ts": "23a86a3b58ed0defaaa0a3244b64e0d1",
+      "src/content/grammar-guides-upper.ts": "19571a18d14151ad236349f815aded3f",
       "src/content/grammar-rules.ts": "261c5cbb8754d4ad00da0963a08f9a18",
+      "src/content/grammar/grammar-curriculum-index.ts": "44c2bba3468c5be87b58d0b5111aaec7",
+      "src/content/grammar/grammar-curriculum-types.ts": "6774bdef6a3bd25a11b287eeec968a41",
+      "src/content/grammar/grammar-units-part1.ts": "eac909d2006904e6a644758515c099d6",
+      "src/content/grammar/grammar-units-part2.ts": "3e556ef003696d002fd1ff8ed5c42002",
       "src/content/ielts-lessons.ts": "00255f17d657608ba5be388102dc1f54",
       "src/content/kids-lessons.ts": "35a1232b0eaf6e81dbe9aba26e1fc166",
-      "src/content/lesson-types.ts": "33e63b492e402e21ec5187e9a8c66680",
-      "src/content/lessons.ts": "decc52a84e0db2bb6bcff4b07f9214d7",
+      "src/content/kids/alphabet-phonics-data.ts": "82deefb9712094352b73e34f4a3c94b8",
+      "src/content/kids/articulation-reading-data.ts": "9a3aafebd94ea2f07d0b55c23b364d1d",
+      "src/content/kids/phonics-songs-data.ts": "f75a0fc6c267113cc2f8603dd4e56eec",
+      "src/content/kids/stories-communication-data.ts": "d2f6bccf86d14965b032511f3ac4a43c",
+      "src/content/kids/videos-games-data.ts": "6f0517059cc7e44343836c9abc82a0c8",
+      "src/content/kids/vocab-grammar-data.ts": "502650c44259e5d915011969025e5a7d",
+      "src/content/lesson-enrichment.ts": "dcdf70e208955538c3692b68d9a74cef",
+      "src/content/lesson-objectives.ts": "ff16946fdeecd8d0d67bbe30344d7b7d",
+      "src/content/lesson-types.ts": "7bd013962dc77d4c2996f2f1aad1350b",
+      "src/content/lessons.ts": "771421a075ced78b97dce748a5596d0f",
       "src/content/level-lessons.ts": "2f0c935599c59a9572e3577b7525ff3d",
+      "src/content/mock-exams/exam-types.ts": "3d0d52275fd5dbd5708bd4dfb5b7649a",
+      "src/content/mock-exams/ielts-mock-data.ts": "03dfd5888dcfe4eeae8a4a7a94b6d009",
+      "src/content/mock-exams/toefl-mock-data.ts": "b9c050107b4d7d81620c785816773eeb",
       "src/content/paths.ts": "f4759493a3d213007b98313848afce2b",
       "src/content/placement-questions.ts": "6617c8f1707f2e720000896bc960f65f",
       "src/content/question-bank/a1.ts": "8a97b023f29b693fe5e09a5f4387e9dc",
@@ -138,53 +246,155 @@
       "src/content/question-bank/b2.ts": "9fbe4e91527e24e7fe16d38199d4504d",
       "src/content/question-bank/c1.ts": "6c55157671e6a4ea229e402ffe4b6fb5",
       "src/content/question-bank/c2.ts": "7481cfb82eb48fb3b90a03d0157b466e",
+      "src/content/reading-enrichment.ts": "76870384b2cc119c4ee774e693ac1960",
+      "src/content/resources-glossary.ts": "dd8c4babe0a0a525155547c0c57fd052",
+      "src/content/self-learning/a1-sentences.ts": "4ca1ac78634fdd3b7d5b0b0a4e9331e5",
+      "src/content/self-learning/a2-sentences.ts": "b8b5e2073924b009441ab30b8acc99d7",
+      "src/content/self-learning/b1-sentences.ts": "33a69969ddda7173b98ccd425d6f53ae",
+      "src/content/self-learning/b2-sentences.ts": "dee38e2c21cd5db18463080754402da5",
+      "src/content/self-learning/c1-sentences.ts": "794e0cfa107a9ce405e23cb3740efd1c",
+      "src/content/self-learning/c2-sentences.ts": "8812d7b3c721ac43ff2e118e5c256834",
+      "src/content/self-learning/index.ts": "9092c2db6f2ab541dfbb0b0b7f8ae7c1",
+      "src/content/self-learning/types.ts": "379a5a68bfb0505264a1756d251772fd",
+      "src/content/speaking-situations-daily.ts": "d5ddafe4318a0587c48f814a24767d0c",
       "src/content/speaking-situations-extra.ts": "f426e23e632db435367d6215973549e3",
-      "src/content/speaking-situations.ts": "9a27678c56b80baf635a9965aacc5cf7",
+      "src/content/speaking-situations.ts": "07d5ce712e51d2d4e2142fa8e0e0faca",
+      "src/content/step/step-compositional-bank.ts": "d0875d8f0bb7e3c0bf1a2017670508d1",
+      "src/content/step/step-index.ts": "3959c77c1dfa3c6da24094d3a459b361",
+      "src/content/step/step-listening-bank.ts": "423fc12a7f37da958315d08020b6cf1c",
+      "src/content/step/step-reading-bank.ts": "38c88f2e7656c30a9769dd0fc1413e57",
+      "src/content/step/step-structure-bank.ts": "d71bd11193711ee51f83855f806ac7e8",
+      "src/content/step/step-types.ts": "7137cbb7fd5178f4b25069a3a634c4a2",
       "src/content/topic-curriculum.ts": "d0179dfdcc107decdaf40fab5646e395",
+      "src/content/vocab/cefr-idioms-expansion.ts": "0990dcbb2f03434123d91036592d9a6c",
+      "src/content/vocab/cefr-mastery-data.ts": "abae63cda68104144a4dff602fda012c",
+      "src/content/vocab/ielts-bank-culture-media-sci.ts": "c3f39b6b049a97b1ff0a34a772768e6d",
+      "src/content/vocab/ielts-bank-education-tech-env.ts": "1f3195f0e2e7e678e78aefbfc645a0d0",
+      "src/content/vocab/ielts-bank-health-biz-glob.ts": "3fe3da656e110118abb7eb05d7851b22",
+      "src/content/vocab/ielts-bank-society-crime-gov.ts": "db4facc4cdaac0e9fb9ecb94fc3aed10",
+      "src/content/vocab/ielts-bank-transport-family-tour.ts": "0ffa9c978bb1673422e8facc6906eb14",
+      "src/content/vocab/ielts-high-frequency-1.ts": "bdeb8056f72474e7a153783f45153d45",
+      "src/content/vocab/ielts-high-frequency-2.ts": "dcd1b4864ac7e5aabe209ab368fd2bcd",
+      "src/content/vocab/ielts-idioms-1.ts": "67523ed535377255bf84a7d6498a75c5",
+      "src/content/vocab/ielts-idioms-2.ts": "ebbe4fd3515705da87b5a21298879e48",
+      "src/content/vocab/ielts-idioms-3.ts": "29fe0e18bd1e11a41555f5685ba6557b",
+      "src/content/vocab/ielts-idioms-4.ts": "94f4d1e1fbd7a477c30f561b19f771cf",
+      "src/content/vocab/ielts-idioms-5.ts": "394fb418432e5d66924605424bd9fd7d",
+      "src/content/vocab/ielts-vocab-expander.ts": "80a1049d7215ef835c2de31dd1c3fc51",
+      "src/content/vocab/ielts-vocab-index.ts": "531647ba6fba9ac6b61d1861883ef197",
+      "src/content/vocab/ielts-vocab-part1.ts": "65e1c145758fa56b6b678cb1b0c9f460",
+      "src/content/vocab/ielts-vocab-part2.ts": "cb2a0d73e0c2b21d52b114503eee7efd",
+      "src/content/vocab/vocab-types.ts": "80f14a26c7d7888bbb4560e7febfd154",
+      "src/content/workshops/scenarios.ts": "e596d7ee710a427cabd62c68529d0ab5",
+      "src/content/workshops/workshop-types.ts": "6c9ab0af628f9c7eb765bb57ad464286",
       "src/generated/ai-gateway/models.d.cts": "43c9da5eb11bf39431e1ab397f72333e",
       "src/generated/ai-gateway/models.d.ts": "43c9da5eb11bf39431e1ab397f72333e",
       "src/hooks/use-learner.ts": "b55c405ca7905e7be4d64490404665ae",
       "src/hooks/use-mobile.tsx": "c0a0bdd4638c391a1dd06ac82074e60b",
-      "src/hooks/use-speech.ts": "506cdc0bc29e154d64ff20f710253ad9",
+      "src/hooks/use-speech.ts": "9775c103f49f4995d94665e17735ae86",
       "src/index.ts": "248ac51104706b0d8aeba4f46def85ba",
+      "src/lib/assistant-ai.functions.ts": "15b8327aebe34fda99ac84718ac1f695",
+      "src/lib/assistant-ai.server.ts": "5019d8ed85724158f95c6ebff120b5d5",
+      "src/lib/assistant-fallback.ts": "1bd55ccf71819686d89742061898a2a9",
+      "src/lib/cefr-modules.ts": "5d74e113a2dc1ce1d643919b6cf450dc",
       "src/lib/error-capture.ts": "f630d9686a9a989170f22eff4de7b30d",
       "src/lib/error-page.ts": "8da0ddd7569bac2676b9a5c8edff8a36",
       "src/lib/i18n/config.ts": "597679bca7bd85ce2d1b41c866ff1f00",
-      "src/lib/i18n/head.ts": "71d351d1731f4fc5e7722056f8bc403e",
-      "src/lib/i18n/messages.ts": "6de22996c8d19bc78fb68ec1f776ea15",
+      "src/lib/i18n/head.ts": "80141a526ba83e200746b2060862e25d",
+      "src/lib/i18n/messages.ts": "ddb80fe28899cb50097eb5b4d7dff0ca",
       "src/lib/i18n/preferences.ts": "daa4c3d4df2ec8b952b79683a9e49bd5",
-      "src/lib/learner-storage.ts": "18da3a21dd9f4007da3ae85fce82e2da",
-      "src/lib/lesson-access.ts": "1eff2483b018f34bbaa8b95e61f78e3d",
+      "src/lib/ielts-lexical-ai.functions.ts": "8810865a5be0f60617b4d4e9a526389c",
+      "src/lib/ielts-lexical-ai.server.ts": "f0f144705614f56f509ffd1e20644c18",
+      "src/lib/ielts-lexical-fallback.ts": "ea52a5b94f9a68206bd4a1d690988531",
+      "src/lib/ielts-tracker.ts": "5193a7cd50569a5fc9affaff075b4e44",
+      "src/lib/kids-phonics-audio.ts": "8394c2cc72ae161a42aaed370a932065",
+      "src/lib/kids-storage.ts": "e83bcac13b12b5a516e8b715b35229ae",
+      "src/lib/learner-progress.ts": "2dc7841749c47abe12c715483c0027cd",
+      "src/lib/learner-storage.ts": "98a64490bf8b9e5fcf02d1b6546f2980",
+      "src/lib/learning-record.ts": "e2a07bef760d6d7be3ddcb0609002555",
+      "src/lib/lesson-access.ts": "d446a01de4044f2cf524d8abb2601cf0",
       "src/lib/lovable-error-reporting.ts": "920280997099588d609de792663bcbf0",
+      "src/lib/mock-exam-scoring.ts": "7cc09870ee28ae38c3ad2dd6e4ddb1f8",
+      "src/lib/personal-plan.ts": "47777dc92a892794c253a58e32a26171",
       "src/lib/placement-ai.functions.ts": "1a2eedab7373c217c0eda8a16758c37a",
       "src/lib/placement-ai.server.ts": "4200f94abaaa0572d751655ea88fde02",
       "src/lib/placement.ts": "908d869ea3f5fcae4e794e44f397963b",
+      "src/lib/question-engine.ts": "13fa77c36fb008eb7d9e3a8fcb6b74ae",
+      "src/lib/rbac-store.ts": "7dc4ad621a8e670236a9942ae091687f",
+      "src/lib/skills-achievements.ts": "cbe22fc3b6d073dfe2544c6b08e259b6",
+      "src/lib/speaking-ai.functions.ts": "e427c2c970b8a804dc40be2f95837e7e",
+      "src/lib/speaking-ai.server.ts": "d6b838c6786df7d8d3657f1e2dda024c",
+      "src/lib/speaking-fallback.ts": "b15f146c0544e2a339b14f12ab86cc2f",
+      "src/lib/speaking-through-writing-ai.functions.ts": "ae20e8191c5060effa23cdda688afeb2",
+      "src/lib/speaking-through-writing-ai.server.ts": "0e35cc60edec8f1d5ac25fe423e67f84",
+      "src/lib/speaking-through-writing-fallback.ts": "6b474f34e2402e779c368828715aaef7",
       "src/lib/speech.ts": "8b71c9de06fbb13248bbf822dd8a4472",
+      "src/lib/translation-ai.functions.ts": "2be93480d47924d3a10597f66864d31f",
+      "src/lib/translation-ai.server.ts": "e22b29aea66939ea64c66d9da3d420e5",
+      "src/lib/translation-fallback.ts": "5b3d65811871fd6be51f602da8a49dfc",
       "src/lib/utils.ts": "d9837f38cc05303254571985e3164050",
-      "src/routeTree.gen.ts": "e87e4a8c3ad5db4a6d8fa19f781e7c61",
+      "src/lib/workshop-ai.functions.ts": "83620d9632988d7c793496cb6b78fa4f",
+      "src/lib/workshop-ai.server.ts": "2f59d6c9f1b63ee5fe26c3940cf0d9f5",
+      "src/lib/workshop-fallback.ts": "6b008b269630b9fdaf0355e0a73634ce",
+      "src/routeTree.gen.ts": "66efe0b31b0f1a9a77f384d6fbea92e3",
       "src/router.tsx": "d448cb947dcf9afe7d0cf849cd6ad7f0",
       "src/routes/README.md": "b3a2f259b66fd1a11f54b6d5ac83bf57",
-      "src/routes/__root.tsx": "5a14d8fcdf68dc1e783de3661b04c8a8",
+      "src/routes/__root.tsx": "fd5e0e4675a6818d519f15ab425a2892",
+      "src/routes/admin.tsx": "8a129dcec11f7bc11a6076d7a3d2a7a5",
       "src/routes/adults.tsx": "820407d6520ff08cd5570dfbbf7370aa",
-      "src/routes/courses.$level.tsx": "e5192dbbf1d763b642ebc6999c5d0e31",
-      "src/routes/courses.index.tsx": "36c42375f95ef5bbb9022ce58b865e30",
+      "src/routes/business.tsx": "27505caa32e0c86872ac78443e1f4b13",
+      "src/routes/calendar.tsx": "5bdc6fa39a609aaa412a75337917ecfe",
+      "src/routes/cefr-mastery.tsx": "5e4edd07b249d9355571f7bbb75ee0ec",
+      "src/routes/certificates.tsx": "df9e889b0d19e7f7c191cabaf306ae48",
+      "src/routes/courses.$level.tsx": "7153c85a8759a407e610247271d3c223",
+      "src/routes/courses.index.tsx": "60b1e2722fbe3a2b33ea00a988a5648c",
+      "src/routes/dashboard.tsx": "bc23a8b882e85c8a638ddb1dc9cf3a3a",
+      "src/routes/grammar.tsx": "f983ffff7f13024e4b19ca5aea9eb84e",
+      "src/routes/ielts-vocabulary.tsx": "4e4fe17a3d26d964cc141ba7db097e0d",
       "src/routes/ielts.tsx": "7905b11e45b32cab589d4862f4335a8d",
-      "src/routes/index.tsx": "574a783432e3a65afcc9f803fb1e94db",
-      "src/routes/kids.tsx": "a358967408498ac04001812bdaba308b",
+      "src/routes/index.tsx": "b54e5907775a634f45e65dc6d2cecbe9",
+      "src/routes/kids.tsx": "ae8931214992b5a6b2f41f4e26d42297",
       "src/routes/lessons.$lesson.tsx": "a42f969fcfaa798ffad577f4ddc959d6",
       "src/routes/level-test.tsx": "867eb38e5675b342f7ef01d0dc859f37",
+      "src/routes/mock-exams.tsx": "284b616d30713a8ff71a14274387026c",
+      "src/routes/profile.tsx": "ef8753188cc7fdbcdf02b79e6c2bfc81",
+      "src/routes/progress.tsx": "024cd3a01dbad35f5c86f7cd035e9d1e",
+      "src/routes/resources.tsx": "b2edfde49921a2e83f69300454b31846",
+      "src/routes/self-learning.tsx": "88812d0388cd16af7a7d7af719a128b5",
       "src/routes/speaking.tsx": "79f892901106e66d617549da951a834e",
+      "src/routes/step.tsx": "c4e07c8fc1e9f4f22eab6b9fd6ac5b60",
+      "src/routes/workshops.tsx": "4f84300acabfe8d996b7d54a4c32bd4e",
       "src/server.ts": "91c9b724fb9ad417dc7702ca0fb39157",
       "src/start.ts": "9030f90d3c25adb1524fe659ea1eb42b",
-      "src/styles.css": "79607470d3b7ebe0b08b03ba62b8f002",
-      "src/test/app-routing.test.tsx": "dda0393c89450a1e5b7874b424dca80d",
+      "src/styles.css": "1a31433908fa9b7813114ae73d62815c",
+      "src/test/app-routing.test.tsx": "57cbf0559d41a29448e24c61dd8bf3da",
+      "src/test/business-course.test.tsx": "08187d85805a437ca32ef43e51481614",
+      "src/test/daily-speaking-contact.test.tsx": "443daa4bf8bd502aa590673f091a04b1",
+      "src/test/e2e-platform-journeys.test.tsx": "b8b47e4556eae5e536b3c20240b218f5",
+      "src/test/grammar-reading-interactive.test.tsx": "b76848b72b5552b8defc203396ec0ac2",
       "src/test/i18n.test.ts": "ea8ecf2ced1239769e919cb20ac151a2",
+      "src/test/idioms-hf-mock-exams.test.tsx": "574124c5687eb56edd17506360ab7799",
+      "src/test/kids-alphabet-phonics.test.tsx": "a66393326a64a287aed1083f03996772",
+      "src/test/kids-articulation-reading.test.tsx": "85794239d7025132aeed35b99972a041",
+      "src/test/kids-k4-k5-audio.test.tsx": "66218045add358378ad30afe40ccc156",
+      "src/test/kids-k6-stories-parent.test.tsx": "96e1a51f326d3c7c1b820ec0b074d1b6",
+      "src/test/learning-dashboard.test.tsx": "5d13b041f1a2a76a0756be3091814246",
       "src/test/lesson-access.test.ts": "9425fb53cef844e2e30069719e245aea",
-      "src/test/lessons.test.ts": "bbd01a577e3e81f75a5ad34e66293574",
+      "src/test/lessons.test.ts": "433775ee7f1ac73b679b3a37d948b35b",
+      "src/test/pathways-reorg.test.tsx": "f416187a5d7bed4d408e8b0913a2c841",
+      "src/test/personalisation-assistant.test.tsx": "3e274e857a76387386be1b83699d88ae",
       "src/test/placement.test.ts": "81ccad0dcf46767ce747a450493b2504",
+      "src/test/progress-dashboard.test.tsx": "1ac3062888163fe1c80e0fb33e88b644",
+      "src/test/resources-library.test.tsx": "184a9d070f229b2e9944be29eef23ad5",
+      "src/test/self-learning.test.tsx": "546772891df88bb12634ce9362f532f8",
       "src/test/setup.ts": "ef5807c07db57482ab718e40246688a2",
-      "src/test/speech.test.tsx": "4eb6587620870325889bdab0c468fe0f",
+      "src/test/skills-achievements.test.tsx": "6222718b046e5884410697cb64d4e559",
+      "src/test/speaking-through-writing-and-visual-video.test.tsx": "4b4f0f5c4160c159e7a0956039c0470b",
+      "src/test/speech.test.tsx": "f3f9da7b691004ea41a5883586b8dfa7",
+      "src/test/step-grammar-kids-phonics.test.tsx": "a42032c22b35e558699e0a08e3242703",
       "src/test/topic-expansion.test.ts": "6f6382575b1ec5932413badb1bb8cc2f",
+      "src/test/vocab-mastery.test.tsx": "0af1744c131cc3d9e1040e42ba1e1266",
+      "src/test/workshops.test.tsx": "89867cc60a20f7b2543d12c5cf708fa5",
       "tsconfig.json": "3d34aff71739a382bec105bad1c6948f",
       "vite.config.ts": "180b60beec140d99f0bb7ed91fbaa4b4",
       "vitest.config.ts": "cdf9aff9538e6bc3eb92842264b030a9"
@@ -485,6 +695,59 @@
   },
   "components": [
     {
+      "name": "AdminTeacherStudio",
+      "file": "src/components/admin/admin-teacher-studio",
+      "import_path": ""
+    },
+    {
+      "name": "AiAssistantDrawer",
+      "file": "src/components/assistant/ai-assistant-drawer",
+      "import_path": "",
+      "props": [
+        {
+          "name": "variant",
+          "type": "enum",
+          "values": [
+            "header",
+            "floating"
+          ],
+          "default": "floating"
+        }
+      ]
+    },
+    {
+      "name": "BusinessCourseHub",
+      "file": "src/components/business/business-course-hub",
+      "import_path": ""
+    },
+    {
+      "name": "LearningCalendarView",
+      "file": "src/components/calendar/learning-calendar-view",
+      "import_path": ""
+    },
+    {
+      "name": "CertificatesPortal",
+      "file": "src/components/certificates/certificates-portal",
+      "import_path": ""
+    },
+    {
+      "name": "CefrModulePathway",
+      "file": "src/components/courses/cefr-module-pathway",
+      "import_path": "",
+      "props": [
+        {
+          "name": "level",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "onSelectSkillFilter",
+          "type": "function",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "CourseCard",
       "file": "src/components/courses/course-card",
       "import_path": ""
@@ -492,6 +755,31 @@
     {
       "name": "LevelBadge",
       "file": "src/components/courses/level-badge",
+      "import_path": ""
+    },
+    {
+      "name": "LearningDashboard",
+      "file": "src/components/dashboard/learning-dashboard",
+      "import_path": ""
+    },
+    {
+      "name": "MockExamCenter",
+      "file": "src/components/exams/mock-exam-center",
+      "import_path": ""
+    },
+    {
+      "name": "StepQuestionBankStudio",
+      "file": "src/components/exams/step-question-bank",
+      "import_path": ""
+    },
+    {
+      "name": "CompleteGrammarHub",
+      "file": "src/components/grammar/complete-grammar-hub",
+      "import_path": ""
+    },
+    {
+      "name": "AdvancedStudios",
+      "file": "src/components/home/advanced-studios",
       "import_path": ""
     },
     {
@@ -520,6 +808,260 @@
       "import_path": ""
     },
     {
+      "name": "AlphabetStudio",
+      "file": "src/components/kids/alphabet-studio",
+      "import_path": "",
+      "props": [
+        {
+          "name": "progress",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "onMasterLetter",
+          "type": "function",
+          "required": true
+        },
+        {
+          "name": "onTraceLetter",
+          "type": "function",
+          "required": true
+        },
+        {
+          "name": "onGameWin",
+          "type": "function",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ArticulationStudio",
+      "file": "src/components/kids/articulation-studio",
+      "import_path": "",
+      "props": [
+        {
+          "name": "progress",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "onPracticeSound",
+          "type": "function",
+          "required": true
+        },
+        {
+          "name": "onGameWin",
+          "type": "function",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "KidsAssessmentRewardsStudio",
+      "file": "src/components/kids/kids-assessment-rewards-studio",
+      "import_path": "",
+      "props": [
+        {
+          "name": "progress",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "onCompleteAssessment",
+          "type": "function",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "KidsWorldHub",
+      "file": "src/components/kids/kids-world-hub",
+      "import_path": ""
+    },
+    {
+      "name": "LetterTracingPad",
+      "file": "src/components/kids/letter-tracing-pad",
+      "import_path": "",
+      "props": [
+        {
+          "name": "letter",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "lower",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "hint",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "traced",
+          "type": "boolean",
+          "required": true
+        },
+        {
+          "name": "onCompleteTrace",
+          "type": "function",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ParentTeacherView",
+      "file": "src/components/kids/parent-teacher-view",
+      "import_path": "",
+      "props": [
+        {
+          "name": "progress",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "onResetProgress",
+          "type": "function",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ReadingBlendingStudio",
+      "file": "src/components/kids/reading-blending-studio",
+      "import_path": "",
+      "props": [
+        {
+          "name": "progress",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "onGameWin",
+          "type": "function",
+          "required": true
+        },
+        {
+          "name": "onStageCheck",
+          "type": "function",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "StoriesCommStudio",
+      "file": "src/components/kids/stories-comm-studio",
+      "import_path": "",
+      "props": [
+        {
+          "name": "progress",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "onStoryComplete",
+          "type": "function",
+          "required": true
+        },
+        {
+          "name": "onSpeakingPractice",
+          "type": "function",
+          "required": true
+        },
+        {
+          "name": "onWritingComplete",
+          "type": "function",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "VideosGamesStudio",
+      "file": "src/components/kids/videos-games-studio",
+      "import_path": "",
+      "props": [
+        {
+          "name": "progress",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "initialSubMode",
+          "type": "enum",
+          "values": [
+            "videos",
+            "games"
+          ],
+          "default": "videos"
+        },
+        {
+          "name": "onWatchVideo",
+          "type": "function",
+          "required": true
+        },
+        {
+          "name": "onGameWin",
+          "type": "function",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "VocabGrammarStudio",
+      "file": "src/components/kids/vocab-grammar-studio",
+      "import_path": "",
+      "props": [
+        {
+          "name": "progress",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "onCompleteVocabTheme",
+          "type": "function",
+          "required": true
+        },
+        {
+          "name": "onCompleteGrammarUnit",
+          "type": "function",
+          "required": true
+        },
+        {
+          "name": "onGameWin",
+          "type": "function",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "VowelsConsonantsStudio",
+      "file": "src/components/kids/vowels-consonants-studio",
+      "import_path": "",
+      "props": [
+        {
+          "name": "progress",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "onPassVowel",
+          "type": "function",
+          "required": true
+        },
+        {
+          "name": "onConsonantSortWin",
+          "type": "function",
+          "required": true
+        },
+        {
+          "name": "onGameWin",
+          "type": "function",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "BrandLogo",
       "file": "src/components/layout/brand-logo",
       "import_path": ""
@@ -527,6 +1069,11 @@
     {
       "name": "LanguageSwitcher",
       "file": "src/components/layout/language-switcher",
+      "import_path": ""
+    },
+    {
+      "name": "MobileQuickNav",
+      "file": "src/components/layout/mobile-quick-nav",
       "import_path": ""
     },
     {
@@ -543,6 +1090,64 @@
       "name": "ThemeToggle",
       "file": "src/components/layout/theme-toggle",
       "import_path": ""
+    },
+    {
+      "name": "CourseAssessmentPanel",
+      "file": "src/components/learning/course-assessment-panel",
+      "import_path": "",
+      "props": [
+        {
+          "name": "course",
+          "type": "any",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "DetailedRuleGuideView",
+      "file": "src/components/learning/detailed-rule-guide",
+      "import_path": "",
+      "props": [
+        {
+          "name": "guide",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "skill",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "keywords",
+          "type": "any"
+        }
+      ]
+    },
+    {
+      "name": "HighlightedText",
+      "file": "src/components/learning/highlighted-text",
+      "import_path": "",
+      "props": [
+        {
+          "name": "text",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "keywords",
+          "type": "any"
+        },
+        {
+          "name": "surface",
+          "type": "enum",
+          "values": [
+            "light",
+            "dark"
+          ],
+          "default": "light"
+        }
+      ]
     },
     {
       "name": "IeltsHub",
@@ -562,6 +1167,56 @@
         {
           "name": "lockedIds",
           "type": "any"
+        }
+      ]
+    },
+    {
+      "name": "LessonObjectivesCard",
+      "file": "src/components/learning/lesson-objectives-card",
+      "import_path": "",
+      "props": [
+        {
+          "name": "objectives",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "keywords",
+          "type": "any"
+        },
+        {
+          "name": "hasPostEvaluation",
+          "type": "boolean",
+          "default": "true"
+        }
+      ]
+    },
+    {
+      "name": "LessonPostEvaluation",
+      "file": "src/components/learning/lesson-post-evaluation",
+      "import_path": "",
+      "props": [
+        {
+          "name": "objectives",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "questions",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "keywords",
+          "type": "any"
+        },
+        {
+          "name": "lessonMeta",
+          "type": "object"
+        },
+        {
+          "name": "onEvaluated",
+          "type": "function"
         }
       ]
     },
@@ -600,6 +1255,54 @@
       ]
     },
     {
+      "name": "QuestionCard",
+      "file": "src/components/learning/question-card",
+      "import_path": "",
+      "props": [
+        {
+          "name": "index",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "question",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "answer",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "checked",
+          "type": "boolean",
+          "required": true
+        },
+        {
+          "name": "onChange",
+          "type": "function",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "RuleVideoPlayer",
+      "file": "src/components/learning/rule-video-player",
+      "import_path": "",
+      "props": [
+        {
+          "name": "video",
+          "type": "any",
+          "required": true
+        },
+        {
+          "name": "keywords",
+          "type": "any"
+        }
+      ]
+    },
+    {
       "name": "SpeakingConversation",
       "file": "src/components/learning/speaking-conversation",
       "import_path": "",
@@ -608,12 +1311,46 @@
           "name": "situation",
           "type": "any",
           "required": true
+        },
+        {
+          "name": "onComplete",
+          "type": "function"
         }
       ]
     },
     {
       "name": "SpeakingStudio",
       "file": "src/components/learning/speaking-studio",
+      "import_path": ""
+    },
+    {
+      "name": "CourseMediaBackdrop",
+      "file": "src/components/learning/video-visuals",
+      "import_path": ""
+    },
+    {
+      "name": "SkillVisualAid",
+      "file": "src/components/learning/video-visuals",
+      "import_path": ""
+    },
+    {
+      "name": "AnimatedClassroomCast",
+      "file": "src/components/learning/video-visuals",
+      "import_path": ""
+    },
+    {
+      "name": "AnimatedChronologicalTimeline",
+      "file": "src/components/learning/video-visuals",
+      "import_path": ""
+    },
+    {
+      "name": "MotionFocusBadges",
+      "file": "src/components/learning/video-visuals",
+      "import_path": ""
+    },
+    {
+      "name": "FloatingEmojiBurst",
+      "file": "src/components/learning/video-visuals",
       "import_path": ""
     },
     {
@@ -632,11 +1369,6 @@
       "import_path": ""
     },
     {
-      "name": "QuestionCard",
-      "file": "src/components/placement/question-card",
-      "import_path": ""
-    },
-    {
       "name": "ResultView",
       "file": "src/components/placement/result-view",
       "import_path": ""
@@ -645,6 +1377,39 @@
       "name": "WritingStep",
       "file": "src/components/placement/writing-step",
       "import_path": ""
+    },
+    {
+      "name": "ProgressDashboard",
+      "file": "src/components/progress/progress-dashboard",
+      "import_path": ""
+    },
+    {
+      "name": "ResourcesLibraryView",
+      "file": "src/components/resources/resources-library-view",
+      "import_path": ""
+    },
+    {
+      "name": "SelfLearningStudio",
+      "file": "src/components/self-learning/self-learning-studio",
+      "import_path": ""
+    },
+    {
+      "name": "Badge",
+      "file": "src/components/ui/badge",
+      "import_path": "",
+      "props": [
+        {
+          "name": "variant",
+          "type": "enum",
+          "values": [
+            "default",
+            "secondary",
+            "destructive",
+            "outline"
+          ],
+          "default": "default"
+        }
+      ]
     },
     {
       "name": "Button",
@@ -686,6 +1451,116 @@
           "default": "false"
         }
       ]
+    },
+    {
+      "name": "Card",
+      "file": "src/components/ui/card",
+      "import_path": ""
+    },
+    {
+      "name": "CardHeader",
+      "file": "src/components/ui/card",
+      "import_path": ""
+    },
+    {
+      "name": "CardFooter",
+      "file": "src/components/ui/card",
+      "import_path": ""
+    },
+    {
+      "name": "CardTitle",
+      "file": "src/components/ui/card",
+      "import_path": ""
+    },
+    {
+      "name": "CardDescription",
+      "file": "src/components/ui/card",
+      "import_path": ""
+    },
+    {
+      "name": "CardContent",
+      "file": "src/components/ui/card",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenu",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuTrigger",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuContent",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuItem",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuCheckboxItem",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuRadioItem",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuLabel",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuSeparator",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuShortcut",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuGroup",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuPortal",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuSub",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuSubContent",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuSubTrigger",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuRadioGroup",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "Input",
+      "file": "src/components/ui/input",
+      "import_path": ""
     },
     {
       "name": "Progress",
@@ -753,6 +1628,51 @@
     {
       "name": "SheetDescription",
       "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "Tabs",
+      "file": "src/components/ui/tabs",
+      "import_path": ""
+    },
+    {
+      "name": "TabsList",
+      "file": "src/components/ui/tabs",
+      "import_path": ""
+    },
+    {
+      "name": "TabsTrigger",
+      "file": "src/components/ui/tabs",
+      "import_path": ""
+    },
+    {
+      "name": "TabsContent",
+      "file": "src/components/ui/tabs",
+      "import_path": ""
+    },
+    {
+      "name": "Textarea",
+      "file": "src/components/ui/textarea",
+      "import_path": ""
+    },
+    {
+      "name": "CefrMasteryStudio",
+      "file": "src/components/vocab/cefr-mastery-studio",
+      "import_path": ""
+    },
+    {
+      "name": "IeltsVocabStudio",
+      "file": "src/components/vocab/ielts-vocab-studio",
+      "import_path": ""
+    },
+    {
+      "name": "SpeakingThroughWritingWorkshop",
+      "file": "src/components/workshops/speaking-through-writing",
+      "import_path": ""
+    },
+    {
+      "name": "WorkshopStudio",
+      "file": "src/components/workshops/workshop-studio",
       "import_path": ""
     },
     {
