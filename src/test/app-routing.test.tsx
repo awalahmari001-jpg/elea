@@ -37,6 +37,8 @@ const ALL_PLATFORM_ROUTES = [
   "/adults",
   "/ielts",
   "/mock-exams",
+  "/step",
+  "/grammar",
   "/courses",
   "/level-test",
   "/ielts-vocabulary",
@@ -58,6 +60,8 @@ const ALL_META_KEYS = [
   "adults",
   "ielts",
   "mockExams",
+  "step",
+  "grammar",
   "placement",
   "courses",
   "ieltsVocab",
@@ -107,6 +111,8 @@ describe("App routing & Phase 6 platform-wide QA", () => {
     ).toBeTruthy();
 
     const expectedHrefs = [
+      "/step",
+      "/grammar",
       "/mock-exams",
       "/speaking",
       "/ielts-vocabulary",

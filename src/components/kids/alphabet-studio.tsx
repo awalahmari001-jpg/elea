@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { CheckCircle2, Sparkles, Star, Volume2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { CheckCircle2, Music, Sparkles, Square, Star, Volume2 } from "lucide-react";
 
 import { useI18n } from "@/components/i18n-provider";
 import { Badge } from "@/components/ui/badge";
@@ -10,8 +10,16 @@ import {
   POSITIVE_PRAISE,
   type AlphabetEntry,
 } from "@/content/kids/alphabet-phonics-data";
+import { FULL_PHONICS_SONGS, LETTER_PHONICS_SONGS } from "@/content/kids/phonics-songs-data";
 import { playSpeech } from "@/hooks/use-speech";
-import { LETTER_PHONICS_AUDIO, playLetterName, playLetterSound } from "@/lib/kids-phonics-audio";
+import {
+  LETTER_PHONICS_AUDIO,
+  playLetterName,
+  playLetterSound,
+  playMusicalPhonicsSong,
+  playPhonicsSongVerse,
+  stopPhonicsSong,
+} from "@/lib/kids-phonics-audio";
 import type { KidsProgressState } from "@/lib/kids-storage";
 import { LetterTracingPad } from "./letter-tracing-pad";
 
@@ -37,9 +45,19 @@ export function AlphabetStudio({
   const [gameMode, setGameMode] = useState<AlphabetGameMode>("listen-find");
   const [roundIdx, setRoundIdx] = useState(0);
   const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
+  const [playingVerseLetter, setPlayingVerseLetter] = useState<string | null>(null);
+  const [activeVerseBeat, setActiveVerseBeat] = useState<number>(-1);
+  const [selectedSongId, setSelectedSongId] = useState<string>(FULL_PHONICS_SONGS[0]!.id);
+  const [playingSongId, setPlayingSongId] = useState<string | null>(null);
+  const [activeSongLine, setActiveSongLine] = useState<number>(-1);
+
+  useEffect(() => () => stopPhonicsSong(), []);
 
   const entry: AlphabetEntry =
     ALPHABET_ENTRIES.find((e) => e.letter === selectedLetter) ?? ALPHABET_ENTRIES[0]!;
+  const letterSong = LETTER_PHONICS_SONGS[entry.letter];
+  const activeFullSong =
+    FULL_PHONICS_SONGS.find((s) => s.id === selectedSongId) ?? FULL_PHONICS_SONGS[0]!;
 
   const isMastered = progress.masteredLetters.includes(entry.letter);
   const isTraced = progress.tracedLetters.includes(entry.letter);
@@ -290,6 +308,82 @@ export function AlphabetStudio({
               ))}
             </div>
           </div>
+
+          {/* Dedicated Musical Phonics Song for This Letter */}
+          {letterSong && (
+            <div className="rounded-2xl border-2 border-amber-400/50 bg-gradient-to-br from-amber-500/10 via-card to-pink-500/10 p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge className="gap-1 bg-amber-500 text-xs font-extrabold text-foreground">
+                      <Music className="size-3.5" aria-hidden />
+                      {locale === "ar" ? "أغنية صوت الحرف" : "Letter Phonics Song"}
+                    </Badge>
+                    <Badge variant="outline" className="font-mono text-xs" dir="ltr">
+                      {letterSong.pureSoundBadge}
+                    </Badge>
+                  </div>
+                  <h3 className="mt-1 text-base font-extrabold text-foreground">
+                    {letterSong.title[locale]}
+                  </h3>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={playingVerseLetter === entry.letter ? "destructive" : "hero"}
+                  className="rounded-full font-bold"
+                  onClick={() => {
+                    if (playingVerseLetter === entry.letter) {
+                      stopPhonicsSong();
+                      setPlayingVerseLetter(null);
+                      setActiveVerseBeat(-1);
+                      return;
+                    }
+                    setPlayingSongId(null);
+                    setActiveSongLine(-1);
+                    setPlayingVerseLetter(entry.letter);
+                    playPhonicsSongVerse(entry.letter, (beat) => {
+                      setActiveVerseBeat(beat);
+                      if (beat < 0) setPlayingVerseLetter(null);
+                    });
+                  }}
+                >
+                  {playingVerseLetter === entry.letter ? (
+                    <>
+                      <Square className="me-1.5 size-3.5 fill-current" aria-hidden />
+                      {locale === "ar" ? "إيقاف الأغنية" : "Stop Song"}
+                    </>
+                  ) : (
+                    <>
+                      <Music className="me-1.5 size-3.5" aria-hidden />
+                      {locale === "ar" ? "غنّي صوت الحرف 🎵" : "Sing Letter Song 🎵"}
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <div className="grid gap-1.5 sm:grid-cols-2" dir="ltr" lang="en">
+                {letterSong.lyricsEn.map((line, idx) => (
+                  <p
+                    key={idx}
+                    className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-colors ${
+                      playingVerseLetter === entry.letter && activeVerseBeat === idx
+                        ? "bg-amber-400/35 text-foreground ring-2 ring-amber-500"
+                        : "bg-card/85 text-foreground/90"
+                    }`}
+                  >
+                    🎵 {line}
+                  </p>
+                ))}
+              </div>
+              {locale === "ar" && (
+                <p className="text-xs font-semibold text-primary">{letterSong.lyricsAr}</p>
+              )}
+              <p className="rounded-xl bg-card/80 px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                🤸 {letterSong.actionMove[locale]}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Interactive Letter Tracing Pad */}
@@ -303,6 +397,120 @@ export function AlphabetStudio({
           />
         </div>
       </div>
+
+      {/* Educational Kids Phonics Songs Jukebox (4 Full Musical Songs) */}
+      <section className="space-y-4 rounded-3xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-card to-sky-500/10 p-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <Badge className="gap-1 bg-amber-500 text-xs font-extrabold text-foreground">
+              <Music className="size-3.5" aria-hidden />
+              {locale === "ar"
+                ? "أغاني الصوتيات التعليمية الدقيقة"
+                : "Authentic Educational Phonics Songs"}
+            </Badge>
+            <h3 className="mt-1.5 text-xl font-extrabold text-foreground">
+              {locale === "ar"
+                ? "غنّ وتعلّم النطق الصحيح للأصوات (بالألحان الموسيقية!)"
+                : "Sing & Master Pure Letter Sounds with Music!"}
+            </h3>
+          </div>
+          <Button
+            type="button"
+            size="lg"
+            variant={playingSongId === activeFullSong.id ? "destructive" : "hero"}
+            className="rounded-full font-bold"
+            onClick={() => {
+              if (playingSongId === activeFullSong.id) {
+                stopPhonicsSong();
+                setPlayingSongId(null);
+                setActiveSongLine(-1);
+                return;
+              }
+              setPlayingVerseLetter(null);
+              setActiveVerseBeat(-1);
+              setPlayingSongId(activeFullSong.id);
+              playMusicalPhonicsSong(activeFullSong.id, (lineIdx) => {
+                setActiveSongLine(lineIdx);
+                if (lineIdx < 0) setPlayingSongId(null);
+              });
+            }}
+          >
+            {playingSongId === activeFullSong.id ? (
+              <>
+                <Square className="me-1.5 size-4 fill-current" aria-hidden />
+                {locale === "ar" ? "إيقاف الأغنية" : "Stop Song"}
+              </>
+            ) : (
+              <>
+                <Music className="me-1.5 size-4" aria-hidden />
+                {locale === "ar" ? "تشغيل الأغنية 🎶" : "Play Phonics Song 🎶"}
+              </>
+            )}
+          </Button>
+        </div>
+
+        {/* 4 Song Selector Pills */}
+        <div className="flex flex-wrap gap-2" role="group">
+          {FULL_PHONICS_SONGS.map((song) => (
+            <Button
+              key={song.id}
+              type="button"
+              size="sm"
+              variant={selectedSongId === song.id ? "default" : "outline"}
+              className="rounded-full text-xs font-bold"
+              onClick={() => {
+                stopPhonicsSong();
+                setPlayingSongId(null);
+                setActiveSongLine(-1);
+                setSelectedSongId(song.id);
+              }}
+            >
+              <span className="me-1" aria-hidden>
+                {song.emoji}
+              </span>
+              {song.title[locale]}
+            </Button>
+          ))}
+        </div>
+
+        <p className="text-xs font-medium text-muted-foreground">
+          {activeFullSong.subtitle[locale]}
+        </p>
+
+        {/* Interactive Sing-Along Lines */}
+        <div className="grid max-h-72 gap-2 overflow-y-auto pe-1 sm:grid-cols-2 lg:grid-cols-3">
+          {activeFullSong.lines.map((line, idx) => {
+            const isCurrent = playingSongId === activeFullSong.id && activeSongLine === idx;
+            return (
+              <div
+                key={`${activeFullSong.id}-${idx}`}
+                className={`flex items-start gap-2.5 rounded-2xl border p-3 transition-all ${
+                  isCurrent
+                    ? "scale-[1.02] border-amber-500 bg-amber-400/25 shadow-sm"
+                    : "border-border bg-card/90"
+                }`}
+              >
+                <span className="text-2xl" aria-hidden>
+                  {line.emoji}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5" dir="ltr">
+                    <Badge variant="secondary" className="font-mono text-[11px] font-bold">
+                      {line.phoneme}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-xs font-extrabold text-foreground" dir="ltr" lang="en">
+                    {line.lyricEn}
+                  </p>
+                  {locale === "ar" && (
+                    <p className="mt-0.5 text-[11px] font-medium text-primary">{line.lyricAr}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {/* 4 Interactive Alphabet Mini-Games */}
       <section className="space-y-4 rounded-3xl border-2 border-primary/25 bg-card p-6 shadow-sm">

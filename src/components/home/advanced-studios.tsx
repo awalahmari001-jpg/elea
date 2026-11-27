@@ -4,8 +4,10 @@ import {
   BarChart3,
   BookMarked,
   BookOpenCheck,
+  BookText,
   Briefcase,
   ClipboardCheck,
+  FileCheck2,
   Layers,
   Mail,
   MessageCircle,
@@ -21,6 +23,20 @@ export function AdvancedStudios() {
   const s = t.advancedStudios;
 
   const cards = [
+    {
+      to: "/step" as const,
+      icon: FileCheck2,
+      badge: s.stepBadge,
+      title: s.stepTitle,
+      desc: s.stepDesc,
+    },
+    {
+      to: "/grammar" as const,
+      icon: BookText,
+      badge: s.grammarBadge,
+      title: s.grammarTitle,
+      desc: s.grammarDesc,
+    },
     {
       to: "/mock-exams" as const,
       icon: ClipboardCheck,

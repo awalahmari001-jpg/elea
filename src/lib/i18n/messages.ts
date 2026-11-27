@@ -64,6 +64,12 @@ const en = {
     mockExamsTitle: `Experimental IELTS & TOEFL iBT Mock Exams — ${SITE.name}`,
     mockExamsDescription:
       "Take full-length authentic IELTS Academic, IELTS General Training, and ETS TOEFL iBT experimental mock tests with real audio, timers, and official-style score reports.",
+    stepTitle: `تجميعات STEP · 560+ Authentic STEP Question Bank — ${SITE.name}`,
+    stepDescription:
+      "Practise over 560 authentic Qiyas STEP exam questions across Reading Comprehension, Structure/Grammar, Listening Comprehension, and Compositional Analysis with bilingual explanations and timed simulations.",
+    grammarTitle: `Complete English Grammar (قواعد اللغة الإنجليزية) — ${SITE.name}`,
+    grammarDescription:
+      "Comprehensive 12-module, 56-unit EFL/ESL English grammar curriculum from A1 to C2 covering parts of speech, all 12 verb tenses, modals, passive, conditionals, reported speech, clauses, and prepositions.",
   },
   nav: {
     skipToContent: "Skip to content",
@@ -81,6 +87,8 @@ const en = {
     speakingStudio: "Speaking & Pronunciation",
     dailySpeaking: "Daily Speaking",
     mockExams: "IELTS & TOEFL Mock Tests",
+    stepBank: "STEP Bank",
+    englishGrammar: "English Grammar",
     kids: "Kids",
     adults: "Adults",
     ielts: "IELTS",
@@ -159,8 +167,16 @@ const en = {
     eyebrow: "Advanced Learning & Career Development",
     title: "Interactive Studios Built for Real Mastery",
     subtitle:
-      "Go beyond static lessons with 780+ high-frequency IELTS words, 70+ idioms per topic, authentic IELTS & TOEFL mock tests, 75 daily speaking situations, and 18-sector Business English.",
+      "Go beyond static lessons with 560+ STEP questions, a 56-unit Complete English Grammar reference, 780+ high-frequency IELTS words, authentic IELTS & TOEFL mock tests, and live AI speaking.",
     openCta: "Open Studio",
+    stepBadge: "563 Questions · All 4 Sections",
+    stepTitle: "تجميعات STEP · STEP Question Bank",
+    stepDesc:
+      "Master Qiyas STEP with 563 authentic questions across Reading, Structure/Grammar, Listening audio, and Compositional Analysis—complete with bilingual explanations and timed mocks.",
+    grammarBadge: "12 Modules · 56 Units · A1–C2",
+    grammarTitle: "Complete English Grammar",
+    grammarDesc:
+      "Exhaustive sequential EFL/ESL grammar curriculum covering parts of speech, all 12 verb tenses, modals, passive voice, conditionals, reported speech, clauses, prepositions, and quick checks.",
     mockExamsBadge: "Authentic IELTS & TOEFL iBT",
     mockExamsTitle: "Experimental IELTS & TOEFL Mock Center",
     mockExamsDesc:
@@ -1781,6 +1797,12 @@ const ar: Messages = {
     mockExamsTitle: `اختبارات IELTS وTOEFL iBT التجريبية المحاكية للاختبار الحقيقي — ${SITE.name}`,
     mockExamsDescription:
       "خُض اختبارات IELTS الأكاديمي والعام وTOEFL iBT التجريبية الكاملة بجميع المهارات الأربع مع صوتيات وتوقيت رسمي وتقرير درجات شامل.",
+    stepTitle: `تجميعات STEP — أكثر من ٥٦٠ سؤالًا محلولًا ومشروحًا — ${SITE.name}`,
+    stepDescription:
+      "بنك شامل لأكثر من ٥٦٠ سؤالًا أصيلًا لاختبار كفايات اللغة الإنجليزية STEP في فهم المقروء والتراكيب النحوية والاستماع والتحليل الكتابي مع الشرح الثنائي والمحاكاة المؤقّتة.",
+    grammarTitle: `قواعد اللغة الإنجليزية — المنهج الشامل من A1 إلى C2 — ${SITE.name}`,
+    grammarDescription:
+      "منهج متكامل من ١٢ محورًا و٥٦ وحدة متسلسلة يغطي جميع قواعد اللغة الإنجليزية للناطقين بالعربية: أقسام الكلام، الأزمنة الـ١٢، الأفعال الناقصة، المبني للمجهول، الشرط، الكلام المنقول، والجمل الفرعية.",
   },
   nav: {
     skipToContent: "انتقل إلى المحتوى",
@@ -1798,6 +1820,8 @@ const ar: Messages = {
     speakingStudio: "استوديو المحادثة والنطق",
     dailySpeaking: "المحادثة اليومية",
     mockExams: "اختبارات IELTS وTOEFL التجريبية",
+    stepBank: "تجميعات STEP",
+    englishGrammar: "قواعد اللغة الإنجليزية",
     kids: "الأطفال",
     adults: "الكبار",
     ielts: "آيلتس",
@@ -1875,8 +1899,16 @@ const ar: Messages = {
     eyebrow: "التعلّم المتقدّم والتطوير المهني",
     title: "استوديوهات تفاعلية صُمّمت للإتقان الحقيقي",
     subtitle:
-      "تجاوز الدروس التقليدية مع أكثر من ٧٨٠ كلمة آيلتس عالية التكرار، و٧٠+ تعبيرًا اصطلاحيًا لكل موضوع، واختبارات IELTS وTOEFL تجريبية محاكية للاختبار الحقيقي، و٧٥ موقف محادثة يومي.",
+      "تجاوز الدروس التقليدية مع تجميعات STEP (٥٦٣ سؤالًا)، ومرجع قواعد اللغة الإنجليزية الكامل (٥٦ وحدة)، واختبارات IELTS وTOEFL التجريبية، والمحادثة اليومية الحية.",
     openCta: "افتح الاستوديو",
+    stepBadge: "٥٦٣ سؤالًا · جميع أقسام STEP",
+    stepTitle: "تجميعات STEP",
+    stepDesc:
+      "أتقن اختبار قياس STEP عبر ٥٦٣ سؤالًا أصيلًا ومشروحًا في فهم المقروء والتراكيب النحوية والاستماع والتحليل الكتابي مع محاكي اختبار مؤقّت.",
+    grammarBadge: "١٢ محورًا · ٥٦ وحدة · A1–C2",
+    grammarTitle: "قواعد اللغة الإنجليزية",
+    grammarDesc:
+      "منهج شامل ومتسلسل يغطي كل قواعد الإنجليزية للناطقين بالعربية: أقسام الكلام، جميع الأزمنة الـ١٢، الأفعال الناقصة، المبني للمجهول، الشرط، الكلام المنقول، والجمل الفرعية.",
     mockExamsBadge: "محاكاة IELTS وTOEFL iBT الحقيقية",
     mockExamsTitle: "مركز اختبارات IELTS وTOEFL التجريبية",
     mockExamsDesc:

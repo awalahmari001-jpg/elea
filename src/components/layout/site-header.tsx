@@ -4,10 +4,12 @@ import {
   BarChart3,
   BookMarked,
   BookOpen,
+  BookText,
   Briefcase,
   CalendarDays,
   ChevronDown,
   ClipboardCheck,
+  FileCheck2,
   GraduationCap,
   LayoutDashboard,
   Layers,
@@ -149,6 +151,26 @@ export function SiteHeader() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <Link
+            to="/step"
+            activeOptions={{ exact: true }}
+            className={linkClass}
+            activeProps={{ className: activeClass }}
+          >
+            <FileCheck2 className="size-3.5 text-primary" aria-hidden />
+            {t.nav.stepBank}
+          </Link>
+
+          <Link
+            to="/grammar"
+            activeOptions={{ exact: true }}
+            className={linkClass}
+            activeProps={{ className: activeClass }}
+          >
+            <BookText className="size-3.5 text-primary" aria-hidden />
+            {t.nav.englishGrammar}
+          </Link>
 
           <Link
             to="/business"
@@ -358,6 +380,8 @@ export function SiteHeader() {
                     {t.nav.mobileGroupTracks}
                   </p>
                   {[
+                    { to: "/step" as const, label: t.nav.stepBank, Icon: FileCheck2 },
+                    { to: "/grammar" as const, label: t.nav.englishGrammar, Icon: BookText },
                     { to: "/ielts" as const, label: t.nav.ielts, Icon: GraduationCap },
                     { to: "/mock-exams" as const, label: t.nav.mockExams, Icon: ClipboardCheck },
                     { to: "/ielts-vocabulary" as const, label: t.nav.ieltsVocab, Icon: BookOpen },

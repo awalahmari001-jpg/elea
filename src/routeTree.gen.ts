@@ -17,6 +17,7 @@ import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as CefrMasteryRouteImport } from './routes/cefr-mastery'
 import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as GrammarRouteImport } from './routes/grammar'
 import { Route as IeltsRouteImport } from './routes/ielts'
 import { Route as IeltsVocabularyRouteImport } from './routes/ielts-vocabulary'
 import { Route as KidsRouteImport } from './routes/kids'
@@ -27,6 +28,7 @@ import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as SelfLearningRouteImport } from './routes/self-learning'
 import { Route as SpeakingRouteImport } from './routes/speaking'
+import { Route as StepRouteImport } from './routes/step'
 import { Route as WorkshopsRouteImport } from './routes/workshops'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesLevelRouteImport } from './routes/courses.$level'
@@ -70,6 +72,11 @@ const CertificatesRoute = CertificatesRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GrammarRoute = GrammarRouteImport.update({
+  id: '/grammar',
+  path: '/grammar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IeltsRoute = IeltsRouteImport.update({
@@ -122,6 +129,11 @@ const SpeakingRoute = SpeakingRouteImport.update({
   path: '/speaking',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StepRoute = StepRouteImport.update({
+  id: '/step',
+  path: '/step',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkshopsRoute = WorkshopsRouteImport.update({
   id: '/workshops',
   path: '/workshops',
@@ -152,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/cefr-mastery': typeof CefrMasteryRoute
   '/certificates': typeof CertificatesRoute
   '/dashboard': typeof DashboardRoute
+  '/grammar': typeof GrammarRoute
   '/ielts': typeof IeltsRoute
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
@@ -162,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/resources': typeof ResourcesRoute
   '/self-learning': typeof SelfLearningRoute
   '/speaking': typeof SpeakingRoute
+  '/step': typeof StepRoute
   '/workshops': typeof WorkshopsRoute
   '/courses/$level': typeof CoursesLevelRoute
   '/lessons/$lesson': typeof LessonsLessonRoute
@@ -176,6 +190,7 @@ export interface FileRoutesByTo {
   '/cefr-mastery': typeof CefrMasteryRoute
   '/certificates': typeof CertificatesRoute
   '/dashboard': typeof DashboardRoute
+  '/grammar': typeof GrammarRoute
   '/ielts': typeof IeltsRoute
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
@@ -186,6 +201,7 @@ export interface FileRoutesByTo {
   '/resources': typeof ResourcesRoute
   '/self-learning': typeof SelfLearningRoute
   '/speaking': typeof SpeakingRoute
+  '/step': typeof StepRoute
   '/workshops': typeof WorkshopsRoute
   '/courses/$level': typeof CoursesLevelRoute
   '/lessons/$lesson': typeof LessonsLessonRoute
@@ -201,6 +217,7 @@ export interface FileRoutesById {
   '/cefr-mastery': typeof CefrMasteryRoute
   '/certificates': typeof CertificatesRoute
   '/dashboard': typeof DashboardRoute
+  '/grammar': typeof GrammarRoute
   '/ielts': typeof IeltsRoute
   '/ielts-vocabulary': typeof IeltsVocabularyRoute
   '/kids': typeof KidsRoute
@@ -211,6 +228,7 @@ export interface FileRoutesById {
   '/resources': typeof ResourcesRoute
   '/self-learning': typeof SelfLearningRoute
   '/speaking': typeof SpeakingRoute
+  '/step': typeof StepRoute
   '/workshops': typeof WorkshopsRoute
   '/courses/$level': typeof CoursesLevelRoute
   '/lessons/$lesson': typeof LessonsLessonRoute
@@ -227,6 +245,7 @@ export interface FileRouteTypes {
     | '/cefr-mastery'
     | '/certificates'
     | '/dashboard'
+    | '/grammar'
     | '/ielts'
     | '/ielts-vocabulary'
     | '/kids'
@@ -237,6 +256,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/self-learning'
     | '/speaking'
+    | '/step'
     | '/workshops'
     | '/courses/$level'
     | '/lessons/$lesson'
@@ -251,6 +271,7 @@ export interface FileRouteTypes {
     | '/cefr-mastery'
     | '/certificates'
     | '/dashboard'
+    | '/grammar'
     | '/ielts'
     | '/ielts-vocabulary'
     | '/kids'
@@ -261,6 +282,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/self-learning'
     | '/speaking'
+    | '/step'
     | '/workshops'
     | '/courses/$level'
     | '/lessons/$lesson'
@@ -275,6 +297,7 @@ export interface FileRouteTypes {
     | '/cefr-mastery'
     | '/certificates'
     | '/dashboard'
+    | '/grammar'
     | '/ielts'
     | '/ielts-vocabulary'
     | '/kids'
@@ -285,6 +308,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/self-learning'
     | '/speaking'
+    | '/step'
     | '/workshops'
     | '/courses/$level'
     | '/lessons/$lesson'
@@ -300,6 +324,7 @@ export interface RootRouteChildren {
   CefrMasteryRoute: typeof CefrMasteryRoute
   CertificatesRoute: typeof CertificatesRoute
   DashboardRoute: typeof DashboardRoute
+  GrammarRoute: typeof GrammarRoute
   IeltsRoute: typeof IeltsRoute
   IeltsVocabularyRoute: typeof IeltsVocabularyRoute
   KidsRoute: typeof KidsRoute
@@ -310,6 +335,7 @@ export interface RootRouteChildren {
   ResourcesRoute: typeof ResourcesRoute
   SelfLearningRoute: typeof SelfLearningRoute
   SpeakingRoute: typeof SpeakingRoute
+  StepRoute: typeof StepRoute
   WorkshopsRoute: typeof WorkshopsRoute
   CoursesLevelRoute: typeof CoursesLevelRoute
   LessonsLessonRoute: typeof LessonsLessonRoute
@@ -372,6 +398,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/grammar': {
+      id: '/grammar'
+      path: '/grammar'
+      fullPath: '/grammar'
+      preLoaderRoute: typeof GrammarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ielts': {
@@ -444,6 +477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpeakingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/step': {
+      id: '/step'
+      path: '/step'
+      fullPath: '/step'
+      preLoaderRoute: typeof StepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workshops': {
       id: '/workshops'
       path: '/workshops'
@@ -484,6 +524,7 @@ const rootRouteChildren: RootRouteChildren = {
   CefrMasteryRoute: CefrMasteryRoute,
   CertificatesRoute: CertificatesRoute,
   DashboardRoute: DashboardRoute,
+  GrammarRoute: GrammarRoute,
   IeltsRoute: IeltsRoute,
   IeltsVocabularyRoute: IeltsVocabularyRoute,
   KidsRoute: KidsRoute,
@@ -494,6 +535,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResourcesRoute: ResourcesRoute,
   SelfLearningRoute: SelfLearningRoute,
   SpeakingRoute: SpeakingRoute,
+  StepRoute: StepRoute,
   WorkshopsRoute: WorkshopsRoute,
   CoursesLevelRoute: CoursesLevelRoute,
   LessonsLessonRoute: LessonsLessonRoute,

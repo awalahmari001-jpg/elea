@@ -75,6 +75,28 @@ export function SiteFooter() {
             </li>
             <li>
               <Link
+                to="/step"
+                className="text-sm font-semibold text-accent transition-colors hover:text-inverse-foreground"
+              >
+                {t.nav.stepBank}{" "}
+                <span className="text-inverse-muted" dir="ltr">
+                  · 563 Questions
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/grammar"
+                className="text-sm font-semibold text-accent transition-colors hover:text-inverse-foreground"
+              >
+                {t.nav.englishGrammar}{" "}
+                <span className="text-inverse-muted" dir="ltr">
+                  · 56 Units (A1–C2)
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/mock-exams"
                 className="text-sm font-semibold text-accent transition-colors hover:text-inverse-foreground"
               >
