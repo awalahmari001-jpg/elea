@@ -15,7 +15,6 @@ import {
   RotateCcw,
   Sparkles,
   Square,
-  Subtitles,
   Table2,
   Target,
   Volume2,
@@ -43,7 +42,6 @@ import {
 } from "./video-visuals";
 import { HighlightedText } from "./highlighted-text";
 
-type SubtitleMode = "both" | "en" | "ar" | "off";
 const SPEEDS = [0.85, 0.96, 1.12] as const;
 
 const REACTION_EMOJIS = [
@@ -98,7 +96,6 @@ export function RuleVideoPlayer({ video, keywords }: RuleVideoPlayerProps) {
   const [elapsed, setElapsed] = useState(0);
   const [muted, setMuted] = useState(false);
   const [speedIndex, setSpeedIndex] = useState(1);
-  const [subtitles, setSubtitles] = useState<SubtitleMode>("both");
   const [revealedChallenges, setRevealedChallenges] = useState<Record<string, boolean>>({});
   const [pickedChoices, setPickedChoices] = useState<Record<string, string>>({});
   const [shownHints, setShownHints] = useState<Record<string, boolean>>({});
@@ -374,11 +371,6 @@ export function RuleVideoPlayer({ video, keywords }: RuleVideoPlayerProps) {
     setElapsed(value);
   }
 
-  function cycleSubtitles() {
-    const order: SubtitleMode[] = ["both", "en", "ar", "off"];
-    setSubtitles((prev) => order[(order.indexOf(prev) + 1) % order.length] ?? "both");
-  }
-
   function toggleFullscreen() {
     const el = stageRef.current;
     if (!el || typeof document === "undefined") return;
@@ -388,15 +380,6 @@ export function RuleVideoPlayer({ video, keywords }: RuleVideoPlayerProps) {
       void el.requestFullscreen?.();
     }
   }
-
-  const subtitleLabel =
-    subtitles === "both"
-      ? t.learning.videoSubBoth
-      : subtitles === "en"
-        ? t.learning.videoSubEn
-        : subtitles === "ar"
-          ? t.learning.videoSubAr
-          : t.learning.videoSubOff;
 
   return (
     <section className="border-t border-border py-8" aria-label={video.title[locale]}>
@@ -960,7 +943,7 @@ export function RuleVideoPlayer({ video, keywords }: RuleVideoPlayerProps) {
             )}
           </div>
 
-          {/* Animated Classroom Cast: Coach Layla (Female), Coach Omar (Male) + Animated Learners Sara & Tariq */}
+          {/* Visual-First Animated Classroom Cast (audio waveform + concept keywords, zero spoken transcripts) */}
           <AnimatedClassroomCast
             dialogue={scene.dialogue}
             learnerReaction={scene.learnerReaction}
@@ -968,12 +951,17 @@ export function RuleVideoPlayer({ video, keywords }: RuleVideoPlayerProps) {
             playing={playing}
             muted={muted}
             celebrating={celebrating || scene.layout === "summary"}
-            locale={locale}
             laylaName={t.learning.teacherLayla}
             omarName={t.learning.teacherOmar}
             saraName={t.learning.learnerSara}
             tariqName={t.learning.learnerTariq}
             speakingLabel={t.learning.videoSpeakingNow}
+            visualCueLabel={t.learning.videoVisualFirstCue}
+            focusKeywords={
+              keywords && keywords.length > 0
+                ? keywords.slice(0, 5)
+                : scene.visualPoints.slice(0, 3)
+            }
             onSelectLine={selectDialogueLine}
           />
 
@@ -994,26 +982,6 @@ export function RuleVideoPlayer({ video, keywords }: RuleVideoPlayerProps) {
               ))}
             </div>
           </div>
-
-          {/* Optional Bilingual Subtitle Strip */}
-          {subtitles !== "off" && (
-            <div className="relative z-10 mt-2 rounded-lg border border-white/10 bg-black/55 px-3.5 py-2 text-center backdrop-blur-md">
-              {(subtitles === "both" || subtitles === "en") && (
-                <p className="text-xs leading-relaxed text-slate-200" lang="en" dir="ltr">
-                  <HighlightedText
-                    text={scene.dialogue[activeLineIndex]?.textEn ?? scene.narrationEn}
-                    surface="dark"
-                    {...kwProps}
-                  />
-                </p>
-              )}
-              {(subtitles === "both" || subtitles === "ar") && (
-                <p className="mt-0.5 text-xs font-medium text-cyan-200" lang="ar" dir="rtl">
-                  {scene.dialogue[activeLineIndex]?.textAr ?? scene.subtitleAr}
-                </p>
-              )}
-            </div>
-          )}
 
           {/* Center Play Overlay when paused at 0:00 */}
           {!playing && elapsed === 0 && (
@@ -1120,17 +1088,6 @@ export function RuleVideoPlayer({ video, keywords }: RuleVideoPlayerProps) {
                 type="button"
                 size="sm"
                 variant="ghost"
-                className="text-xs font-semibold text-slate-200 hover:bg-white/10 hover:text-white"
-                onClick={cycleSubtitles}
-                aria-label={t.learning.videoSubtitles}
-              >
-                <Subtitles className="size-4" aria-hidden />
-                <span>{subtitleLabel}</span>
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
                 className="text-slate-200 hover:bg-white/10 hover:text-white"
                 onClick={toggleFullscreen}
                 aria-label={t.learning.videoFullscreen}
@@ -1210,16 +1167,12 @@ export function RuleVideoPlayer({ video, keywords }: RuleVideoPlayerProps) {
               <tbody className="divide-y divide-border">
                 {video.scenes.map((sc, idx) => {
                   const isCurrent = idx === sceneIndex;
-                  const studentLabel =
-                    sc.learnerReaction.student === "sara"
-                      ? t.learning.learnerSara
-                      : t.learning.learnerTariq;
                   return (
                     <tr
                       key={sc.id}
                       className={isCurrent ? "bg-primary/5" : "bg-card hover:bg-muted/30"}
                     >
-                      {/* LEFT COLUMN: Visuals, Emojis, Motion Graphics & Timeline */}
+                      {/* LEFT COLUMN: Visual Diagrams, Motion Cues & Timeline */}
                       <td className="px-4 py-4 align-top">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <button
@@ -1234,7 +1187,7 @@ export function RuleVideoPlayer({ video, keywords }: RuleVideoPlayerProps) {
                             {formatClock(sc.startSeconds + sc.durationSeconds)}
                           </button>
                           <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-bold text-secondary-foreground">
-                            {sc.chapterLabel[locale]}
+                            {sc.sceneEmoji} {sc.chapterLabel[locale]}
                           </span>
                           {sc.roadmapStep && (
                             <span className="rounded-full bg-success/15 px-2.5 py-0.5 text-xs font-bold text-success">
@@ -1257,45 +1210,49 @@ export function RuleVideoPlayer({ video, keywords }: RuleVideoPlayerProps) {
                         )}
                       </td>
 
-                      {/* RIGHT COLUMN: Interactive Teacher & Learner Dialogue */}
+                      {/* RIGHT COLUMN: Visual-First Core Concepts, Key Formula & Illustrative Examples (NO spoken transcripts) */}
                       <td className="px-4 py-4 align-top">
                         <div className="space-y-2">
-                          {sc.dialogue.map((line, lIdx) => (
-                            <div key={lIdx} className="rounded-lg bg-muted/45 px-3 py-2">
-                              <span
-                                className={`text-xs font-extrabold ${
-                                  line.speaker === "layla" ? "text-primary" : "text-success"
-                                }`}
-                              >
-                                {line.emoji}{" "}
-                                {line.speaker === "layla"
-                                  ? t.learning.teacherLayla
-                                  : t.learning.teacherOmar}
-                                :{" "}
-                              </span>
-                              <span className="text-sm text-foreground" lang="en" dir="ltr">
-                                {line.textEn}
-                              </span>
-                              {locale === "ar" && (
-                                <p
-                                  className="mt-1 text-xs text-muted-foreground"
-                                  lang="ar"
-                                  dir="rtl"
+                          <p className="text-sm font-bold text-foreground">{sc.headline[locale]}</p>
+
+                          {sc.highlight?.formula && (
+                            <div
+                              className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-1.5 font-mono text-xs font-extrabold text-primary"
+                              dir="ltr"
+                            >
+                              {sc.highlight.formula}
+                            </div>
+                          )}
+
+                          {sc.visualPoints.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5" lang="en" dir="ltr">
+                              {sc.visualPoints.map((pt, pIdx) => (
+                                <span
+                                  key={pIdx}
+                                  className="inline-flex items-center rounded-lg border border-border bg-muted/55 px-2.5 py-1 text-xs font-semibold text-foreground"
                                 >
-                                  {line.textAr}
-                                </p>
+                                  <HighlightedText text={pt} {...kwProps} />
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {(sc.highlight?.wrong || sc.highlight?.right) && (
+                            <div className="grid gap-1.5 sm:grid-cols-2" lang="en" dir="ltr">
+                              {sc.highlight.wrong && (
+                                <div className="rounded-lg border border-rose-500/30 bg-rose-500/5 px-2.5 py-1.5 text-xs font-medium text-rose-700 line-through dark:text-rose-300">
+                                  ✗ {sc.highlight.wrong}
+                                </div>
+                              )}
+                              {sc.highlight.right && (
+                                <div className="rounded-lg border border-emerald-500/35 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                                  ✓ {sc.highlight.right}
+                                </div>
                               )}
                             </div>
-                          ))}
-                          <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-xs">
-                            <span className="font-extrabold text-amber-700 dark:text-amber-300">
-                              {sc.learnerReaction.emoji} {studentLabel}:{" "}
-                            </span>
-                            <span className="text-foreground">
-                              {sc.learnerReaction.bubble[locale]}
-                            </span>
-                          </div>
+                          )}
                         </div>
+
                         {sc.pausePredict && (
                           <div className="mt-2.5 rounded-lg border border-amber-500/35 bg-amber-500/10 px-3 py-2 text-xs">
                             <span className="font-bold text-amber-800 dark:text-amber-200">

@@ -5,6 +5,7 @@ import {
   History,
   Mic,
   MicOff,
+  PenLine,
   Play,
   Presentation,
   Send,
@@ -37,17 +38,24 @@ import { format } from "@/lib/i18n/messages";
 import { learnerStorage } from "@/lib/learner-storage";
 import { evaluateWorkshopSession, workshopReplyTurn } from "@/lib/workshop-ai.functions";
 import { evaluateWorkshopLocal, generateWorkshopReplyLocal } from "@/lib/workshop-fallback";
+import { SpeakingThroughWritingWorkshop } from "./speaking-through-writing";
 
-type StudioView = "setup" | "live" | "history";
+type StudioView = "setup" | "live" | "history" | "speaking-through-writing";
 const LEVELS: WorkshopCefrLevel[] = ["A2", "B1", "B2", "C1", "C2"];
 
-export function WorkshopStudio({ initialScenarioId }: { initialScenarioId?: string }) {
+export function WorkshopStudio({
+  initialScenarioId,
+  initialTab,
+}: {
+  initialScenarioId?: string;
+  initialTab?: StudioView;
+}) {
   const { t, locale } = useI18n();
   const initialScenario =
     (initialScenarioId ? getWorkshopScenario(initialScenarioId) : undefined) ??
     WORKSHOP_SCENARIOS[0]!;
 
-  const [view, setView] = useState<StudioView>("setup");
+  const [view, setView] = useState<StudioView>(initialTab ?? "setup");
   const [categoryFilter, setCategoryFilter] = useState<"all" | "core" | "industry">("all");
   const [skillFilter, setSkillFilter] = useState<
     "all" | "negotiation" | "leadership" | "client" | "hr" | "crisis"
@@ -320,6 +328,20 @@ export function WorkshopStudio({ initialScenarioId }: { initialScenarioId?: stri
             </Button>
             <Button
               role="tab"
+              aria-selected={view === "speaking-through-writing"}
+              variant={view === "speaking-through-writing" ? "accent" : "outline"}
+              className={
+                view === "speaking-through-writing"
+                  ? "rounded-full"
+                  : "rounded-full border-inverse-foreground/25 bg-transparent text-inverse-foreground hover:bg-inverse-foreground/10"
+              }
+              onClick={() => setView("speaking-through-writing")}
+            >
+              <PenLine className="size-4" aria-hidden />
+              {t.speakingThroughWriting.tabLabel}
+            </Button>
+            <Button
+              role="tab"
               aria-selected={view === "history"}
               variant={view === "history" ? "accent" : "outline"}
               className={
@@ -337,6 +359,9 @@ export function WorkshopStudio({ initialScenarioId }: { initialScenarioId?: stri
       </header>
 
       <div className="container-page mt-8">
+        {/* SPEAKING THROUGH WRITING WORKSHOP MODULE */}
+        {view === "speaking-through-writing" && <SpeakingThroughWritingWorkshop />}
+
         {/* VIEW 1: SCENARIO BROWSER & ROLE/DIFFICULTY SETUP */}
         {view === "setup" && (
           <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr]">

@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Lock,
   MessageCircle,
+  PenLine,
   Plane,
   Search,
   Sparkles,
@@ -105,6 +106,17 @@ export function SpeakingStudio() {
               >
                 <Plane className="me-1.5 size-3.5 text-primary" aria-hidden />
                 {t.learning.airportSpotlightBtn}
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                variant="secondary"
+                className="rounded-full text-xs font-bold"
+              >
+                <Link to="/workshops" search={{ tab: "speaking-through-writing" }}>
+                  <PenLine className="me-1.5 size-3.5 text-primary" aria-hidden />
+                  {t.speakingThroughWriting.openFromSpeakingCta}
+                </Link>
               </Button>
             </div>
           </div>

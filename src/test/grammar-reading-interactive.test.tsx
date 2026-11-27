@@ -96,7 +96,11 @@ describe("question-engine and interactive grammar/reading UI", () => {
     expect(screen.getAllByText(/Coach Omar/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Sara|Tariq/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Visuals & On-Screen Actions/i)).toBeInTheDocument();
-    expect(screen.getByText(/Spoken Narration/i)).toBeInTheDocument();
+    expect(screen.getByText(/Core Concepts & Examples/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Subtitles/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(lesson.explainerVideo!.scenes[0]!.narrationEn),
+    ).not.toBeInTheDocument();
     expect(screen.getAllByText(/Step 1 of 3 complete/i).length).toBeGreaterThan(0);
 
     // Tap an interactive Emoji Reaction button and verify live XP badge increments
@@ -135,7 +139,7 @@ describe("question-engine and interactive grammar/reading UI", () => {
 
     // Jump to 15-Second Summary & Takeaway Task
     fireEvent.click(screen.getAllByRole("button", { name: /15s Summary & Task/i })[0]!);
-    expect(screen.getByText(/15-Second Victory Recap & Task/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/15-Second Victory Recap & Task/i).length).toBeGreaterThan(0);
   });
 
   it("renders DetailedRuleGuideView with explicit rule breakdown cards, Arabic-to-English bridge, Male/Female conversation, formulas, mistakes, and memory tip", () => {

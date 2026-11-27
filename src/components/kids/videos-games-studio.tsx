@@ -69,7 +69,6 @@ export function VideosGamesStudio({
   const [selectedVideoId, setSelectedVideoId] = useState<string>(KIDS_ANIMATED_VIDEOS[0]!.id);
   const [stageIdx, setStageIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showArabicCaptions, setShowArabicCaptions] = useState(true);
   const [videoPracticeChoice, setVideoPracticeChoice] = useState<number | null>(null);
 
   // Kids Learning Games Arcade state
@@ -326,25 +325,13 @@ export function VideosGamesStudio({
                   <Badge variant="outline" className="bg-card/85 text-xs font-bold" dir="ltr">
                     ⏱ {activeVideo.durationLabel}
                   </Badge>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="rounded-full bg-card/85 text-xs font-bold"
-                    onClick={() => setShowArabicCaptions((v) => !v)}
-                  >
-                    {showArabicCaptions
-                      ? isAr
-                        ? "إخفاء الترجمة"
-                        : "Hide AR Helper"
-                      : isAr
-                        ? "إظهار الترجمة"
-                        : "Show AR Helper"}
-                  </Button>
+                  <Badge className="bg-primary/90 text-xs font-bold text-primary-foreground">
+                    🎧 {isAr ? "استمع وشاهد الصور" : "Listen & Watch Visuals"}
+                  </Badge>
                 </div>
               </div>
 
-              {/* Animated Character + Visual Props Stage */}
+              {/* Visual-First Animated Character + Visual Props Stage (zero spoken transcript) */}
               <div className="my-6 flex flex-col items-center gap-5 text-center">
                 <div className="flex flex-wrap items-center justify-center gap-5">
                   <div
@@ -362,7 +349,9 @@ export function VideosGamesStudio({
                     {currentStage.sceneEmojis.map((em, idx) => (
                       <span
                         key={`${activeVideo.id}-${stageIdx}-${idx}`}
-                        className="rounded-2xl bg-card/85 px-4 py-3 text-4xl shadow-xs transition-transform hover:scale-110"
+                        className={`rounded-2xl bg-card/90 px-5 py-3.5 text-5xl shadow-sm transition-transform hover:scale-110 ${
+                          isPlaying ? "animate-pulse" : ""
+                        }`}
                         aria-hidden
                       >
                         {em}
@@ -371,16 +360,30 @@ export function VideosGamesStudio({
                   </div>
                 </div>
 
-                {/* Speech Bubble Caption */}
-                <div className="max-w-2xl space-y-1.5 rounded-3xl border-2 border-foreground/15 bg-card/95 px-6 py-4 shadow-sm">
-                  <p className="text-base font-extrabold text-foreground md:text-lg" dir="ltr">
-                    “{currentStage.englishCaption}”
-                  </p>
-                  {showArabicCaptions && (
-                    <p className="text-xs font-semibold text-muted-foreground md:text-sm">
-                      {currentStage.arabicHelper}
+                {/* Visual-First Core Concept Card (no narrator transcription) */}
+                <div className="flex flex-wrap items-center justify-center gap-3 rounded-3xl border-2 border-foreground/15 bg-card/90 px-6 py-3.5 shadow-sm">
+                  <div className="flex items-end gap-1" aria-hidden="true">
+                    {[10, 18, 14, 22, 16, 20].map((barH, idx) => (
+                      <span
+                        key={idx}
+                        style={{
+                          height: isPlaying ? `${barH}px` : "6px",
+                          animationDelay: `${idx * 80}ms`,
+                        }}
+                        className={`w-1.5 rounded-full transition-all ${
+                          isPlaying ? "animate-pulse bg-primary" : "bg-muted-foreground/40"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <div className="text-start">
+                    <p className="text-xs font-extrabold uppercase tracking-wide text-primary">
+                      {activeVideo.emoji} {activeVideo.title[locale]}
                     </p>
-                  )}
+                    <p className="text-sm font-bold text-foreground">
+                      {activeVideo.objective[locale]}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Stage 5 Interactive In-Video Practice Check */}

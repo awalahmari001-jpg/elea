@@ -17,7 +17,6 @@ import type {
   TeacherSpeaker,
   TimelineNode,
 } from "@/content/lesson-types";
-import type { Locale } from "@/lib/i18n/config";
 import heroLearning from "@/assets/hero-learning.webp";
 import pathIelts from "@/assets/path-ielts.webp";
 import pathKids from "@/assets/path-kids.webp";
@@ -499,12 +498,13 @@ export function AnimatedClassroomCast({
   playing,
   muted,
   celebrating,
-  locale,
   laylaName,
   omarName,
   saraName,
   tariqName,
   speakingLabel,
+  visualCueLabel,
+  focusKeywords = [],
   onSelectLine,
 }: {
   dialogue: TeacherLine[];
@@ -513,12 +513,13 @@ export function AnimatedClassroomCast({
   playing: boolean;
   muted: boolean;
   celebrating: boolean;
-  locale: Locale;
   laylaName: string;
   omarName: string;
   saraName: string;
   tariqName: string;
   speakingLabel: string;
+  visualCueLabel: string;
+  focusKeywords?: string[];
   onSelectLine: (idx: number) => void;
 }) {
   const currentLine = dialogue[activeLineIndex] ?? dialogue[0];
@@ -530,10 +531,11 @@ export function AnimatedClassroomCast({
   const laylaIdx = dialogue.findIndex((d) => d.speaker === "layla");
   const omarIdx = dialogue.findIndex((d) => d.speaker === "omar");
   const learnerName = learnerReaction.student === "sara" ? saraName : tariqName;
+  const isAudioActive = playing && !muted;
 
   return (
     <div className="relative z-10 mt-3 space-y-2.5">
-      {/* Row 1: Animated Teachers (Coach Layla & Coach Omar) conversing directly to the learner */}
+      {/* Visual-First Audio Studio: Animated Teachers + Live Soundwave + Concept Keyword Cues (zero spoken transcript) */}
       <div className="rounded-2xl border border-white/20 bg-black/50 p-3 backdrop-blur-md">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <button
@@ -544,7 +546,7 @@ export function AnimatedClassroomCast({
             <AnimatedTeacherFigure
               speaker="layla"
               active={isLaylaSpeaking}
-              speaking={isLaylaSpeaking && playing && !muted}
+              speaking={isLaylaSpeaking && isAudioActive}
               celebrating={celebrating}
               mood={laylaLine?.mood ?? "excited"}
               badgeEmoji={laylaLine?.emoji ?? "💡"}
@@ -552,9 +554,9 @@ export function AnimatedClassroomCast({
             <span className="mt-1 text-[11px] font-extrabold text-cyan-200">{laylaName}</span>
           </button>
 
-          {/* Animated Speech Bubble */}
-          <div className="relative flex-1 rounded-2xl border border-cyan-400/40 bg-slate-900/90 px-4 py-3 shadow-inner">
-            <div className="flex items-center justify-between gap-2">
+          {/* Visual Listening & Concept Focus Panel (no verbatim narration transcript) */}
+          <div className="relative flex-1 rounded-2xl border border-cyan-400/35 bg-slate-900/85 px-4 py-3 shadow-inner">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <span
                 className={`inline-flex items-center gap-1.5 text-xs font-extrabold ${
                   isLaylaSpeaking ? "text-cyan-300" : "text-emerald-300"
@@ -563,11 +565,14 @@ export function AnimatedClassroomCast({
                 <span aria-hidden="true">{currentLine.emoji}</span>
                 {isLaylaSpeaking ? laylaName : omarName}
                 {playing && (
-                  <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] text-amber-200">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] text-amber-200">
+                    <span className="size-1.5 animate-ping rounded-full bg-amber-300" />
                     {speakingLabel}
                   </span>
                 )}
               </span>
+
+              {/* Audio Segment Selector Dots */}
               <div className="flex items-center gap-1.5" dir="ltr">
                 {dialogue.map((line, idx) => (
                   <button
@@ -584,18 +589,44 @@ export function AnimatedClassroomCast({
                 ))}
               </div>
             </div>
-            <p
-              className="mt-1.5 text-sm font-medium leading-relaxed text-white"
-              lang="en"
-              dir="ltr"
-            >
-              “{currentLine.textEn}”
-            </p>
-            {locale === "ar" && (
-              <p className="mt-1 text-xs leading-relaxed text-sky-200" lang="ar" dir="rtl">
-                «{currentLine.textAr}»
-              </p>
-            )}
+
+            {/* Live Equalizer Waveform + Visual Keyword Highlights */}
+            <div className="mt-2.5 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-end gap-1" aria-hidden="true">
+                {[12, 22, 16, 26, 18, 24, 14, 20].map((barH, idx) => (
+                  <span
+                    key={idx}
+                    style={{
+                      height: isAudioActive ? `${barH}px` : "6px",
+                      animationDelay: `${idx * 90}ms`,
+                    }}
+                    className={`w-1.5 rounded-full transition-all duration-300 ${
+                      isAudioActive
+                        ? isLaylaSpeaking
+                          ? "animate-pulse bg-cyan-400"
+                          : "animate-pulse bg-emerald-400"
+                        : "bg-slate-600"
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {focusKeywords.length > 0 ? (
+                <div className="flex flex-1 flex-wrap items-center gap-1.5" lang="en" dir="ltr">
+                  {focusKeywords.slice(0, 5).map((kw) => (
+                    <span
+                      key={kw}
+                      className="inline-flex items-center gap-1 rounded-full border border-cyan-300/40 bg-cyan-400/15 px-2.5 py-0.5 text-xs font-extrabold text-cyan-100"
+                    >
+                      <Sparkles className="size-3 text-amber-300" aria-hidden="true" />
+                      {kw}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="flex-1 text-xs font-semibold text-slate-300">{visualCueLabel}</p>
+              )}
+            </div>
           </div>
 
           <button
@@ -606,7 +637,7 @@ export function AnimatedClassroomCast({
             <AnimatedTeacherFigure
               speaker="omar"
               active={!isLaylaSpeaking}
-              speaking={!isLaylaSpeaking && playing && !muted}
+              speaking={!isLaylaSpeaking && isAudioActive}
               celebrating={celebrating}
               mood={omarLine?.mood ?? "encouraging"}
               badgeEmoji={omarLine?.emoji ?? "🚀"}
@@ -616,20 +647,21 @@ export function AnimatedClassroomCast({
         </div>
       </div>
 
-      {/* Row 2: Animated Learner Character (Sara or Tariq) reacting & engaging right in the classroom */}
-      <div className="flex items-center gap-3 rounded-2xl border border-amber-400/35 bg-gradient-to-r from-amber-500/15 via-pink-500/10 to-violet-500/15 px-3.5 py-2.5 backdrop-blur-sm">
-        <AnimatedLearnerFigure
-          student={learnerReaction.student}
-          celebrating={celebrating}
-          emoji={learnerReaction.emoji}
-          name={learnerName}
-        />
-        <div className="flex-1 rounded-xl border border-white/15 bg-black/40 px-3.5 py-2">
-          <p className="text-xs font-semibold leading-relaxed text-amber-50 md:text-sm">
-            <span className="me-1.5 font-extrabold text-amber-300">{learnerName}:</span>
-            {learnerReaction.bubble[locale]}
-          </p>
+      {/* Compact Visual Learner Companion Cue (expressive avatar & emoji cue — no text clutter) */}
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-amber-400/30 bg-gradient-to-r from-amber-500/15 via-pink-500/10 to-violet-500/15 px-3.5 py-2 backdrop-blur-sm">
+        <div className="flex items-center gap-2.5">
+          <AnimatedLearnerFigure
+            student={learnerReaction.student}
+            celebrating={celebrating}
+            emoji={learnerReaction.emoji}
+            name={learnerName}
+          />
+          <span className="text-xs font-extrabold text-amber-200">{learnerName}</span>
         </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-3 py-1 text-xs font-bold text-cyan-100">
+          <span aria-hidden="true">{learnerReaction.emoji}</span>
+          <span>{visualCueLabel}</span>
+        </span>
       </div>
     </div>
   );
